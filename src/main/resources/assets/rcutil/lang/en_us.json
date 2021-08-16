@@ -1,0 +1,22 @@
+{
+    "rcutil.commands.rcu.success.item": "Wand item %s is given",
+    "rcutil.commands.rcu.success.stop": "Stopped running command",
+    "rcutil.commands.rcu.failed.item": "Your inventory is full",
+    "rcutil.commands.rcu.failed.stop": "No command is running",
+    "rcutil.commands.rcu.fileram.success": "Read-only RAMs (%d in total): \n%s\nWrite-only RAMs (%d in total): \n%s",
+    "rcutil.commands.rcu.fileram.none": "(none)",
+    "rcutil.commands.rcu.fileram.failed": "No RAM is available",
+    "rcutil.commands.rcu.fileram.new.ro.start": "Started setting read-only RAM %s",
+    "rcutil.commands.rcu.fileram.new.wo.start": "Started setting write-only RAM %s",
+    "rcutil.commands.rcu.fileram.new.step1": "Target the least significant bit of the address bus and use the wand item %s",
+    "rcutil.commands.rcu.fileram.new.step2": "Target the 2nd least significant bit of the address bus and use the wand item %s",
+    "rcutil.commands.rcu.fileram.new.step3": "Target the most significant bit of the address bus and use the wand item %s",
+    "rcutil.commands.rcu.fileram.new.step4": "Target the least significant bit of the data bus and use the wand item %s",
+    "rcutil.commands.rcu.fileram.new.step5": "Target the 2nd least significant bit of the data bus and use the wand item %s",
+    "rcutil.commands.rcu.fileram.new.step6": "Target the most significant bit of the data bus and use the wand item %s",
+    "rcutil.commands.rcu.fileram.new.ro.success": "Read-only RAM %s set successfully",
+    "rcutil.commands.rcu.fileram.new.wo.success": "Read-only RAM %s set successfully",
+    "rcutil.commands.rcu.fileram.new.failed.name": "RAM %s already exists",
+    "rcutil.commands.rcu.fileram.new.failed.running": "Another command is running, use /rcu to stop it",
+    "rcutil.commands.rcu.fileram.new.failed": "RAM cannot be recognized"
+}
