@@ -6,8 +6,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
-import org.lwjgl.system.CallbackI.V;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
@@ -37,8 +35,15 @@ public class Command {
             .executes(Command::executeRcu)
             .then(
                 literal("fileram")
-                // list rams
-                .executes(Command::executeRcuRam)
+                .executes(Command::executeRcuFileRamInfo)
+                .then(
+                    literal("info")
+                    .executes(Command::executeRcuFileRamInfo)
+                    .then(
+                        argument("name", StringArgumentType.string())
+                        .executes(Command::executeRcuFileRamInfoSingle)
+                    )
+                )
                 .then(
                     literal("new")
                     .then(
@@ -151,7 +156,7 @@ public class Command {
         }
     }
 
-    private static int executeRcuRam(CommandContext<ServerCommandSource> c) {
+    private static int executeRcuFileRamInfo(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         int roCount = RCUtil.roRams.size();
         int woCount = RCUtil.woRams.size();
@@ -204,15 +209,17 @@ public class Command {
             return roCount + woCount;
         }
     }
+    
+    private static int executeRcuFileRamInfoSingle(CommandContext<ServerCommandSource> c) {
+        ServerCommandSource s = c.getSource();
+        return 0;
+    }
 
     private static int executeRcuFileRamNew(CommandContext<ServerCommandSource> c, EdgeTriggering clockEdgeTriggering, Class<?> ramBusBuilder) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
-        if (RCUtil.roRams.keySet().contains(name)) {
-            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.name.ro", name));
-            return 0;
-        } else if (RCUtil.woRams.keySet().contains(name)) {
-            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.name.wo", name));
+        if (RCUtil.roRams.keySet().contains(name) || RCUtil.woRams.keySet().contains(name)) {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.name", name));
             return 0;
         } else if (RCUtil.status != Status.Idle) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.failed.running"));
@@ -246,11 +253,11 @@ public class Command {
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.roRams.keySet().contains(name)) {
             RCUtil.roRams.remove(name);
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.ro.success", name), true);
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success", name), true);
             return 1;
         } else if (RCUtil.woRams.keySet().contains(name)) {
             RCUtil.roRams.remove(name);
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.wo.success", name), true);
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success", name), true);
             return 1;
         }
         s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.remove.failed", name)); 
