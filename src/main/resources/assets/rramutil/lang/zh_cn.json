@@ -1,0 +1,19 @@
+{
+    "rcutil.commands.rcu.success.item": "已给予特殊物品%s",
+    "rcutil.commands.rcu.success.stop": "已停止运行命令",
+    "rcutil.commands.rcu.failed.item": "物品栏已满",
+    "rcutil.commands.rcu.failed.stop": "没有正在运行的命令",
+    "rcutil.commands.rcu.ram.success": "正在运行的 RAM（共 %d 个）：%s",
+    "rcutil.commands.rcu.ram.failed": "没有正在运行的 RAM",
+    "rcutil.commands.rcu.ram.new.step1": "指向地址总线最低位并使用%s",
+    "rcutil.commands.rcu.ram.new.step2": "指向地址总线第二低位并使用%s",
+    "rcutil.commands.rcu.ram.new.step3": "指向地址总线最高位并使用%s",
+    "rcutil.commands.rcu.ram.new.step4": "指向数据总线最低位并使用%s",
+    "rcutil.commands.rcu.ram.new.step5": "指向数据总线第二低位并使用%s",
+    "rcutil.commands.rcu.ram.new.step6": "指向数据总线最高位并使用%s",
+    "rcutil.commands.rcu.ram.new.ro.success": "只读 RAM %s 设置成功",
+    "rcutil.commands.rcu.ram.new.wo.success": "只写 RAM %s 设置成功",
+    "rcutil.commands.rcu.ram.new.failed.name": "RAM %s 已经存在",
+    "rcutil.commands.rcu.ram.new.failed.running": "正在运行其他命令",
+    "rcutil.commands.rcu.ram.new.failed": "无法识别 RAM"
+}
