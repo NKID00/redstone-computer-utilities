@@ -121,11 +121,11 @@ public class FileRamBuilder {
         Vec3i data = MathUtil.getOffset(dataLsb, dataMsb);
         float size = 1F;
         if (data.getX() != fileRam.dataGap.getX()) {
-            size = ((float)data.getX()) / fileRam.dataGap.getX();
+            size = ((float)data.getX()) / fileRam.dataGap.getX() + 1;
         } else if (data.getY() != fileRam.dataGap.getY()) {
-            size = ((float)data.getY()) / fileRam.dataGap.getY();
+            size = ((float)data.getY()) / fileRam.dataGap.getY() + 1;
         } else if (data.getZ() != fileRam.dataGap.getZ()) {
-            size = ((float)data.getZ()) / fileRam.dataGap.getZ();
+            size = ((float)data.getZ()) / fileRam.dataGap.getZ() + 1;
         }
         fileRam.dataSize = MathUtil.float2Int(size);
 

@@ -28,7 +28,7 @@
     "rcutil.commands.rcu.fileram.new.step.clock": "Target the clock of the bus and use the wand item %s",
     "rcutil.commands.rcu.fileram.new.success": "File RAM %s set successfully, use \"/rcu fileram run %1$s\" to run it",
     "rcutil.commands.rcu.fileram.new.failed.type": "Unknown file RAM type %s",
-    "rcutil.commands.rcu.fileram.new.failed.edge": "Unknown file RAM triggering edge %s",
+    "rcutil.commands.rcu.fileram.new.failed.edge": "Unknown clock triggering edge %s",
     "rcutil.commands.rcu.fileram.new.failed.block.target": "Failed to recognize the bus: target is not redstone wire",
     "rcutil.commands.rcu.fileram.new.failed.block.bit": "Failed to recognize the bus: bit targeting non-redstone-wire block exists in the bus",
     "rcutil.commands.rcu.fileram.new.failed.block.align": "Failed to recognize the bus: the least significant bit, the 2nd least significant bit and the most significant bit are not on the same line",

@@ -18,8 +18,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
 import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
 import name.nkid00.rcutil.enumeration.FileRamType;
@@ -175,7 +173,7 @@ public class Command {
         } else {
             MutableText text = new LiteralText("");
             Iterator<String> iter = RCUtil.fileRams.keySet().iterator();
-            for (int i = 0; ; i++) {
+            for (int i = 1; ; i++) {
                 String k = iter.next();
                 text.append(RCUtil.fileRams.get(k).fancyName);
                 if (i >= count) {

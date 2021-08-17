@@ -2,6 +2,7 @@ package name.nkid00.rcutil;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
@@ -62,6 +63,9 @@ public class Wand {
                                 case WarningNotAligned:
                                     s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.warning.align"));
                                 case Success:
+                                    RCUtil.fileRamBuilder.fileRam.forEachEnumerateAddress((i, blockPos) -> {
+                                        world.spawnParticles(ParticleTypes.WITCH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
+                                    });
                                     RCUtil.status = Status.FileRamNewStepDataLsb;
                                     s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.datalsb", RCUtil.wandItemHoverableText), false);
                                     return ActionResult.SUCCESS;
@@ -92,6 +96,9 @@ public class Wand {
                                 case WarningNotAligned:
                                     s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.warning.align"));
                                 case Success:
+                                    RCUtil.fileRamBuilder.fileRam.forEachEnumerateData((i, blockPos) -> {
+                                        world.spawnParticles(ParticleTypes.WITCH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
+                                    });
                                     RCUtil.status = Status.FileRamNewStepClock;
                                     s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.clock", RCUtil.wandItemHoverableText), false);
                                     return ActionResult.SUCCESS;
@@ -112,6 +119,7 @@ public class Wand {
                             ram = RCUtil.fileRamBuilder.build(world);
                         } catch (BlockNotRedstoneWireException e) { }  // never happens
                         RCUtil.fileRams.put(ram.name, ram);
+                        world.spawnParticles(ParticleTypes.WITCH, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 10, 0, 0, 0, 0);
                         RCUtil.status = Status.Idle;
                         s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.success", ram.fancyName, ram.name), true);
                         return ActionResult.SUCCESS;

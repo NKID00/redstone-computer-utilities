@@ -16,6 +16,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import name.nkid00.rcutil.MathUtil;
@@ -81,7 +82,7 @@ public class FileRam {
     public long readAddr(ServerWorld world) throws BlockNotRedstoneWireException {
         BitSet addr = new BitSet(addrSize);
         BlockPos blockPos = addrBase;
-        for (int i = 0; ; i++) {
+        for (int i = 1; ; i++) {
             if (getDigitalRedstonePower(world, blockPos)) {
                 addr.set(i);
             }
@@ -96,7 +97,7 @@ public class FileRam {
     public BitSet readData(ServerWorld world) throws BlockNotRedstoneWireException {
         BitSet data = new BitSet(dataSize);
         BlockPos blockPos = dataBase;
-        for (int i = 0; ; i++) {
+        for (int i = 1; ; i++) {
             if (getDigitalRedstonePower(world, blockPos)) {
                 data.set(i);
             }
@@ -110,7 +111,7 @@ public class FileRam {
 
     public void writeData(ServerWorld world, BitSet data) throws BlockNotRedstoneWireException {
         BlockPos blockPos = dataBase;
-        for (int i = 0; ; i++) {
+        for (int i = 1; ; i++) {
             setDigitalRedstonePower(world, blockPos, data.get(i));
             if (i >= dataSize) {
                 break;
@@ -187,7 +188,7 @@ public class FileRam {
         if (running != v) {
             running = v;
             if (v) {
-                fancyName.setStyle(Style.EMPTY.withBold(true).withUnderline(true));
+                fancyName.setStyle(Style.EMPTY.withFormatting(Formatting.BOLD, Formatting.UNDERLINE));
             } else {
                 fancyName.setStyle(Style.EMPTY);
             }
@@ -200,7 +201,7 @@ public class FileRam {
 
     public void forEachEnumerateAddress(BiConsumer<? super Integer, ? super BlockPos> consumer) {
         BlockPos blockPos = addrBase;
-        for (int i = 0; ; i++) {
+        for (int i = 1; ; i++) {
             consumer.accept(i, blockPos);
             if (i >= addrSize) {
                 break;
@@ -215,7 +216,7 @@ public class FileRam {
 
     public void forEachEnumerateData(BiConsumer<? super Integer, ? super BlockPos> consumer) {
         BlockPos blockPos = dataBase;
-        for (int i = 0; ; i++) {
+        for (int i = 1; ; i++) {
             consumer.accept(i, blockPos);
             if (i >= dataSize) {
                 break;
