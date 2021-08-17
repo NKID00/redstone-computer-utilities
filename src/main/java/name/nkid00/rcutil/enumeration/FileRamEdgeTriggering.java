@@ -2,10 +2,10 @@ package name.nkid00.rcutil.enumeration;
 
 import net.minecraft.text.TranslatableText;
 
-public enum RamBusEdgeTriggering {
+public enum FileRamEdgeTriggering {
     Positive, Negative, Dual;
 
-    public static RamBusEdgeTriggering fromString(String s) {
+    public static FileRamEdgeTriggering fromString(String s) {
         if (s.equals("pos")) {
             return Positive;
         } else if (s.equals("neg")) {

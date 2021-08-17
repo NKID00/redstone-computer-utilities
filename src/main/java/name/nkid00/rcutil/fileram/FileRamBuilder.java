@@ -1,0 +1,138 @@
+package name.nkid00.rcutil.fileram;
+
+import java.io.File;
+import java.io.IOException;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
+
+import name.nkid00.rcutil.MathUtil;
+import name.nkid00.rcutil.RCUtil;
+import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
+import name.nkid00.rcutil.enumeration.FileRamType;
+
+public class FileRamBuilder {
+    public String name = null;
+    public MutableText fancyName = null;
+
+    public FileRamType type = null;
+
+    public BlockPos addrLsb = null;
+    public BlockPos addr2Lsb = null;
+    public BlockPos addrMsb = null;
+
+    public BlockPos dataLsb = null;
+    public BlockPos data2Lsb = null;
+    public BlockPos dataMsb = null;
+
+    public BlockPos clock = null;
+
+    public FileRamEdgeTriggering clockEdgeTriggering = null;
+
+    public String filename = null;
+    public File file = null;
+
+    public FileRam fileRam = null;
+
+    public enum BuildStatus {
+        Success,
+        FailedNotAligned,
+        FailedWrongBlock,
+        WarningNotAligned
+    }
+
+    public void buildFancyName() {
+        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText();
+        fancyName = new TranslatableText("rcutil.fileram.fancyname.builder", name, typeText, edgeText, filename);
+    }
+
+    public BuildStatus buildAddress(ServerWorld world) {
+        if (!MathUtil.onSameLine(addrLsb, addr2Lsb, addrMsb)) {
+            return BuildStatus.FailedNotAligned;
+        }
+
+        fileRam = new FileRam();
+        fileRam.type = type;
+
+        fileRam.addressBase = addrLsb;
+        fileRam.addressGap = MathUtil.getOffset(addrLsb, addr2Lsb);  // including one end
+        Vec3i addr = MathUtil.getOffset(addrLsb, addrMsb);
+        float size = 1F;
+        if (addr.getX() != fileRam.addressGap.getX()) {
+            size = ((float)addr.getX()) / fileRam.addressGap.getX();
+        } else if (addr.getY() != fileRam.addressGap.getY()) {
+            size = ((float)addr.getY()) / fileRam.addressGap.getY();
+        } else if (addr.getZ() != fileRam.addressGap.getZ()) {
+            size = ((float)addr.getZ()) / fileRam.addressGap.getZ();
+        }
+        fileRam.addressSize = (int)size;
+
+        // test if there is non-redstone-wire block in the bus
+        for (int i = 2; i < size; i++) {
+            if (!world.getBlockState(MathUtil.applyOffset(fileRam.addressBase, MathUtil.scale(fileRam.addressGap, i))).isOf(Blocks.REDSTONE_WIRE)) {
+                return BuildStatus.FailedWrongBlock;
+            }
+        }
+
+        if (!MathUtil.isFloatIntegral(size)) {
+            return BuildStatus.WarningNotAligned;
+        }
+
+        return BuildStatus.Success;
+    }
+
+    public BuildStatus buildData(ServerWorld world) {
+        if (!MathUtil.onSameLine(dataLsb, data2Lsb, dataMsb)) {
+            return BuildStatus.FailedNotAligned;
+        }
+
+        fileRam.dataBase = dataLsb;
+        fileRam.dataGap = MathUtil.getOffset(dataLsb, data2Lsb);  // including one end
+        Vec3i data = MathUtil.getOffset(dataLsb, dataMsb);
+        float size = 1F;
+        if (data.getX() != fileRam.dataGap.getX()) {
+            size = ((float)data.getX()) / fileRam.dataGap.getX();
+        } else if (data.getY() != fileRam.dataGap.getY()) {
+            size = ((float)data.getY()) / fileRam.dataGap.getY();
+        } else if (data.getZ() != fileRam.dataGap.getZ()) {
+            size = ((float)data.getZ()) / fileRam.dataGap.getZ();
+        }
+        fileRam.dataSize = (int)size;
+
+        if (type.equals(FileRamType.WriteOnly)) {
+            // test if there is non-redstone-wire block in the bus
+            for (int i = 2; i < size; i++) {
+                if (!world.getBlockState(MathUtil.applyOffset(fileRam.dataBase, MathUtil.scale(fileRam.dataGap, i))).isOf(Blocks.REDSTONE_WIRE)) {
+                    return BuildStatus.FailedWrongBlock;
+                }
+            }
+        }
+
+        if (!MathUtil.isFloatIntegral(size)) {
+            return BuildStatus.WarningNotAligned;
+        }
+
+        return BuildStatus.Success;
+    }
+
+    public FileRam build() {
+        fileRam.name = name;
+        fileRam.clock = clock;
+        fileRam.clockEdgeTriggering = clockEdgeTriggering;
+        fileRam.filename = filename;
+        fileRam.file = file;
+        fileRam.running = false;
+        fileRam.buildFancyName();
+        return fileRam;
+    }
+
+    public boolean setFile(String filename) throws IOException {
+        this.filename = filename;
+        file = new File(RCUtil.baseDirectory, filename);
+        return file.exists();
+    }
+}

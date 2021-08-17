@@ -2,10 +2,10 @@ package name.nkid00.rcutil.enumeration;
 
 import net.minecraft.text.TranslatableText;
 
-public enum RamBusType {
+public enum FileRamType {
     ReadOnly, WriteOnly;
 
-    public static RamBusType fromString(String s) {
+    public static FileRamType fromString(String s) {
         if (s.equals("ro")) {
             return ReadOnly;
         } else if (s.equals("wo")) {

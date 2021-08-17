@@ -8,34 +8,34 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 
 import name.nkid00.rcutil.enumeration.Status;
-import name.nkid00.rcutil.rambus.RamBusBuilder;
-import name.nkid00.rcutil.rambus.RamBus;
+import name.nkid00.rcutil.fileram.FileRam;
+import name.nkid00.rcutil.fileram.FileRamBuilder;
 
-public class RCUtil implements DedicatedServerModInitializer {
+public class RCUtil implements ModInitializer {
     public static final int requiredPermissionLevel = 2;
     public static final Item wandItem = Items.PINK_DYE;
     public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
     public static Status status = Status.Idle;
-    public static RamBusBuilder ramBusBuilder = null;
+    public static FileRamBuilder fileRamBuilder = null;
     public static File baseDirectory = null;
-    public static HashMap<String, RamBus> rams = new HashMap<>();
+    public static HashMap<String, FileRam> fileRams = new HashMap<>();
 
     @Override
-    public void onInitializeServer() {
+    public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             baseDirectory = new File(server.getRunDirectory(), "rcutil/fileram/");
         });
         // handle realtime input
         ServerTickEvents.START_WORLD_TICK.register(Tick::register);
         // handle wand
-        UseItemCallback.EVENT.register(Wand::register);
+        UseBlockCallback.EVENT.register(Wand::register);
         // handle commands
         CommandRegistrationCallback.EVENT.register(Command::register);
     }

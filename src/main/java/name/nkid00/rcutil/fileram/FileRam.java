@@ -1,4 +1,4 @@
-package name.nkid00.rcutil.rambus;
+package name.nkid00.rcutil.fileram;
 
 import java.io.File;
 
@@ -9,14 +9,14 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-import name.nkid00.rcutil.enumeration.RamBusEdgeTriggering;
-import name.nkid00.rcutil.enumeration.RamBusType;
+import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
+import name.nkid00.rcutil.enumeration.FileRamType;
 
-public class RamBus {
+public class FileRam {
     public String name = null;
     public MutableText fancyName = null;
 
-    public RamBusType type = null;
+    public FileRamType type = null;
 
     public BlockPos addressBase = null;
     public Vec3i addressGap = null;  // including one end
@@ -27,7 +27,7 @@ public class RamBus {
     public int dataSize = 0;
 
     public BlockPos clock = null;
-    public RamBusEdgeTriggering clockEdgeTriggering = null;
+    public FileRamEdgeTriggering clockEdgeTriggering = null;
 
     public String filename = null;
     public File file = null;

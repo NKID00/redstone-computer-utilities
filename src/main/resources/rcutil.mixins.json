@@ -1,9 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "name.nkid00.ramutil.mixin",
-  "compatibilityLevel": "JAVA_1_8",
+  "package": "name.nkid00.rcutil.mixin",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "LanguageMixin"
   ],
   "client": [
   ],

@@ -21,9 +21,13 @@
   "entrypoints": {
     "main": [
       "name.nkid00.rcutil.RCUtil"
+    ],
+    "server": [
+      "name.nkid00.rcutil.DedicatedServerUtil"
     ]
   },
   "mixins": [
+    "rcutil.mixins.json"
   ],
 
   "depends": {
