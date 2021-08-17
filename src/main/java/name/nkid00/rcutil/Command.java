@@ -93,6 +93,40 @@ public class Command {
                         .executes(Command::executeRcuFileRamRemove)
                     )
                 )
+                .then(
+                    literal("run")
+                    .then(
+                        argument("name", StringArgumentType.string())
+                        .suggests(new SuggestionProvider<ServerCommandSource>(){
+                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+                                RCUtil.rams.forEach((k, v) -> {
+                                    if (!v.running) {
+                                        builder.suggest(k);
+                                    }
+                                });
+                                return builder.buildFuture();
+                            }
+                        })
+                        .executes(Command::executeRcuFileRamRun)
+                    )
+                )
+                .then(
+                    literal("stop")
+                    .then(
+                        argument("name", StringArgumentType.string())
+                        .suggests(new SuggestionProvider<ServerCommandSource>(){
+                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+                                RCUtil.rams.forEach((k, v) -> {
+                                    if (v.running) {
+                                        builder.suggest(k);
+                                    }
+                                });
+                                return builder.buildFuture();
+                            }
+                        })
+                        .executes(Command::executeRcuFileRamStop)
+                    )
+                )
             )
         );
     }
@@ -131,12 +165,7 @@ public class Command {
             Iterator<String> iter = RCUtil.rams.keySet().iterator();
             for (int i = 0; ; i++) {
                 String k = iter.next();
-                RamBus v = RCUtil.rams.get(k);
-                MutableText t = v.fancyName.copy();
-                if (v.running) {
-                    t.formatted(Formatting.BOLD, Formatting.UNDERLINE);
-                }
-                text.append(t);
+                text.append(RCUtil.rams.get(k).fancyName);
                 if (i >= count) {
                     break;
                 }
@@ -151,10 +180,10 @@ public class Command {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.rams.keySet().contains(name)) {
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.info.single.success", RCUtil.rams.get(name).fancyName.copy()), false);
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.info.single.success", RCUtil.rams.get(name).fancyName), false);
             return 0;
         } else {
-            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.info.single.failed", name));
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.notfound", name));
             return 0;
         }
     }
@@ -175,7 +204,7 @@ public class Command {
 
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.rams.keySet().contains(name)) {
-            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.name", name));
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.exists", name));
             return 0;
         }
         
@@ -217,7 +246,43 @@ public class Command {
             s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success", name), true);
             return 1;
         }
-        s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.remove.failed", name)); 
-        return 1;
+        s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.notfound", name)); 
+        return 0;
+    }
+
+    private static int executeRcuFileRamRun(CommandContext<ServerCommandSource> c) {
+        ServerCommandSource s = c.getSource();
+        String name = StringArgumentType.getString(c, "name");
+        if (RCUtil.rams.keySet().contains(name)) {
+            RamBus ram = RCUtil.rams.get(name);
+            if (!ram.running) {
+                ram.running = true;
+                s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.run.success", ram.fancyName), true);
+                return 1;
+            } else {
+                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.run.failed", name));
+                return 0;
+            }
+        }
+        s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.notfound", name)); 
+        return 0;
+    }
+
+    private static int executeRcuFileRamStop(CommandContext<ServerCommandSource> c) {
+        ServerCommandSource s = c.getSource();
+        String name = StringArgumentType.getString(c, "name");
+        if (RCUtil.rams.keySet().contains(name)) {
+            RamBus ram = RCUtil.rams.get(name);
+            if (ram.running) {
+                ram.running = false;
+                s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.stop.success", ram.fancyName), true);
+                return 1;
+            } else {
+                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.stop.failed", name));
+                return 0;
+            }
+        }
+        s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.notfound", name)); 
+        return 0;
     }
 }
