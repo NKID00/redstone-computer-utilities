@@ -24,6 +24,8 @@
     "rcutil.commands.rcu.fileram.new.step6": "指向数据总线最高位并使用辅助物品%s",
     "rcutil.commands.rcu.fileram.new.step7": "指向总线时钟并使用辅助物品%s",
     "rcutil.commands.rcu.fileram.new.success": "成功设置文件RAM %s，使用/rcu fileram run %s来运行文件RAM",
+    "rcutil.commands.rcu.fileram.new.failed.type": "未知的文件RAM类型 %s",
+    "rcutil.commands.rcu.fileram.new.failed.edge": "未知的文件RAM触发方式 %s",
     "rcutil.commands.rcu.fileram.new.failed.name": "文件RAM %s已存在",
     "rcutil.commands.rcu.fileram.new.failed.block.target": "总线识别失败：指向的方块不是红石粉",
     "rcutil.commands.rcu.fileram.new.failed.block.bit": "总线识别失败：总线中存在对应非红石粉的位",

@@ -24,6 +24,8 @@
     "rcutil.commands.rcu.fileram.new.step6": "Target the most significant bit of the data bus and use the wand item %s",
     "rcutil.commands.rcu.fileram.new.step7": "Target the clock of the bus and use the wand item %s",
     "rcutil.commands.rcu.fileram.new.success": "File RAM %s set successfully, use \"/rcu fileram run %1$s\" to run it",
+    "rcutil.commands.rcu.fileram.new.failed.type": "Unknown file RAM type %s",
+    "rcutil.commands.rcu.fileram.new.failed.edge": "Unknown file RAM triggering edge %s",
     "rcutil.commands.rcu.fileram.new.failed.name": "File RAM %s already exists",
     "rcutil.commands.rcu.fileram.new.failed.block.target": "Failed to recognize the bus: target is not redstone dust",
     "rcutil.commands.rcu.fileram.new.failed.block.bit": "Failed to recognize the bus: bit targeting non-redstone-dust block exists in the bus",

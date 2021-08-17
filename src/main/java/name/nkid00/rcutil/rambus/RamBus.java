@@ -5,14 +5,18 @@ import java.io.File;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-import name.nkid00.rcutil.enumeration.EdgeTriggering;
+import name.nkid00.rcutil.enumeration.RamBusEdgeTriggering;
+import name.nkid00.rcutil.enumeration.RamBusType;
 
-public abstract class RamBus {
+public class RamBus {
     public String name = null;
     public MutableText fancyName = null;
+
+    public RamBusType type = null;
 
     public BlockPos addressBase = null;
     public Vec3i addressGap = null;  // including one end
@@ -23,15 +27,21 @@ public abstract class RamBus {
     public int dataSize = 0;
 
     public BlockPos clock = null;
-    public EdgeTriggering clockEdgeTriggering = null;
+    public RamBusEdgeTriggering clockEdgeTriggering = null;
 
     public String filename = null;
     public File file = null;
 
     public boolean running = false;
 
-    public abstract void buildFancyName();
-    public abstract void tick(ServerWorld world);
+    public void buildFancyName() {
+        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText();
+        fancyName = new TranslatableText("rcutil.fileram.fancyname", name, typeText, edgeText, filename, addressSize, dataSize);
+    }
+
+    public void tick(ServerWorld world) {
+        // TODO: Implement
+    }
 
     public void setRunning(boolean v) {
         if (running != v) {

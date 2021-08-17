@@ -2,10 +2,22 @@ package name.nkid00.rcutil.enumeration;
 
 import net.minecraft.text.TranslatableText;
 
-public enum EdgeTriggering {
+public enum RamBusEdgeTriggering {
     Positive, Negative, Dual;
 
-    public TranslatableText getText() {
+    public static RamBusEdgeTriggering fromString(String s) {
+        if (s.equals("pos")) {
+            return Positive;
+        } else if (s.equals("neg")) {
+            return Negative;
+        } else if (s.equals("dual")) {
+            return Dual;
+        } else {
+            return null;
+        }
+    }
+
+    public TranslatableText toText() {
         switch (this) {
             case Positive:
             default:
