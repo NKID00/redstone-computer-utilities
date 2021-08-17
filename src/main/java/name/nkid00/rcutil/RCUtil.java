@@ -19,7 +19,7 @@ import name.nkid00.rcutil.fileram.FileRam;
 import name.nkid00.rcutil.fileram.FileRamBuilder;
 
 public class RCUtil implements ModInitializer {
-    public static final int requiredPermissionLevel = 4;  // operation on files is dangerous
+    public static final int requiredPermissionLevel = 4;  // operations on files are dangerous
     public static final Item wandItem = Items.PINK_DYE;
     public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
     public static Status status = Status.Idle;

@@ -96,12 +96,9 @@ public class FileRamBuilder {
 
         // test if there is non-redstone-wire block in the bus
         BlockPos blockPos = fileRam.nAddressBlockPos(2);
-        for (int i = 0; ; i++) {
+        for (int i = 2; i < size; i++) {
             if (!world.getBlockState(blockPos).isOf(Blocks.REDSTONE_WIRE)) {
                 throw new BlockNotRedstoneWireException();
-            }
-            if (i >= size) {
-                break;
             }
             blockPos = MathUtil.applyOffset(blockPos, fileRam.addrGap);
         }
@@ -137,10 +134,12 @@ public class FileRamBuilder {
 
         if (type.equals(FileRamType.WriteOnly)) {
             // test if there is non-redstone-wire block in the bus
+            BlockPos blockPos = fileRam.nDataBlockPos(2);
             for (int i = 2; i < size; i++) {
-                if (!world.getBlockState(MathUtil.applyOffset(fileRam.dataBase, MathUtil.scale(fileRam.dataGap, i))).isOf(Blocks.REDSTONE_WIRE)) {
+                if (!world.getBlockState(blockPos).isOf(Blocks.REDSTONE_WIRE)) {
                     throw new BlockNotRedstoneWireException();
                 }
+                blockPos = MathUtil.applyOffset(blockPos, fileRam.dataGap);
             }
         }
 

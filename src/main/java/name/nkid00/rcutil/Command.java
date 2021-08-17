@@ -141,12 +141,12 @@ public class Command {
                     )
                 )
                 .then(
-                    literal("makefile")
+                    literal("newfile")
                     .then(
                         argument("file", StringArgumentType.string())
                         .then(
                             argument("length in bytes", LongArgumentType.longArg(0))
-                            .executes(Command::executeRcuFileRamMakeFile)
+                            .executes(Command::executeRcuFileRamNewFile)
                         )
                     )
                 )
@@ -322,7 +322,7 @@ public class Command {
         return 0;
     }
 
-    public static int executeRcuFileRamMakeFile(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamNewFile(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String filename = StringArgumentType.getString(c, "file");
         long length = LongArgumentType.getLong(c, "length in bytes");
@@ -342,7 +342,7 @@ public class Command {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.io"));
             return 0;
         }
-        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.makefile.success", filename), true);
+        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.newfile.success", filename), true);
         return 1;
     }
 

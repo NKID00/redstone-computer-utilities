@@ -41,7 +41,7 @@
     "rcutil.commands.rcu.fileram.run.failed": "文件内存%s已经在运行",
     "rcutil.commands.rcu.fileram.stop.success": "成功停止文件内存%s",
     "rcutil.commands.rcu.fileram.stop.failed": "文件内存%s未在运行",
-    "rcutil.commands.rcu.fileram.makefile.success": "成功创建文件%s",
+    "rcutil.commands.rcu.fileram.newfile.success": "成功创建文件%s",
     "rcutil.commands.rcu.fileram.removefile.success": "成功移除文件%s",
     "rcutil.commands.rcu.fileram.failed.exists": "文件内存%s已存在",
     "rcutil.commands.rcu.fileram.failed.notfound": "文件内存%s不存在",

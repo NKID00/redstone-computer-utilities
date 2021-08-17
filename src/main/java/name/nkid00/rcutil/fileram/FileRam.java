@@ -132,6 +132,7 @@ public class FileRam {
             }
             switch (type) {
                 case ReadOnly: {
+                        // TODO: use java.nio
                         long addrBit = readAddr(world) * dataSize;
                         long addrByte = addrBit >> 3;
                         int offsetBit = (int)(addrBit & 0b111);

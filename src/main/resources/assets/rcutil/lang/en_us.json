@@ -41,7 +41,7 @@
     "rcutil.commands.rcu.fileram.run.failed": "File RAM %s is already running",
     "rcutil.commands.rcu.fileram.stop.success": "Stopped file RAM %s successfully",
     "rcutil.commands.rcu.fileram.stop.failed": "File RAM %s is not running",
-    "rcutil.commands.rcu.fileram.makefile.success": "Created file %s successfully",
+    "rcutil.commands.rcu.fileram.newfile.success": "Created file %s successfully",
     "rcutil.commands.rcu.fileram.removefile.success": "Removed file %s successfully",
     "rcutil.commands.rcu.fileram.failed.exists": "File RAM %s already exists",
     "rcutil.commands.rcu.fileram.failed.notfound": "File RAM %s not found",
