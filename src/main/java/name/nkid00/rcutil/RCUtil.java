@@ -19,19 +19,22 @@ import name.nkid00.rcutil.fileram.FileRam;
 import name.nkid00.rcutil.fileram.FileRamBuilder;
 
 public class RCUtil implements ModInitializer {
-    public static final int requiredPermissionLevel = 2;
+    public static final int requiredPermissionLevel = 4;  // operation on files is dangerous
     public static final Item wandItem = Items.PINK_DYE;
     public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
     public static Status status = Status.Idle;
     public static FileRamBuilder fileRamBuilder = null;
     public static File baseDirectory = null;
+    public static File fileRamBaseDirectory = null;
     public static HashMap<String, FileRam> fileRams = new HashMap<>();
 
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
-            baseDirectory = new File(server.getRunDirectory(), "rcutil/fileram/");
+            baseDirectory = new File(server.getRunDirectory(), "rcutil/");
             baseDirectory.mkdirs();
+            fileRamBaseDirectory = new File(baseDirectory, "fileram/");
+            fileRamBaseDirectory.mkdirs();
         });
         // handle realtime input
         ServerTickEvents.START_WORLD_TICK.register(Tick::register);

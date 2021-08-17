@@ -1,10 +1,13 @@
 package name.nkid00.rcutil;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -104,7 +107,7 @@ public class Command {
                     )
                 )
                 .then(
-                    literal("run")
+                    literal("start")
                     .then(
                         argument("name", StringArgumentType.string())
                         .suggests(new SuggestionProvider<ServerCommandSource>(){
@@ -117,7 +120,7 @@ public class Command {
                                 return builder.buildFuture();
                             }
                         })
-                        .executes(Command::executeRcuFileRamRun)
+                        .executes(Command::executeRcuFileRamStart)
                     )
                 )
                 .then(
@@ -135,6 +138,23 @@ public class Command {
                             }
                         })
                         .executes(Command::executeRcuFileRamStop)
+                    )
+                )
+                .then(
+                    literal("makefile")
+                    .then(
+                        argument("file", StringArgumentType.string())
+                        .then(
+                            argument("length in bytes", LongArgumentType.longArg(0))
+                            .executes(Command::executeRcuFileRamMakeFile)
+                        )
+                    )
+                )
+                .then(
+                    literal("removefile")
+                    .then(
+                        argument("file", StringArgumentType.string())
+                        .executes(Command::executeRcuFileRamRemoveFile)
                     )
                 )
             )
@@ -233,7 +253,7 @@ public class Command {
         String file = StringArgumentType.getString(c, "file");
         try {
             if (!builder.setFile(file)) {
-                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.ro.failed.file", file));
+                s.sendError(new TranslatableText("rcutil.commands.rcu.failed.file.notfound", file));
                 return 0;
             }
         } catch (IOException e) {
@@ -242,6 +262,7 @@ public class Command {
         }
 
         builder.name = name;
+        builder.dimensionType = s.getWorld().getDimension();
         builder.clockEdgeTriggering = edge;
         builder.fileEndianness = endianness;
         builder.buildFancyName();
@@ -265,7 +286,7 @@ public class Command {
         return 0;
     }
 
-    public static int executeRcuFileRamRun(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamStart(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
@@ -299,5 +320,45 @@ public class Command {
         }
         s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.notfound", name)); 
         return 0;
+    }
+
+    public static int executeRcuFileRamMakeFile(CommandContext<ServerCommandSource> c) {
+        ServerCommandSource s = c.getSource();
+        String filename = StringArgumentType.getString(c, "file");
+        long length = LongArgumentType.getLong(c, "length in bytes");
+        File file = new File(RCUtil.fileRamBaseDirectory, filename);
+        if (file.exists()) {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.failed.file.exists"));
+            return 0;
+        }
+        try {
+            file.createNewFile();
+            FileOutputStream stream = new FileOutputStream(file);
+            for (int i = 0; i < length; i++) {
+                stream.write(0);
+            }
+            stream.close();
+        } catch (Exception e) {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.io"));
+            return 0;
+        }
+        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.makefile.success", filename), true);
+        return 1;
+    }
+
+    public static int executeRcuFileRamRemoveFile(CommandContext<ServerCommandSource> c) {
+        ServerCommandSource s = c.getSource();
+        String filename = StringArgumentType.getString(c, "file");
+        File file = new File(RCUtil.fileRamBaseDirectory, filename);
+        if (!file.exists()) {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.failed.file.notfound"));
+            return 0;
+        }
+        if (!file.delete()) {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.io"));
+            return 0;
+        }
+        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.removefile.success", filename), true);
+        return 1;
     }
 }

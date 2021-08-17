@@ -1,5 +1,7 @@
 package name.nkid00.rcutil;
 
+import java.util.BitSet;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
@@ -83,6 +85,15 @@ public class MathUtil {
             return vi - 1;
         } else {
             return vi;
+        }
+    }
+
+    public static long bitSet2Long(BitSet v) {
+        long[] longArray = v.toLongArray();
+        if (longArray.length > 0) {
+            return longArray[0];
+        } else {
+            return 0;
         }
     }
 }

@@ -45,6 +45,10 @@ public class Wand {
                 }
             case FileRamNewStepAddrMsb:
             case FileRamNewStepDataMsb:
+                if (world.getDimension() != RCUtil.fileRamBuilder.dimensionType) {
+                    s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.dimension"));
+                    break;
+                }
                 switch (RCUtil.status) {
                     case FileRamNewStepAddrLsb:
                         RCUtil.fileRamBuilder.addrLsb = pos;

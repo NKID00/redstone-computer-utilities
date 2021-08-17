@@ -7,10 +7,8 @@ import java.io.RandomAccessFile;
 import java.util.BitSet;
 import java.util.function.BiConsumer;
 
-import net.minecraft.block.AirBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.RedstoneBlock;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
@@ -19,6 +17,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.dimension.DimensionType;
 import name.nkid00.rcutil.MathUtil;
 import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
@@ -30,6 +29,8 @@ public class FileRam {
     public MutableText fancyName = null;
 
     public FileRamType type = null;
+
+    public DimensionType dimensionType = null;
 
     public BlockPos addrBase = null;
     public Vec3i addrGap = null;  // including one end
@@ -72,7 +73,7 @@ public class FileRam {
     }
 
     public static void setDigitalRedstonePower(ServerWorld world, BlockPos blockPos, boolean power) {
-        world.setBlockState(blockPos, power ? RedstoneBlock.getStateFromRawId(0) : AirBlock.getStateFromRawId(0));
+        world.setBlockState(blockPos, power ? Blocks.REDSTONE_BLOCK.getDefaultState() : Blocks.AIR.getDefaultState());
     }
 
     public boolean getClockState(ServerWorld world) throws BlockNotRedstoneWireException {
@@ -82,27 +83,21 @@ public class FileRam {
     public long readAddr(ServerWorld world) throws BlockNotRedstoneWireException {
         BitSet addr = new BitSet(addrSize);
         BlockPos blockPos = addrBase;
-        for (int i = 1; ; i++) {
+        for (int i = 0; i < addrSize; i++) {
             if (getDigitalRedstonePower(world, blockPos)) {
                 addr.set(i);
             }
-            if (i >= addrSize) {
-                break;
-            }
             blockPos = MathUtil.applyOffset(blockPos, addrGap);
         }
-        return addr.toLongArray()[0];
+        return MathUtil.bitSet2Long(addr);
     }
 
     public BitSet readData(ServerWorld world) throws BlockNotRedstoneWireException {
         BitSet data = new BitSet(dataSize);
         BlockPos blockPos = dataBase;
-        for (int i = 1; ; i++) {
+        for (int i = 0; i < dataSize; i++) {
             if (getDigitalRedstonePower(world, blockPos)) {
                 data.set(i);
-            }
-            if (i >= dataSize) {
-                break;
             }
             blockPos = MathUtil.applyOffset(blockPos, dataGap);
         }
@@ -111,11 +106,8 @@ public class FileRam {
 
     public void writeData(ServerWorld world, BitSet data) throws BlockNotRedstoneWireException {
         BlockPos blockPos = dataBase;
-        for (int i = 1; ; i++) {
+        for (int i = 0; i < dataSize; i++) {
             setDigitalRedstonePower(world, blockPos, data.get(i));
-            if (i >= dataSize) {
-                break;
-            }
             blockPos = MathUtil.applyOffset(blockPos, dataGap);
         }
     }
@@ -123,6 +115,7 @@ public class FileRam {
     public void tick(ServerWorld world) throws BlockNotRedstoneWireException, EOFException, IOException {
         boolean clockState = getClockState(world);
         if (lastClockState != clockState) {
+            lastClockState = clockState;
             switch (clockEdgeTriggering) {
                 case Positive:
                     if (!clockState) {

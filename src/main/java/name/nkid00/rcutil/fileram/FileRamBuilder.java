@@ -9,7 +9,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-
+import net.minecraft.world.dimension.DimensionType;
 import name.nkid00.rcutil.MathUtil;
 import name.nkid00.rcutil.RCUtil;
 import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
@@ -23,6 +23,8 @@ public class FileRamBuilder {
     public MutableText fancyName = null;
 
     public FileRamType type = null;
+
+    public DimensionType dimensionType = null;
 
     public BlockPos addrLsb = null;
     public BlockPos addr2Lsb = null;
@@ -50,7 +52,7 @@ public class FileRamBuilder {
 
     public boolean setFile(String filename) throws IOException {
         this.filename = filename;
-        file = new File(RCUtil.baseDirectory, filename);
+        file = new File(RCUtil.fileRamBaseDirectory, filename);
         if (!file.exists()) {
             if (type == FileRamType.WriteOnly) {
                 file.createNewFile();
@@ -151,6 +153,7 @@ public class FileRamBuilder {
 
     public FileRam build(ServerWorld world) throws BlockNotRedstoneWireException {
         fileRam.name = name;
+        fileRam.dimensionType = dimensionType;
         fileRam.clock = clock;
         fileRam.clockEdgeTriggering = clockEdgeTriggering;
         fileRam.buildClock(world);
