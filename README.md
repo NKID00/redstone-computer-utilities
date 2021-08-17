@@ -51,7 +51,7 @@ All the commands listed here requires permission level 4 or higher (because oper
 
 *Files of file RAMs are stored in the directory `rcutil/fileram/` (or `.minecraft/rcutil/fileram/` when playing single player mode).
 
-Note: File RAMs configurations only stores in memory and will be removed after server restart (or client restart when playing single player mode).
+Note: File RAMs configurations only stores in memory and file RAMs will be removed after a server restart (or a client restart when playing single player mode).
 
 ## Copyright
 
