@@ -1,5 +1,9 @@
 {
     "rcutil.wand.use.failed": "没有正在运行的命令",
+    "rcutil.fileram.fancyname": "%s[%s,%s,%d数据位,%d地址位]",
+    "rcutil.fileram.fancyname.builder": "%s[%s,%s]",
+    "rcutil.fileram.fancyname.ro": "只读",
+    "rcutil.fileram.fancyname.wo": "只写",
     "rcutil.commands.rcu.success.item": "已给予辅助物品%s",
     "rcutil.commands.rcu.success.stop": "成功停止运行命令",
     "rcutil.commands.rcu.failed.item": "物品栏已满",

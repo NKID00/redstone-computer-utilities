@@ -1,5 +1,9 @@
 {
     "rcutil.wand.use.failed": "No running commands",
+    "rcutil.fileram.fancyname": "%s[%s,%s,%db data,%db addr]",
+    "rcutil.fileram.fancyname.builder": "%s[%s,%s]",
+    "rcutil.fileram.fancyname.ro": "read-only",
+    "rcutil.fileram.fancyname.wo": "write-only",
     "rcutil.commands.rcu.success.item": "Wand item %s is given",
     "rcutil.commands.rcu.success.stop": "Stopped running command successfully",
     "rcutil.commands.rcu.failed.item": "Inventory is full",

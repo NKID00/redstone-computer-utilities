@@ -2,6 +2,7 @@ package name.nkid00.rcutil.rambus;
 
 import java.io.File;
 
+import net.minecraft.text.MutableText;
 import net.minecraft.util.math.BlockPos;
 
 import name.nkid00.rcutil.RCUtil;
@@ -9,6 +10,7 @@ import name.nkid00.rcutil.enumeration.EdgeTriggering;
 
 public abstract class RamBusBuilder {
     public String name;
+    public MutableText fancyName;
     public BlockPos addressLeastSignificantBit;
     public BlockPos address2ndLeastSignificantBit;
     public BlockPos addressMostSignificantBit;

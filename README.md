@@ -1,6 +1,6 @@
 # Redstone Computer Utilities
 
-Simple debug tool for redstone computers. **\[WIP\]**
+Simple debug tools for redstone computers. **\[WIP\]**
 
 ## License
 

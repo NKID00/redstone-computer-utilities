@@ -26,13 +26,11 @@ public class RCUtil implements ModInitializer {
     public static Status status = Status.Idle;
     public static RamBusBuilder ramBusBuilder = null;
     public static File baseDirectory = null;
-    public static HashMap<String, RoRamBus> roRams = new HashMap<>();
-    public static HashMap<String, WoRamBus> woRams = new HashMap<>();
-
+    public static HashMap<String, RoRamBus> rams = new HashMap<>();
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
-            baseDirectory = server.getRunDirectory();
+            baseDirectory = new File(server.getRunDirectory(), "rcutil/fileram/");
         });
         // handle realtime input
         ServerTickEvents.START_WORLD_TICK.register(Tick::register);
