@@ -1,5 +1,6 @@
 package name.nkid00.rcutil;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -12,7 +13,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Texts;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import name.nkid00.rcutil.suggestion.RamSuggestionProvider;
@@ -158,67 +158,47 @@ public class Command {
 
     private static int executeRcuFileRamInfo(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
-        int roCount = RCUtil.roRams.size();
-        int woCount = RCUtil.woRams.size();
-        if (roCount == 0 && woCount == 0) {
+        int count = RCUtil.rams.size();
+        if (count == 0) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed"));
             return 0;
         } else {
-            MutableText text;
-            if (roCount == 0) {
-                text = new TranslatableText("rcutil.commands.rcu.fileram.none");
-            } else {
-                text = new LiteralText("");
-                Iterator<String> iter = RCUtil.roRams.keySet().iterator();
-                for (int i = 0; ; i++) {
-                    String k = iter.next();
-                    RamBus v = RCUtil.roRams.get(k);
-                    MutableText t = new LiteralText(k);
-                    if (v.running) {
-                        t.formatted(Formatting.BOLD, Formatting.UNDERLINE);
-                    }
-                    text.append(t);
-                    if (i >= roCount) {
-                        break;
-                    }
-                    text.append(", ");
+            MutableText text = new LiteralText("");
+            Iterator<String> iter = RCUtil.rams.keySet().iterator();
+            for (int i = 0; ; i++) {
+                String k = iter.next();
+                RamBus v = RCUtil.rams.get(k);
+                MutableText t = v.fancyName.copy();
+                if (v.running) {
+                    t.formatted(Formatting.BOLD, Formatting.UNDERLINE);
                 }
-            }
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.success.ro", roCount, text), false);
-            if (woCount == 0) {
-                text = new TranslatableText("rcutil.commands.rcu.fileram.none");
-            } else {
-                text = new LiteralText("");
-                Iterator<String> iter = RCUtil.roRams.keySet().iterator();
-                for (int i = 0; ; i++) {
-                    String k = iter.next();
-                    RamBus v = RCUtil.woRams.get(k);
-                    MutableText t = new LiteralText(k);
-                    if (v.running) {
-                        t.formatted(Formatting.BOLD, Formatting.UNDERLINE);
-                    }
-                    text.append(t);
-                    text.append(Texts.bracketed(new LiteralText(v.filename)));
-                    if (i >= roCount) {
-                        break;
-                    }
-                    text.append(", ");
+                text.append(t);
+                if (i >= count) {
+                    break;
                 }
+                text.append(", ");
             }
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.success.wo", woCount, text), false);
-            return roCount + woCount;
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.success", count, text), false);
+            return count;
         }
     }
     
     private static int executeRcuFileRamInfoSingle(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
-        return 0;
+        String name = StringArgumentType.getString(c, "name");
+        if (RCUtil.rams.keySet().contains(name)) {
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.info.single.success", RCUtil.rams.get(name).fancyName.copy()), false);
+            return 0;
+        } else {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.info.single.failed", name));
+            return 0;
+        }
     }
 
     private static int executeRcuFileRamNew(CommandContext<ServerCommandSource> c, EdgeTriggering clockEdgeTriggering, Class<?> ramBusBuilder) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
-        if (RCUtil.roRams.keySet().contains(name) || RCUtil.woRams.keySet().contains(name)) {
+        if (RCUtil.rams.keySet().contains(name)) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.name", name));
             return 0;
         } else if (RCUtil.status != Status.Idle) {
@@ -231,32 +211,30 @@ public class Command {
         } catch (IllegalAccessException | InstantiationException e) {  // make compiler happy
             return 0;
         }
-        builder.name = name;
         String file = StringArgumentType.getString(c, "file");
-        if (!builder.setFile(file)) {
-            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.ro.failed.file", file));
+        try {
+            if (!builder.setFile(file)) {
+                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.ro.failed.file", file));
+                return 0;
+            }
+        } catch (IOException e) {
+            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.io"));
             return 0;
         }
+        builder.name = name;
+        builder.buildFancyName();
         RCUtil.ramBusBuilder = builder;
         RCUtil.status = Status.RamNew1;
-        if (ramBusBuilder == RoRamBusBuilder.class) {
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.ro.start", name), true);
-        } else {  // ramBusBuilder == WoRamBusBuilder.class
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.wo.start", name), true);
-        }
-        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step1", RCUtil.wandItemHoverableText), true);
+        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.start", builder.fancyName), true);
+        s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step1", RCUtil.wandItemHoverableText), false);
         return 1;
     }
 
     private static int executeRcuFileRamRemove(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
-        if (RCUtil.roRams.keySet().contains(name)) {
-            RCUtil.roRams.remove(name);
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success", name), true);
-            return 1;
-        } else if (RCUtil.woRams.keySet().contains(name)) {
-            RCUtil.roRams.remove(name);
+        if (RCUtil.rams.keySet().contains(name)) {
+            RCUtil.rams.remove(name);
             s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success", name), true);
             return 1;
         }

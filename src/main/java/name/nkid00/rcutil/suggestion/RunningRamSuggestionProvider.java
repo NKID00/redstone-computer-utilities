@@ -13,12 +13,7 @@ import name.nkid00.rcutil.RCUtil;
 
 public class RunningRamSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-        RCUtil.roRams.forEach((k, v) -> {
-            if (v.running) {
-                builder.suggest(k);
-            }
-        });
-        RCUtil.woRams.forEach((k, v) -> {
+        RCUtil.rams.forEach((k, v) -> {
             if (v.running) {
                 builder.suggest(k);
             }

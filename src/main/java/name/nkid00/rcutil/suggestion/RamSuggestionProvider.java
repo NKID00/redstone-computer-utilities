@@ -13,10 +13,7 @@ import name.nkid00.rcutil.RCUtil;
 
 public class RamSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-        RCUtil.roRams.forEach((k, v) -> {
-            builder.suggest(k);
-        });
-        RCUtil.woRams.forEach((k, v) -> {
+        RCUtil.rams.forEach((k, v) -> {
             builder.suggest(k);
         });
         return builder.buildFuture();
