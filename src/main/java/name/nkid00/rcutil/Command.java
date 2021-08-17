@@ -18,8 +18,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
-
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
+import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
 import name.nkid00.rcutil.enumeration.FileRamType;
 import name.nkid00.rcutil.enumeration.Status;
 import name.nkid00.rcutil.fileram.FileRam;
@@ -58,7 +60,7 @@ public class Command {
                             }
                         })
                         .then(
-                            argument("clock edge triggering", StringArgumentType.word())
+                            argument("clock triggering edge", StringArgumentType.word())
                             .suggests(new SuggestionProvider<ServerCommandSource>(){
                                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
                                     builder.suggest("pos");
@@ -71,7 +73,18 @@ public class Command {
                                 argument("name", StringArgumentType.string())
                                 .then(
                                     argument("file", StringArgumentType.string())
-                                    .executes((c) -> executeRcuFileRamNew(c))
+                                    .executes(Command::executeRcuFileRamNew)
+                                    .then(
+                                        argument("endianness", StringArgumentType.word())
+                                        .suggests(new SuggestionProvider<ServerCommandSource>(){
+                                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+                                                builder.suggest("le");
+                                                builder.suggest("be");
+                                                return builder.buildFuture();
+                                            }
+                                        })
+                                        .executes(Command::executeRcuFileRamNew)
+                                    )
                                 )
                             )
                         )
@@ -130,7 +143,7 @@ public class Command {
         );
     }
 
-    private static int executeRcu(CommandContext<ServerCommandSource> c) {
+    public static int executeRcu(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         if (RCUtil.status == Status.Idle) {
             Entity entity = s.getEntity();
@@ -153,7 +166,7 @@ public class Command {
         }
     }
 
-    private static int executeRcuFileRamInfo(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamInfo(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         int count = RCUtil.fileRams.size();
         if (count == 0) {
@@ -175,7 +188,7 @@ public class Command {
         }
     }
     
-    private static int executeRcuFileRamInfoSingle(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamInfoSingle(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
@@ -187,7 +200,7 @@ public class Command {
         }
     }
 
-    private static int executeRcuFileRamNew(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamNew(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
 
         FileRamType type = FileRamType.fromString(StringArgumentType.getString(c, "type"));
@@ -195,11 +208,15 @@ public class Command {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.type"));
             return 0;
         }
-        FileRamEdgeTriggering edge = FileRamEdgeTriggering.fromString(StringArgumentType.getString(c, "clock edge triggering"));
+        FileRamEdgeTriggering edge = FileRamEdgeTriggering.fromString(StringArgumentType.getString(c, "clock triggering edge"));
         if (edge == null) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.edge"));
             return 0;
         }
+        FileRamFileEndianness endianness = FileRamFileEndianness.LittleEndian;
+        try {
+            endianness = FileRamFileEndianness.fromString(StringArgumentType.getString(c, "endianness"));
+        } catch (IllegalArgumentException e) { }
 
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
@@ -228,6 +245,7 @@ public class Command {
 
         builder.name = name;
         builder.clockEdgeTriggering = edge;
+        builder.fileEndianness = endianness;
         builder.buildFancyName();
 
         RCUtil.fileRamBuilder = builder;
@@ -237,7 +255,7 @@ public class Command {
         return 1;
     }
 
-    private static int executeRcuFileRamRemove(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamRemove(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
@@ -249,13 +267,13 @@ public class Command {
         return 0;
     }
 
-    private static int executeRcuFileRamRun(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamRun(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
             FileRam ram = RCUtil.fileRams.get(name);
             if (!ram.running) {
-                ram.running = true;
+                ram.setRunning(true);
                 s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.run.success", ram.fancyName), true);
                 return 1;
             } else {
@@ -267,13 +285,13 @@ public class Command {
         return 0;
     }
 
-    private static int executeRcuFileRamStop(CommandContext<ServerCommandSource> c) {
+    public static int executeRcuFileRamStop(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
             FileRam ram = RCUtil.fileRams.get(name);
             if (ram.running) {
-                ram.running = false;
+                ram.setRunning(false);
                 s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.stop.success", ram.fancyName), true);
                 return 1;
             } else {

@@ -74,4 +74,15 @@ public class MathUtil {
     public static boolean isFloatEqual(float v1, float v2) {
         return v1 - v2 < 1e-5 || v2 - v1 < 1e-5;
     }
+
+    public static int float2Int(float v) {
+        int vi = (int)v;
+        if (v - vi > 0.99999) {
+            return vi + 1;
+        } else if (-(v - vi) > 0.99999) {
+            return vi - 1;
+        } else {
+            return vi;
+        }
+    }
 }

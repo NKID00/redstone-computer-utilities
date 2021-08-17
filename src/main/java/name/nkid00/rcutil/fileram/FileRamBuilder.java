@@ -12,8 +12,11 @@ import net.minecraft.util.math.Vec3i;
 
 import name.nkid00.rcutil.MathUtil;
 import name.nkid00.rcutil.RCUtil;
+import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
 import name.nkid00.rcutil.enumeration.FileRamType;
+import name.nkid00.rcutil.exception.BlockNotRedstoneWireException;
+import name.nkid00.rcutil.exception.OversizedException;
 
 public class FileRamBuilder {
     public String name = null;
@@ -35,22 +38,36 @@ public class FileRamBuilder {
 
     public String filename = null;
     public File file = null;
+    public FileRamFileEndianness fileEndianness = null;
 
     public FileRam fileRam = null;
 
     public enum BuildStatus {
         Success,
         FailedNotAligned,
-        FailedWrongBlock,
         WarningNotAligned
     }
 
-    public void buildFancyName() {
-        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText();
-        fancyName = new TranslatableText("rcutil.fileram.fancyname.builder", name, typeText, edgeText, filename);
+    public boolean setFile(String filename) throws IOException {
+        this.filename = filename;
+        file = new File(RCUtil.baseDirectory, filename);
+        if (!file.exists()) {
+            if (type == FileRamType.WriteOnly) {
+                file.createNewFile();
+                return true;
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    public BuildStatus buildAddress(ServerWorld world) {
+    public void buildFancyName() {
+        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText(), endiannessText = fileEndianness.toText();
+        fancyName = new TranslatableText("rcutil.fileram.fancyname.builder", name, typeText, edgeText, filename, endiannessText);
+    }
+
+    public BuildStatus buildAddress(ServerWorld world) throws BlockNotRedstoneWireException, OversizedException {
         if (!MathUtil.onSameLine(addrLsb, addr2Lsb, addrMsb)) {
             return BuildStatus.FailedNotAligned;
         }
@@ -58,24 +75,33 @@ public class FileRamBuilder {
         fileRam = new FileRam();
         fileRam.type = type;
 
-        fileRam.addressBase = addrLsb;
-        fileRam.addressGap = MathUtil.getOffset(addrLsb, addr2Lsb);  // including one end
+        fileRam.addrBase = addrLsb;
+        fileRam.addrGap = MathUtil.getOffset(addrLsb, addr2Lsb);  // including one end
         Vec3i addr = MathUtil.getOffset(addrLsb, addrMsb);
         float size = 1F;
-        if (addr.getX() != fileRam.addressGap.getX()) {
-            size = ((float)addr.getX()) / fileRam.addressGap.getX();
-        } else if (addr.getY() != fileRam.addressGap.getY()) {
-            size = ((float)addr.getY()) / fileRam.addressGap.getY();
-        } else if (addr.getZ() != fileRam.addressGap.getZ()) {
-            size = ((float)addr.getZ()) / fileRam.addressGap.getZ();
+        if (addr.getX() != fileRam.addrGap.getX()) {
+            size = ((float)addr.getX()) / fileRam.addrGap.getX() + 1;
+        } else if (addr.getY() != fileRam.addrGap.getY()) {
+            size = ((float)addr.getY()) / fileRam.addrGap.getY() + 1;
+        } else if (addr.getZ() != fileRam.addrGap.getZ()) {
+            size = ((float)addr.getZ()) / fileRam.addrGap.getZ() + 1;
         }
-        fileRam.addressSize = (int)size;
+        fileRam.addrSize = MathUtil.float2Int(size);
+
+        if (fileRam.addrSize > 64) {
+            throw new OversizedException();
+        }
 
         // test if there is non-redstone-wire block in the bus
-        for (int i = 2; i < size; i++) {
-            if (!world.getBlockState(MathUtil.applyOffset(fileRam.addressBase, MathUtil.scale(fileRam.addressGap, i))).isOf(Blocks.REDSTONE_WIRE)) {
-                return BuildStatus.FailedWrongBlock;
+        BlockPos blockPos = fileRam.nAddressBlockPos(2);
+        for (int i = 0; ; i++) {
+            if (!world.getBlockState(blockPos).isOf(Blocks.REDSTONE_WIRE)) {
+                throw new BlockNotRedstoneWireException();
             }
+            if (i >= size) {
+                break;
+            }
+            blockPos = MathUtil.applyOffset(blockPos, fileRam.addrGap);
         }
 
         if (!MathUtil.isFloatIntegral(size)) {
@@ -85,7 +111,7 @@ public class FileRamBuilder {
         return BuildStatus.Success;
     }
 
-    public BuildStatus buildData(ServerWorld world) {
+    public BuildStatus buildData(ServerWorld world) throws BlockNotRedstoneWireException, OversizedException {
         if (!MathUtil.onSameLine(dataLsb, data2Lsb, dataMsb)) {
             return BuildStatus.FailedNotAligned;
         }
@@ -101,13 +127,17 @@ public class FileRamBuilder {
         } else if (data.getZ() != fileRam.dataGap.getZ()) {
             size = ((float)data.getZ()) / fileRam.dataGap.getZ();
         }
-        fileRam.dataSize = (int)size;
+        fileRam.dataSize = MathUtil.float2Int(size);
+
+        if (fileRam.dataSize > 64) {
+            throw new OversizedException();
+        }
 
         if (type.equals(FileRamType.WriteOnly)) {
             // test if there is non-redstone-wire block in the bus
             for (int i = 2; i < size; i++) {
                 if (!world.getBlockState(MathUtil.applyOffset(fileRam.dataBase, MathUtil.scale(fileRam.dataGap, i))).isOf(Blocks.REDSTONE_WIRE)) {
-                    return BuildStatus.FailedWrongBlock;
+                    throw new BlockNotRedstoneWireException();
                 }
             }
         }
@@ -119,20 +149,16 @@ public class FileRamBuilder {
         return BuildStatus.Success;
     }
 
-    public FileRam build() {
+    public FileRam build(ServerWorld world) throws BlockNotRedstoneWireException {
         fileRam.name = name;
         fileRam.clock = clock;
         fileRam.clockEdgeTriggering = clockEdgeTriggering;
+        fileRam.buildClock(world);
         fileRam.filename = filename;
         fileRam.file = file;
-        fileRam.running = false;
+        fileRam.fileEndianness = fileEndianness;
+        fileRam.setRunning(false);
         fileRam.buildFancyName();
         return fileRam;
-    }
-
-    public boolean setFile(String filename) throws IOException {
-        this.filename = filename;
-        file = new File(RCUtil.baseDirectory, filename);
-        return file.exists();
     }
 }

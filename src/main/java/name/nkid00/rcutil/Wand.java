@@ -12,6 +12,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import name.nkid00.rcutil.enumeration.Status;
+import name.nkid00.rcutil.exception.BlockNotRedstoneWireException;
+import name.nkid00.rcutil.exception.OversizedException;
 import name.nkid00.rcutil.fileram.FileRam;
 
 public class Wand {
@@ -55,19 +57,22 @@ public class Wand {
                         return ActionResult.SUCCESS;
                     case FileRamNewStepAddrMsb:
                         RCUtil.fileRamBuilder.addrMsb = pos;
-                        switch (RCUtil.fileRamBuilder.buildAddress(world)) {
-                            case WarningNotAligned:
-                                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.warning.align"));
-                            case Success:
-                                RCUtil.status = Status.FileRamNewStepDataLsb;
-                                s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.datalsb", RCUtil.wandItemHoverableText), false);
-                                return ActionResult.SUCCESS;
-                            case FailedNotAligned:
-                                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.align"));
-                                break;
-                            case FailedWrongBlock:
-                                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.bit"));
-                                break;
+                        try {
+                            switch (RCUtil.fileRamBuilder.buildAddress(world)) {
+                                case WarningNotAligned:
+                                    s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.warning.align"));
+                                case Success:
+                                    RCUtil.status = Status.FileRamNewStepDataLsb;
+                                    s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.datalsb", RCUtil.wandItemHoverableText), false);
+                                    return ActionResult.SUCCESS;
+                                case FailedNotAligned:
+                                    s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.align"));
+                                    break;
+                            }
+                        } catch (BlockNotRedstoneWireException e) {
+                            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.bit"));
+                        } catch (OversizedException e) {
+                            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.size"));
                         }
                         break;
                     case FileRamNewStepDataLsb:
@@ -82,24 +87,31 @@ public class Wand {
                         return ActionResult.SUCCESS;
                     case FileRamNewStepDataMsb:
                         RCUtil.fileRamBuilder.dataMsb = pos;
-                        switch (RCUtil.fileRamBuilder.buildData(world)) {
-                            case WarningNotAligned:
-                                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.warning.align"));
-                            case Success:
-                                RCUtil.status = Status.FileRamNewStepClock;
-                                s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.datalsb", RCUtil.wandItemHoverableText), false);
-                                return ActionResult.SUCCESS;
-                            case FailedNotAligned:
-                                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.align"));
-                                break;
-                            case FailedWrongBlock:
-                                s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.bit"));
-                                break;
+                        try {
+                            switch (RCUtil.fileRamBuilder.buildData(world)) {
+                                case WarningNotAligned:
+                                    s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.warning.align"));
+                                case Success:
+                                    RCUtil.status = Status.FileRamNewStepClock;
+                                    s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.clock", RCUtil.wandItemHoverableText), false);
+                                    return ActionResult.SUCCESS;
+                                case FailedNotAligned:
+                                    s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.align"));
+                                    break;
+                            }
+                        } catch (BlockNotRedstoneWireException e) {
+                            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.bit"));
+                        } catch (OversizedException e) {
+                            s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.size"));
                         }
                         break;
                     case FileRamNewStepClock:
                         RCUtil.fileRamBuilder.clock = pos;
-                        FileRam ram = RCUtil.fileRamBuilder.build();
+                        FileRam ram = null;
+                        try {
+                            ram = RCUtil.fileRamBuilder.build(world);
+                        } catch (BlockNotRedstoneWireException e) { }  // never happens
+                        RCUtil.fileRams.put(ram.name, ram);
                         RCUtil.status = Status.Idle;
                         s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.success", ram.fancyName, ram.name), true);
                         return ActionResult.SUCCESS;

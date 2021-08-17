@@ -31,6 +31,7 @@ public class RCUtil implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             baseDirectory = new File(server.getRunDirectory(), "rcutil/fileram/");
+            baseDirectory.mkdirs();
         });
         // handle realtime input
         ServerTickEvents.START_WORLD_TICK.register(Tick::register);
