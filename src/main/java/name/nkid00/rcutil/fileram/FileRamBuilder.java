@@ -53,15 +53,10 @@ public class FileRamBuilder {
     public boolean setFile(String filename) throws IOException {
         this.filename = filename;
         file = new File(RCUtil.fileRamBaseDirectory, filename);
-        if (!file.exists()) {
-            if (type == FileRamType.WriteOnly) {
-                file.createNewFile();
-                return true;
-            }
+        if (type == FileRamType.ReadOnly && !file.exists()) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     public void buildFancyName() {

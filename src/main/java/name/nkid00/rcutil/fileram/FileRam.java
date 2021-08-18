@@ -11,6 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -133,8 +134,9 @@ public class FileRam {
                     break;
             }
             switch (type) {
+                    // TODO: implement endianness
                 case ReadOnly: {
-                        // TODO: use java.nio
+                        // calculate the real address of the data in the file
                         long addrBit = readAddr(world) * dataSize;
                         long addrByte = addrBit >> 3;
                         int offsetBit = (int)(addrBit & 0b111);
@@ -143,15 +145,19 @@ public class FileRam {
                         if ((lenBit & 0b111) != 0) {
                             lenByte++;
                         }
+
+                        // read file into buffer
                         byte[] dataByte = new byte[lenByte];
                         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
                         randomAccessFile.seek(addrByte);
                         randomAccessFile.readFully(dataByte);
                         randomAccessFile.close();
+
                         writeData(world, BitSet.valueOf(dataByte).get(offsetBit, offsetBit + dataSize));
                     }
                     break;
                 case WriteOnly: {
+                        // calculate real address of the data in the file
                         long addrBit = readAddr(world) * dataSize;
                         long addrByte = addrBit >> 3;
                         int offsetBit = (int)(addrBit & 0b111);
@@ -161,15 +167,37 @@ public class FileRam {
                             lenByte++;
                         }
                         BitSet data = readData(world);
-                        byte[] rawDataByte = new byte[lenByte];
+
+                        if (!file.exists()) {
+                            file.createNewFile();
+                        }
                         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+
+                        // read file into buffer
+                        byte[] rawDataByte = new byte[lenByte];
                         randomAccessFile.seek(addrByte);
-                        randomAccessFile.readFully(rawDataByte);
-                        BitSet rawBitSet = BitSet.valueOf(rawDataByte);
+                        BitSet rawBitSet;
+                        try {
+                            randomAccessFile.readFully(rawDataByte);
+                            rawBitSet = BitSet.valueOf(rawDataByte);
+                        } catch (EOFException e) {
+                            // fill the file with 0
+                            randomAccessFile.seek(0);
+                            for (int i = 0; i < addrByte; i++) {
+                                randomAccessFile.write(0);
+                            }
+                            // fill the buffer with 0
+                            rawBitSet = new BitSet(lenByte << 3);
+                        }
+
+                        // write data into buffer
                         for (int i = 0; i < dataSize; i++) {
                             rawBitSet.set(i + offsetBit, data.get(i));
                         }
-                        randomAccessFile.write(rawBitSet.toByteArray());
+
+                        // write back buffer
+                        randomAccessFile.seek(addrByte);
+                        randomAccessFile.write(MathUtil.bitSet2ByteArray(rawBitSet, lenByte));
                         randomAccessFile.close();
                     }
                     break;
@@ -195,7 +223,7 @@ public class FileRam {
 
     public void forEachEnumerateAddr(BiConsumer<? super Integer, ? super BlockPos> consumer) {
         BlockPos blockPos = addrBase;
-        for (int i = 0; i < dataSize; i++) {
+        for (int i = 0; i < addrSize; i++) {
             consumer.accept(i, blockPos);
             blockPos = MathUtil.applyOffset(blockPos, addrGap);
         }
@@ -228,6 +256,6 @@ public class FileRam {
     }
 
     public void spawnClockParticles(ServerWorld world) {
-        world.spawnParticles(new DustParticleEffect(0.7F, 0.7F, 0.7F, 1F), clock.getX() + 0.5, clock.getY() + 0.1, clock.getZ() + 0.5, 10, 0, 0, 0, 0);
+        world.spawnParticles(ParticleTypes.HAPPY_VILLAGER, clock.getX() + 0.5, clock.getY() + 0.2, clock.getZ() + 0.5, 10, 0, 0, 0, 0);
     }
 }

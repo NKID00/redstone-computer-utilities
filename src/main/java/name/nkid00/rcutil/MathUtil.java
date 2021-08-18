@@ -97,6 +97,24 @@ public class MathUtil {
         }
     }
 
+    public static byte[] bitSet2ByteArray(BitSet v, int bytes) {
+        byte[] rawByteArray = v.toByteArray();
+        int rawLength = rawByteArray.length;
+        if (rawLength < bytes) {
+            byte[] byteArray = new byte[bytes];
+            int i;
+            for (i = 0; i < rawLength; i++) {
+                byteArray[i] = rawByteArray[i];
+            }
+            for (; i < bytes; i++) {
+                byteArray[i] = 0;
+            }
+            return byteArray;
+        } else {
+            return rawByteArray;
+        }
+    }
+
     // 0 <= h <= 360, 0 <= s, v, r, g, b <= 1
     public static float[] HSV2RGB(float h, float s, float v) {
         float c = v * s;
@@ -115,5 +133,25 @@ public class MathUtil {
         } else {  // 300F < h && h <= 360F
             return new float[]{c + m, m, x + m};
         }
+    }
+
+    public static String byteArray2String(byte[] v) {
+        if (v.length > 0) {
+            StringBuilder stringBuilder = new StringBuilder(v.length * 9);
+            for (byte b : v) {
+                BitSet bitSet = BitSet.valueOf(new byte[]{b});
+                for (int i = 0; i < 8; i++) {
+                    stringBuilder.append(bitSet.get(i) ? '1' : '0');
+                }
+                stringBuilder.append(' ');
+            }
+            return stringBuilder.toString().substring(0, stringBuilder.length() - 1);
+        } else {
+            return "";
+        }
+    }
+
+    public static String bitSet2String(BitSet v, int bytes) {
+        return byteArray2String(bitSet2ByteArray(v, bytes));
     }
 }
