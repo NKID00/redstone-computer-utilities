@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneWireBlock;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -189,11 +190,11 @@ public class FileRam {
         }
     }
 
-    public BlockPos nAddressBlockPos(int n) {
+    public BlockPos nAddrBlockPos(int n) {
         return MathUtil.applyOffset(addrBase, MathUtil.scale(addrGap, n));
     }
 
-    public void forEachEnumerateAddress(BiConsumer<? super Integer, ? super BlockPos> consumer) {
+    public void forEachEnumerateAddr(BiConsumer<? super Integer, ? super BlockPos> consumer) {
         BlockPos blockPos = addrBase;
         for (int i = 1; ; i++) {
             consumer.accept(i, blockPos);
@@ -217,5 +218,21 @@ public class FileRam {
             }
             blockPos = MathUtil.applyOffset(blockPos, dataGap);
         }
+    }
+
+    public void spawnAddrParticles(ServerWorld world) {
+        forEachEnumerateAddr((i, blockPos) -> {
+            world.spawnParticles(ParticleTypes.WITCH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
+        });
+    }
+
+    public void spawnDataParticles(ServerWorld world) {
+        forEachEnumerateData((i, blockPos) -> {
+            world.spawnParticles(ParticleTypes.HAPPY_VILLAGER, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
+        });
+    }
+
+    public void spawnClockParticles(ServerWorld world) {
+        world.spawnParticles(ParticleTypes.CRIT, clock.getX() + 0.5, clock.getY() + 0.5, clock.getZ() + 0.5, 10, 0, 0, 0, 0);
     }
 }

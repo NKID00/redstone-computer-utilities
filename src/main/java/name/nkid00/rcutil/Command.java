@@ -18,6 +18,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
@@ -193,9 +194,14 @@ public class Command {
         } else {
             MutableText text = new LiteralText("");
             Iterator<String> iter = RCUtil.fileRams.keySet().iterator();
+            ServerWorld world = s.getWorld();
             for (int i = 1; ; i++) {
                 String k = iter.next();
-                text.append(RCUtil.fileRams.get(k).fancyName);
+                FileRam v = RCUtil.fileRams.get(k);
+                text.append(v.fancyName);
+                v.spawnAddrParticles(world);
+                v.spawnDataParticles(world);
+                v.spawnClockParticles(world);
                 if (i >= count) {
                     break;
                 }
@@ -210,7 +216,12 @@ public class Command {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
         if (RCUtil.fileRams.keySet().contains(name)) {
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.info.single.success", RCUtil.fileRams.get(name).fancyName), false);
+            ServerWorld world = s.getWorld();
+            FileRam ram = RCUtil.fileRams.get(name);
+            ram.spawnAddrParticles(world);
+            ram.spawnDataParticles(world);
+            ram.spawnClockParticles(world);
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.info.single.success", ram.fancyName), false);
             return 0;
         } else {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.failed.notfound", name));

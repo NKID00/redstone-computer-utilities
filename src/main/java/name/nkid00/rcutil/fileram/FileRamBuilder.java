@@ -95,7 +95,7 @@ public class FileRamBuilder {
         }
 
         // test if there is non-redstone-wire block in the bus
-        BlockPos blockPos = fileRam.nAddressBlockPos(2);
+        BlockPos blockPos = fileRam.nAddrBlockPos(2);
         for (int i = 2; i < size; i++) {
             if (!world.getBlockState(blockPos).isOf(Blocks.REDSTONE_WIRE)) {
                 throw new BlockNotRedstoneWireException();

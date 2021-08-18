@@ -1,14 +1,31 @@
 plugins {
 	id 'fabric-loom' version '0.7-SNAPSHOT'
 	id 'maven-publish'
+	id 'org.ajoberstar.grgit' version '4.1.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
+archivesBaseName = "${project.archives_base_name}-mc${project.minecraft_version}"
+version = "${project.mod_version}+${buildMetadata()}"
 group = project.maven_group
+
+def buildMetadata() {
+	def ci_build = System.getenv("GITHUB_RUN_NUMBER")
+	if (ci_build != null) {
+		return "build.${ci_build}"
+	} else if (grgit != null) {
+		def commit_hash = grgit.head().abbreviatedId
+		if (grgit.status().clean) {
+			return "rev.${commit_hash}"
+		} else {
+			return "rev.${commit_hash}.dirty"
+		}
+	} else {
+		return "unknown"
+	}
+}
 
 repositories {
 	// Add repositories to retrieve artifacts from in here.
@@ -72,7 +89,7 @@ java {
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.archives_base_name}"}
 	}
 }
 
