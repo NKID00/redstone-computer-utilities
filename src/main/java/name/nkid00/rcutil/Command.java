@@ -47,6 +47,14 @@ public class Command {
                     .executes(Command::executeRcuFileRamInfo)
                     .then(
                         argument("name", StringArgumentType.string())
+                        .suggests(new SuggestionProvider<ServerCommandSource>(){
+                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+                                RCUtil.fileRams.forEach((k, v) -> {
+                                    builder.suggest(k);
+                                });
+                                return builder.buildFuture();
+                            }
+                        })
                         .executes(Command::executeRcuFileRamInfoSingle)
                     )
                 )

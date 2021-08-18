@@ -67,21 +67,21 @@ public class MathUtil {
     public static boolean isFloatIntegral(float v) {
         int vi = (int)v;
         if (v >= 0) {
-            return v - vi < 1e-5 || v - vi > 0.99999;
+            return v - vi < 1e-5F || v - vi > 0.99999F;
         } else {
-            return -(v - vi) < 1e-5 || -(v - vi) > 0.99999;
+            return -(v - vi) < 1e-5F || -(v - vi) > 0.99999F;
         }
     }
 
     public static boolean isFloatEqual(float v1, float v2) {
-        return v1 - v2 < 1e-5 || v2 - v1 < 1e-5;
+        return Math.abs(v1 - v2) < 1e-5F;
     }
 
     public static int float2Int(float v) {
         int vi = (int)v;
-        if (v - vi > 0.99999) {
+        if (v - vi > 0.99999F) {
             return vi + 1;
-        } else if (-(v - vi) > 0.99999) {
+        } else if (-(v - vi) > 0.99999F) {
             return vi - 1;
         } else {
             return vi;
@@ -94,6 +94,26 @@ public class MathUtil {
             return longArray[0];
         } else {
             return 0;
+        }
+    }
+
+    // 0 <= h <= 360, 0 <= s, v, r, g, b <= 1
+    public static float[] HSV2RGB(float h, float s, float v) {
+        float c = v * s;
+        float x = c * (1F - Math.abs((h / 60F % 2F) - 1F));
+        float m = v - c;
+        if (0F <= h && h <= 60F) {
+            return new float[]{c + m, x + m, m};
+        } else if (60F < h && h <= 120F) {
+            return new float[]{x + m, c + m, m};
+        } else if (120F < h && h <= 180F) {
+            return new float[]{m, c + m, x + m};
+        } else if (180F < h && h <= 240F) {
+            return new float[]{m, x + m, c + m};
+        } else if (240F < h && h <= 300F) {
+            return new float[]{x + m, m, c + m};
+        } else {  // 300F < h && h <= 360F
+            return new float[]{c + m, m, x + m};
         }
     }
 }

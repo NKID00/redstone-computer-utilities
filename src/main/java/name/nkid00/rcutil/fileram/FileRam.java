@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneWireBlock;
-import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -19,6 +19,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.dimension.DimensionType;
+
 import name.nkid00.rcutil.MathUtil;
 import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
@@ -168,9 +169,7 @@ public class FileRam {
                         for (int i = 0; i < dataSize; i++) {
                             rawBitSet.set(i + offsetBit, data.get(i));
                         }
-                        for (byte v : rawBitSet.toByteArray()) {
-                            randomAccessFile.writeByte(v);
-                        }
+                        randomAccessFile.write(rawBitSet.toByteArray());
                         randomAccessFile.close();
                     }
                     break;
@@ -196,11 +195,8 @@ public class FileRam {
 
     public void forEachEnumerateAddr(BiConsumer<? super Integer, ? super BlockPos> consumer) {
         BlockPos blockPos = addrBase;
-        for (int i = 1; ; i++) {
+        for (int i = 0; i < dataSize; i++) {
             consumer.accept(i, blockPos);
-            if (i >= addrSize) {
-                break;
-            }
             blockPos = MathUtil.applyOffset(blockPos, addrGap);
         }
     }
@@ -211,28 +207,27 @@ public class FileRam {
 
     public void forEachEnumerateData(BiConsumer<? super Integer, ? super BlockPos> consumer) {
         BlockPos blockPos = dataBase;
-        for (int i = 1; ; i++) {
+        for (int i = 0; i < dataSize; i++) {
             consumer.accept(i, blockPos);
-            if (i >= dataSize) {
-                break;
-            }
             blockPos = MathUtil.applyOffset(blockPos, dataGap);
         }
     }
 
     public void spawnAddrParticles(ServerWorld world) {
         forEachEnumerateAddr((i, blockPos) -> {
-            world.spawnParticles(ParticleTypes.WITCH, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
+            float rgb[] = MathUtil.HSV2RGB(i * 120F / addrSize + 60F, 1F, 1F);
+            world.spawnParticles(new DustParticleEffect(rgb[0], rgb[1], rgb[2], 1F), blockPos.getX() + 0.5, blockPos.getY() + 0.2, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
         });
     }
 
     public void spawnDataParticles(ServerWorld world) {
         forEachEnumerateData((i, blockPos) -> {
-            world.spawnParticles(ParticleTypes.HAPPY_VILLAGER, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
+            float rgb[] = MathUtil.HSV2RGB(i * 120F / dataSize + 180F, 1F, 1F);
+            world.spawnParticles(new DustParticleEffect(rgb[0], rgb[1], rgb[2], 1F), blockPos.getX() + 0.5, blockPos.getY() + 0.2, blockPos.getZ() + 0.5, 10, 0, 0, 0, 0);
         });
     }
 
     public void spawnClockParticles(ServerWorld world) {
-        world.spawnParticles(ParticleTypes.CRIT, clock.getX() + 0.5, clock.getY() + 0.5, clock.getZ() + 0.5, 10, 0, 0, 0, 0);
+        world.spawnParticles(new DustParticleEffect(0.7F, 0.7F, 0.7F, 1F), clock.getX() + 0.5, clock.getY() + 0.1, clock.getZ() + 0.5, 10, 0, 0, 0, 0);
     }
 }
