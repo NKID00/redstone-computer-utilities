@@ -176,34 +176,34 @@ public class FileRam {
                         }
                         BitSet data = readData(world);
 
+                        // check if the file exists
                         if (!file.exists()) {
                             file.createNewFile();
                         }
                         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-
-                        // read file into buffer
-                        byte[] rawDataByte = new byte[lenByte];
-                        randomAccessFile.seek(addrByte);
-                        BitSet rawBitSet;
-                        try {
-                            randomAccessFile.readFully(rawDataByte);
-                            rawBitSet = BitSet.valueOf(rawDataByte);
-                        } catch (EOFException e) {
-                            // fill the file with 0
-                            randomAccessFile.seek(0);
-                            for (int i = 0; i < addrByte; i++) {
-                                randomAccessFile.write(0);
+                        // resize the file if needed
+                        long fileLength = randomAccessFile.length();
+                        if (fileLength < addrByte + lenByte) {
+                            // content filled by setLength is not defined
+                            randomAccessFile.seek(fileLength);
+                            long size = addrByte + lenByte - fileLength;
+                            for (long i = 0; i < size; i++) {
+                                randomAccessFile.writeByte(0);
                             }
-                            // fill the buffer with 0
-                            rawBitSet = new BitSet(lenByte << 3);
                         }
 
-                        // write data into buffer
+                        // read data into buffer
+                        randomAccessFile.seek(addrByte);
+                        byte[] rawDataByte = new byte[lenByte];
+                        randomAccessFile.readFully(rawDataByte);
+                        BitSet rawBitSet = BitSet.valueOf(rawDataByte);
+
+                        // merge data into buffer
                         for (int i = 0; i < dataSize; i++) {
                             rawBitSet.set(i + offsetBit, data.get(i));
                         }
 
-                        // write back buffer
+                        // write buffer back
                         randomAccessFile.seek(addrByte);
                         randomAccessFile.write(MathUtil.bitSet2ByteArray(rawBitSet, lenByte));
                         randomAccessFile.close();
