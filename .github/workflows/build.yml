@@ -19,7 +19,7 @@ jobs:
       - name: build
         run: ./gradlew build
       - name: find artifact
-        run: echo "::set-env name=artifact::$( find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar )"
+        run: echo "artifact=$( find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar )" >> $GITHUB_ENV
       - name: upload artifact
         uses: actions/upload-artifact@v2
         with:
