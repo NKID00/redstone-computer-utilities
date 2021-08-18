@@ -24,7 +24,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
-import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
+import name.nkid00.rcutil.enumeration.FileRamFileByteOrder;
 import name.nkid00.rcutil.enumeration.FileRamType;
 import name.nkid00.rcutil.enumeration.Status;
 import name.nkid00.rcutil.fileram.FileRam;
@@ -86,7 +86,7 @@ public class Command {
                                     argument("file", StringArgumentType.string())
                                     .executes(Command::executeRcuFileRamNew)
                                     .then(
-                                        argument("endianness", StringArgumentType.word())
+                                        argument("byte order", StringArgumentType.word())
                                         .suggests(new SuggestionProvider<ServerCommandSource>(){
                                             public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
                                                 builder.suggest("le");
@@ -251,9 +251,9 @@ public class Command {
             s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.edge"));
             return 0;
         }
-        FileRamFileEndianness endianness = FileRamFileEndianness.LittleEndian;
+        FileRamFileByteOrder byteOrder = FileRamFileByteOrder.LittleEndian;
         try {
-            endianness = FileRamFileEndianness.fromString(StringArgumentType.getString(c, "endianness"));
+            byteOrder = FileRamFileByteOrder.fromString(StringArgumentType.getString(c, "byte order"));
         } catch (IllegalArgumentException e) { }
 
         String name = StringArgumentType.getString(c, "name");
@@ -284,7 +284,7 @@ public class Command {
         builder.name = name;
         builder.dimensionType = s.getWorld().getDimension();
         builder.clockEdgeTriggering = edge;
-        builder.fileEndianness = endianness;
+        builder.fileByteOrder = byteOrder;
         builder.buildFancyName();
 
         RCUtil.fileRamBuilder = builder;

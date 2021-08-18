@@ -26,6 +26,7 @@ public class RCUtil implements ModInitializer {
     public static FileRamBuilder fileRamBuilder = null;
     public static File baseDirectory = null;
     public static File fileRamBaseDirectory = null;
+    // TODO: save & load
     public static HashMap<String, FileRam> fileRams = new HashMap<>();
 
     @Override

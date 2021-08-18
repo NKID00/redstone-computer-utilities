@@ -1,13 +1,13 @@
 # Redstone Computer Utilities
 
-> Simple debug tools for redstone computers. **\[WIP\]**
+> Simple debug tools for redstone computers.
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 
 ## Features
 
 - Use easy-to-debug files outside the game as RAMs for your redstone computers
-- Adjustable bus sizes from 1 to 64 bits and shapes from horizontal, vertical to even sloping lines
+- Adjustable bus sizes from 1 to 64 bits and shapes from horizontal, vertical ~~to even sloping lines~~(WIP)
 - Different RAM types (read-only and write-only) as well as different clock types (positive, negative and dual edge triggering)
 - Set-up instructions that are user-friendly
 - Built-in English and 简体中文 (Simplified Chinese) translation
@@ -31,8 +31,8 @@ All the commands listed here requires permission level 4 or higher (because oper
 - `/rcu fileram info [<name>]`
   - List all file RAMs if `<name>` is not specified, otherwise display the detail of the file RAM named `<name>`.
 
-- `/rcu fileram new <type> <clock triggering edge> <name> <file> [<endianness>]`
-  - Create a new file RAM named `<name>` with type `<type>` (`ro` for read-only, `wo` for write-only), clock triggering edge `<clock triggering edge>` (`pos` for positive edge triggering, `neg` for negative edge triggering, `dual` for dual edge triggering) and connect it with the file name `<file>`* (~~with endianness `<endianness>`~~ endianness control is still WIP). After running this command, several instructions displayed on the screen will tell you what to do next.
+- `/rcu fileram new <type> <clock triggering edge> <name> <file> [<byte order>]`
+  - Create a new file RAM named `<name>` with type `<type>` (`ro` for read-only, `wo` for write-only), clock triggering edge `<clock triggering edge>` (`pos` for positive edge triggering, `neg` for negative edge triggering, `dual` for dual edge triggering) and connect it with the file name `<file>`* (with file byte order `<byte order>`, `le` for little-endian, `be` for big-endian). After running this command, several instructions displayed on the screen will tell you what to do next.
 
 - `/rcu fileram remove <name>`
   - Remove the file RAM named `<name>`.

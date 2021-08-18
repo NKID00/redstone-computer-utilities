@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.dimension.DimensionType;
 import name.nkid00.rcutil.MathUtil;
 import name.nkid00.rcutil.RCUtil;
-import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
+import name.nkid00.rcutil.enumeration.FileRamFileByteOrder;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
 import name.nkid00.rcutil.enumeration.FileRamType;
 import name.nkid00.rcutil.exception.BlockNotRedstoneWireException;
@@ -40,7 +40,7 @@ public class FileRamBuilder {
 
     public String filename = null;
     public File file = null;
-    public FileRamFileEndianness fileEndianness = null;
+    public FileRamFileByteOrder fileByteOrder = null;
 
     public FileRam fileRam = null;
 
@@ -60,8 +60,8 @@ public class FileRamBuilder {
     }
 
     public void buildFancyName() {
-        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText(), endiannessText = fileEndianness.toText();
-        fancyName = new TranslatableText("rcutil.fileram.fancyname.builder", name, typeText, edgeText, filename, endiannessText);
+        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText(), byteOrderText = fileByteOrder.toText();
+        fancyName = new TranslatableText("rcutil.fileram.fancyname.builder", name, typeText, edgeText, filename, byteOrderText);
     }
 
     public BuildStatus buildAddress(ServerWorld world) throws BlockNotRedstoneWireException, OversizedException {
@@ -127,7 +127,7 @@ public class FileRamBuilder {
             throw new OversizedException();
         }
 
-        if (type.equals(FileRamType.WriteOnly)) {
+        if (type == FileRamType.WriteOnly) {
             // test if there is non-redstone-wire block in the bus
             BlockPos blockPos = fileRam.nDataBlockPos(2);
             for (int i = 2; i < size; i++) {
@@ -153,7 +153,7 @@ public class FileRamBuilder {
         fileRam.buildClock(world);
         fileRam.filename = filename;
         fileRam.file = file;
-        fileRam.fileEndianness = fileEndianness;
+        fileRam.fileByteOrder = fileByteOrder;
         fileRam.setRunning(false);
         fileRam.buildFancyName();
         return fileRam;

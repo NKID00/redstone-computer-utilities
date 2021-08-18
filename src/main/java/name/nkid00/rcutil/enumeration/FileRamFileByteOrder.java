@@ -2,10 +2,10 @@ package name.nkid00.rcutil.enumeration;
 
 import net.minecraft.text.TranslatableText;
 
-public enum FileRamFileEndianness {
+public enum FileRamFileByteOrder {
     LittleEndian, BigEndian;
 
-    public static FileRamFileEndianness fromString(String s) {
+    public static FileRamFileByteOrder fromString(String s) {
         if (s.equals("le")) {
             return LittleEndian;
         } else if (s.equals("be")) {

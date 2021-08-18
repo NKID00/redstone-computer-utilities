@@ -27,6 +27,7 @@ public class MathUtil {
     }
 
     public static boolean onSameLine(BlockPos v1, BlockPos v2, BlockPos v3) {
+        // TODO: fix sloping lines
         Vec3i offset12 = getOffset(v1, v2);
         Vec3i offset13 = getOffset(v1, v3);
         float x, y, z;
@@ -115,6 +116,44 @@ public class MathUtil {
         }
     }
 
+    public static byte reverseByte(byte v) {
+        BitSet bitSet = BitSet.valueOf(new byte[]{v});
+        BitSet result = new BitSet(8);
+        for (int i = 0; i < 8; i++) {
+            result.set(i, bitSet.get(7 - i));
+        }
+        byte b = bitSet2ByteArray(result, 1)[0];
+        return b;
+    }
+
+    public static byte[] reverseByteArray(byte[] v) {
+        int length = v.length;
+        byte[] reversed = new byte[length];
+        for (int i = 0; i < length; i++) {
+            reversed[i] = reverseByte(v[length - i - 1]);
+        }
+        return reversed;
+    }
+
+    public static BitSet reverseBitSet(BitSet v, int bits) {
+        if ((bits & 0b111) > 0) {
+            BitSet reversed = BitSet.valueOf(reverseByteArray(bitSet2ByteArray(v, bits >> 3)));
+            BitSet remaining = v.get(bits & ~0b111, v.length());
+            BitSet result = new BitSet(bits);
+            int p = 0;
+            for (int i = remaining.length() - 1; i >= 0; i--, p++) {
+                result.set(p, remaining.get(i));
+            }
+            for (int i = 0; i < reversed.length(); i++, p++) {
+                result.set(p, reversed.get(i));
+            }
+            return result;
+        } else {
+            BitSet t = BitSet.valueOf(reverseByteArray(bitSet2ByteArray(v, bits >> 3)));
+            return t;
+        }
+    }
+
     // 0 <= h <= 360, 0 <= s, v, r, g, b <= 1
     public static float[] HSV2RGB(float h, float s, float v) {
         float c = v * s;
@@ -135,6 +174,7 @@ public class MathUtil {
         }
     }
 
+    // useful when debugging
     public static String byteArray2String(byte[] v) {
         if (v.length > 0) {
             StringBuilder stringBuilder = new StringBuilder(v.length * 9);
@@ -151,7 +191,15 @@ public class MathUtil {
         }
     }
 
-    public static String bitSet2String(BitSet v, int bytes) {
-        return byteArray2String(bitSet2ByteArray(v, bytes));
+    // useful when debugging
+    public static String bitSet2String(BitSet v, int bits) {
+        StringBuilder stringBuilder = new StringBuilder(bits + (bits >> 3));
+        for (int i = 0; i < bits; i += 8) {
+            for (int j = 0; j < 8; j++) {
+                stringBuilder.append(v.get(i + j) ? '1' : '0');
+            }
+            stringBuilder.append(' ');
+        }
+        return String.format("\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits >> 3)), bits + (bits >> 3));
     }
 }

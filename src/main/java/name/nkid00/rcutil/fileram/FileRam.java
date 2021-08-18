@@ -22,7 +22,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.dimension.DimensionType;
 
 import name.nkid00.rcutil.MathUtil;
-import name.nkid00.rcutil.enumeration.FileRamFileEndianness;
+import name.nkid00.rcutil.enumeration.FileRamFileByteOrder;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
 import name.nkid00.rcutil.enumeration.FileRamType;
 import name.nkid00.rcutil.exception.BlockNotRedstoneWireException;
@@ -48,15 +48,15 @@ public class FileRam {
 
     public String filename = null;
     public File file = null;
-    public FileRamFileEndianness fileEndianness = null;
+    public FileRamFileByteOrder fileByteOrder = null;
 
     public boolean running = false;
 
     public boolean lastClockState = false;
 
     public void buildFancyName() {
-        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText(), endiannessText = fileEndianness.toText();
-        fancyName = new TranslatableText("rcutil.fileram.fancyname", name, typeText, edgeText, filename, endiannessText, addrSize, dataSize);
+        TranslatableText typeText = type.toText(), edgeText = clockEdgeTriggering.toText(), byteOrderText = fileByteOrder.toText();
+        fancyName = new TranslatableText("rcutil.fileram.fancyname", name, typeText, edgeText, filename, byteOrderText, addrSize, dataSize);
     }
 
     public void buildClock(ServerWorld world) throws BlockNotRedstoneWireException {
@@ -92,6 +92,9 @@ public class FileRam {
             }
             blockPos = MathUtil.applyOffset(blockPos, addrGap);
         }
+        if (fileByteOrder == FileRamFileByteOrder.BigEndian) {
+            addr = MathUtil.reverseBitSet(addr, addrSize);
+        }
         return MathUtil.bitSet2Long(addr);
     }
 
@@ -104,11 +107,17 @@ public class FileRam {
             }
             blockPos = MathUtil.applyOffset(blockPos, dataGap);
         }
+        if (fileByteOrder == FileRamFileByteOrder.BigEndian) {
+            data = MathUtil.reverseBitSet(data, dataSize);
+        }
         return data;
     }
 
     public void writeData(ServerWorld world, BitSet data) throws BlockNotRedstoneWireException {
         BlockPos blockPos = dataBase;
+        if (fileByteOrder == FileRamFileByteOrder.BigEndian) {
+            data = MathUtil.reverseBitSet(data, dataSize);
+        }
         for (int i = 0; i < dataSize; i++) {
             setDigitalRedstonePower(world, blockPos, data.get(i));
             blockPos = MathUtil.applyOffset(blockPos, dataGap);
@@ -134,7 +143,6 @@ public class FileRam {
                     break;
             }
             switch (type) {
-                    // TODO: implement endianness
                 case ReadOnly: {
                         // calculate the real address of the data in the file
                         long addrBit = readAddr(world) * dataSize;

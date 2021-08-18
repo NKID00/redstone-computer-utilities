@@ -10,7 +10,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
+import name.nkid00.rcutil.enumeration.FileRamType;
 import name.nkid00.rcutil.enumeration.Status;
 import name.nkid00.rcutil.exception.BlockNotRedstoneWireException;
 import name.nkid00.rcutil.exception.OversizedException;
@@ -32,13 +32,17 @@ public class Wand {
         ServerWorld world = (ServerWorld) rawWorld;
         BlockPos pos = hitResult.getBlockPos();
 
+        boolean check_redstone = true;
         switch (RCUtil.status) {
-            case FileRamNewStepAddrLsb:
-            case FileRamNewStepAddr2Lsb:
             case FileRamNewStepDataLsb:
             case FileRamNewStepData2Lsb:
+                if (RCUtil.fileRamBuilder.fileRam.type == FileRamType.ReadOnly) {
+                    check_redstone = false;
+                }
+            case FileRamNewStepAddrLsb:
+            case FileRamNewStepAddr2Lsb:
             case FileRamNewStepClock:
-                if (!world.getBlockState(pos).isOf(Blocks.REDSTONE_WIRE)) {
+                if (check_redstone && !world.getBlockState(pos).isOf(Blocks.REDSTONE_WIRE)) {
                     s.sendError(new TranslatableText("rcutil.commands.rcu.fileram.new.failed.block.target"));
                     break;
                 }
