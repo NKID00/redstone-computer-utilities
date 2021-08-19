@@ -37,6 +37,7 @@
     "rcutil.commands.rcu.fileram.new.failed.io": "出现IOException异常",
     "rcutil.commands.rcu.fileram.new.warning.align": "警告：总线最高位未对齐，已忽略最高位",
     "rcutil.commands.rcu.fileram.remove.success": "成功移除文件内存%s",
+    "rcutil.commands.rcu.fileram.remove.success.builder": "成功移除正在设置的文件内存%s",
     "rcutil.commands.rcu.fileram.run.success": "成功启用文件内存%s",
     "rcutil.commands.rcu.fileram.run.failed": "文件内存%s已经在运行",
     "rcutil.commands.rcu.fileram.stop.success": "成功停止文件内存%s",

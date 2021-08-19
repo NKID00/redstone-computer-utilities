@@ -173,7 +173,7 @@ public class Command {
 
     public static int executeRcu(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
-        if (RCUtil.status == Status.Idle) {
+        if (RCUtil.status.isIdle()) {
             Entity entity = s.getEntity();
             if (entity != null && entity instanceof ServerPlayerEntity) {
                 if (((ServerPlayerEntity)entity).inventory.insertStack(new ItemStack(RCUtil.wandItem))) {
@@ -262,7 +262,7 @@ public class Command {
             return 0;
         }
         
-        if (RCUtil.status != Status.Idle) {
+        if (!RCUtil.status.isIdle()) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.failed.running"));
             return 0;
         }
@@ -297,6 +297,11 @@ public class Command {
     public static int executeRcuFileRamRemove(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
+        if (RCUtil.status.isRunningFileRamNew() && RCUtil.fileRamBuilder.name.equals(name)) {
+            RCUtil.status = Status.Idle;
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success.builder", RCUtil.fileRamBuilder.fancyName), true);
+            return 1;
+        }
         if (RCUtil.fileRams.keySet().contains(name)) {
             RCUtil.fileRams.remove(name);
             s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success", name), true);

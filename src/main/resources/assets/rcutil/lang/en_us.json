@@ -37,6 +37,7 @@
     "rcutil.commands.rcu.fileram.new.failed.io": "An IOException occurred",
     "rcutil.commands.rcu.fileram.new.warning.align": "Warning: the most significant bit of the bus is not aligned, skipping it",
     "rcutil.commands.rcu.fileram.remove.success": "Removed file RAM %s successfully",
+    "rcutil.commands.rcu.fileram.remove.success.builder": "Removed file RAM %s (which is being set up currently) successfully",
     "rcutil.commands.rcu.fileram.run.success": "Started running file RAM %s successfully",
     "rcutil.commands.rcu.fileram.run.failed": "File RAM %s is already running",
     "rcutil.commands.rcu.fileram.stop.success": "Stopped file RAM %s successfully",

@@ -24,7 +24,7 @@ public class Wand {
 
         ServerCommandSource s = player.getCommandSource();
 
-        if (RCUtil.status == Status.Idle) {
+        if (RCUtil.status.isIdle()) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.failed.notfound"));
             return ActionResult.FAIL;
         }
