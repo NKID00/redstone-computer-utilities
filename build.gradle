@@ -12,8 +12,12 @@ version = "${buildVersion()}-mc${project.minecraft_version}+${buildMetadata()}"
 group = project.maven_group
 
 def buildVersion() {
-	def tags = grgit.tag.list().sort { a, b -> b.getName() <=> a.getName() }
-	return tags.get(0).getName()[1..-1]
+	if (grgit != null) {
+		def tags = grgit.tag.list().sort { a, b -> b.getName() <=> a.getName() }
+		return tags.get(0).getName()[1..-1]
+	} else {
+		return "unknown"
+	}
 }
 
 def buildMetadata() {
