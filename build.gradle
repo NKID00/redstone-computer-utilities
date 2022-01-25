@@ -13,9 +13,9 @@ group = project.maven_group
 
 def buildVersion() {
     if (grgit != null) {
-        def tags = grgit.tag.list().sort { a, b -> b.getName() <=> a.getName() }
-        if (tags != null) {
-            return tags.get(0).getName()[1..-1]
+        def tags = grgit.tag.list()
+        if (!tags.isEmpty()) {
+            return tags.sort({ a, b -> b.getName() <=> a.getName() }).get(0).getName()[1..-1]
         } else {
             return "unknown"
         }
