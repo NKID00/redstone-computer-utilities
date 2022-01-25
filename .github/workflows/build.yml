@@ -13,9 +13,7 @@ jobs:
       - name: setup jdk
         uses: actions/setup-java@v1
         with:
-          java-version: 16
-      - name: make gradle wrapper executable
-        run: chmod +x ./gradlew
+          java-version: 17
       - name: build
         run: ./gradlew build
       - name: find artifact
@@ -26,6 +24,6 @@ jobs:
           path: ${{ env.artifact }}
       - name: release artifact
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: softprops/action-gh-release@2d72d869af3bf23602f9593a1e3fd739b80ac1eb
+        uses: softprops/action-gh-release@v0.1.14
         with:
           files: ${{ env.artifact }}
