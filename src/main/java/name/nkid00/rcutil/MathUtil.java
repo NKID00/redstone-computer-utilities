@@ -1,6 +1,7 @@
 package name.nkid00.rcutil;
 
 import java.util.BitSet;
+import java.util.function.BiConsumer;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -201,5 +202,19 @@ public class MathUtil {
             stringBuilder.append(' ');
         }
         return String.format("\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits >> 3)), bits + (bits >> 3));
+    }
+
+    public static void foreachBlock(BlockPos base, Vec3i gap, int size, BiConsumer<Integer, BlockPos> func) {
+        if (size <= 0) {
+            return;
+        }
+        var pos = base;
+        for (int i = 0; ; i++) {
+            func.accept(i, pos);
+            if (i >= size) {
+                break;
+            }
+            pos = applyOffset(pos, gap);
+        }
     }
 }
