@@ -4,7 +4,6 @@ import com.mojang.brigadier.context.CommandContext;
 
 import name.nkid00.rcutil.RCUtil;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -12,11 +11,12 @@ import net.minecraft.text.TranslatableText;
 
 public class Rcu{
     public static int execute(CommandContext<ServerCommandSource> c) {
-        ServerCommandSource s = c.getSource();
-        if ( true /* TODO: no command is running */) {
-            Entity entity = s.getEntity();
+        var s = c.getSource();
+        var entity = (ServerPlayerEntity)s.getEntity();
+        var uuid = entity.getUuid();
+        if (RCUtil.getCommandStatus(uuid).equals(CommandStatus.Idle)) {
             if (entity != null && entity instanceof ServerPlayerEntity) {
-                if (((ServerPlayerEntity)entity).inventory.insertStack(new ItemStack(RCUtil.wandItem))) {
+                if (entity.getInventory().insertStack(new ItemStack(RCUtil.wandItem))) {
                     s.sendFeedback(new TranslatableText("rcutil.commands.rcu.success.item", RCUtil.wandItemHoverableText), true);
                     return 1;
                 } else {
@@ -29,8 +29,9 @@ public class Rcu{
             }
         } else {
             // TODO: stop running command
+            RCUtil.setCommandStatus(uuid, CommandStatus.Idle);
+            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.success.stop"), true);
             return 1;
         }
-        return 0;
     }
 }

@@ -189,29 +189,6 @@ public class Command {
         );
     }
 
-    public static int executeRcu(CommandContext<ServerCommandSource> c) {
-        ServerCommandSource s = c.getSource();
-        if (RCUtil.status.isIdle()) {
-            Entity entity = s.getEntity();
-            if (entity != null && entity instanceof ServerPlayerEntity) {
-                if (((ServerPlayerEntity)entity).inventory.insertStack(new ItemStack(RCUtil.wandItem))) {
-                    s.sendFeedback(new TranslatableText("rcutil.commands.rcu.success.item", RCUtil.wandItemHoverableText), true);
-                    return 1;
-                } else {
-                    s.sendError(new TranslatableText("rcutil.commands.rcu.failed.item"));
-                    return 0;
-                }
-            } else {
-                s.sendError(new TranslatableText("rcutil.commands.rcu.failed.notfound"));
-                return 0;
-            }
-        } else {
-            RCUtil.status = Status.Idle;
-            s.sendFeedback(new TranslatableText("rcutil.commands.rcu.success.stop"), true);
-            return 1;
-        }
-    }
-
     public static int executeRcuFileRamInfo(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         int count = RCUtil.fileRams.size();
@@ -280,7 +257,7 @@ public class Command {
             return 0;
         }
         
-        if (!RCUtil.status.isIdle()) {
+        if (!RCUtil.commandStatus.isIdle()) {
             s.sendError(new TranslatableText("rcutil.commands.rcu.failed.running"));
             return 0;
         }
@@ -306,7 +283,7 @@ public class Command {
         builder.buildFancyName();
 
         RCUtil.fileRamBuilder = builder;
-        RCUtil.status = Status.FileRamNewStepAddrLsb;
+        RCUtil.commandStatus = Status.FileRamNewStepAddrLsb;
         s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.start", builder.fancyName), true);
         s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.new.step.addrlsb", RCUtil.wandItemHoverableText), false);
         return 1;
@@ -315,8 +292,8 @@ public class Command {
     public static int executeRcuFileRamRemove(CommandContext<ServerCommandSource> c) {
         ServerCommandSource s = c.getSource();
         String name = StringArgumentType.getString(c, "name");
-        if (RCUtil.status.isRunningFileRamNew() && RCUtil.fileRamBuilder.name.equals(name)) {
-            RCUtil.status = Status.Idle;
+        if (RCUtil.commandStatus.isRunningFileRamNew() && RCUtil.fileRamBuilder.name.equals(name)) {
+            RCUtil.commandStatus = Status.Idle;
             s.sendFeedback(new TranslatableText("rcutil.commands.rcu.fileram.remove.success.builder", RCUtil.fileRamBuilder.fancyName), true);
             return 1;
         }
