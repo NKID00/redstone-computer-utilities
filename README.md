@@ -23,28 +23,28 @@ This mod supports Minecraft 1.18.1 and requires the latest Fabric Loader & Fabri
 Components can be connected with other components and transfer (whether synchronized or not) digital redstone signal from one end to another. The direction of the connection determines the direction of data flow. The followings are the types of components:
 
 - wires (WIP)
-  - Unsynchronized (i.e. real-time) input and output interfaces.
-  - Can be connected with a wires.
+  - Unsynchronized input and output interfaces, transfer data in real time (actually, when a neighbor block update is triggered).
+  - Can be connected to a wires.
 
 - bus (WIP)
-  - Synchronized (i.e. with a clock signal) input and output interfaces.
-  - Can be connected with a bus.
+  - Synchronized input and output interfaces, transfer data only when clock signal arrives.
+  - Can be connected to a bus or a wires.
 
 - addrbus (WIP)
-  - Synchronized and addressed (with another bus) input and output interfaces.
-  - Can be connected with an addrbus.
+  - Synchronized and addressed (with another bus) input and output interfaces, transfer address and data simultaneously when clock signal arrives.
+  - Can be connected to an addrbus, a bus (address is ignored) or a wires (address is ignored).
 
 - ram (WIP)
   - Read-write random access memories which stores data in actual game memory.
-  - Can be connected with an addrbus.
+  - Can be connected from or to an addrbus.
 
 - fileram (WIP)
   - Read-write random access memories which stores data in outside-game files.
-  - Can be connected with an addrbus.
+  - Can be connected from or to an addrbus.
 
 Connections are WIP.
 
-Components can be selected by `<type>:<name>` where name is a case-sensitive string made of letters, numbers and underlines, e.g. `addrbus:Input1` or `fileram:new_executable`. It is possible but not recommended to name a component after the name of a component type. Connections between components can be selected by `{source component selector}->{target component selector}`, e.g. `addrbus:input->ram:ram1` or `wires:source1->wires:target1`.
+Components can be selected by `<type>:<name>` where name is a case-sensitive string made of letters, numbers and underlines, e.g. `addrbus:Input1` or `fileram:new_executable`. Components which belong to different types can share the same name. Besides, it is possible but not recommended to name a component after the name of a component type. Connections between components can be selected by `{source component selector}->{target component selector}`, e.g. `addrbus:input->ram:ram1` or `wires:source1->wires:target1`.
 
 ### Commands (not fully implemented yet)
 
