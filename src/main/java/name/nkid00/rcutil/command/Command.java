@@ -1,4 +1,4 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.command;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +22,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
-
+import name.nkid00.rcutil.RCUtil;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
 import name.nkid00.rcutil.enumeration.FileRamFileByteOrder;
 import name.nkid00.rcutil.enumeration.FileRamType;
@@ -38,136 +38,154 @@ public class Command {
         dispatcher.register(
             literal("rcu")
             .requires((s) -> s.hasPermissionLevel(RCUtil.requiredPermissionLevel))
-            // give wand or stop running command
-            .executes(Command::executeRcu)
+            // /rcu
+            .executes(Rcu::execute)
+            // /rcu new
             .then(
-                literal("fileram")
-                .executes(Command::executeRcuFileRamInfo)
-                .then(
-                    literal("info")
-                    .executes(Command::executeRcuFileRamInfo)
-                    .then(
-                        argument("name", StringArgumentType.string())
-                        .suggests(new SuggestionProvider<ServerCommandSource>(){
-                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                RCUtil.fileRams.forEach((k, v) -> {
-                                    builder.suggest(k);
-                                });
-                                return builder.buildFuture();
-                            }
-                        })
-                        .executes(Command::executeRcuFileRamInfoSingle)
-                    )
-                )
-                .then(
-                    literal("new")
-                    .then(
-                        argument("type", StringArgumentType.word())
-                        .suggests(new SuggestionProvider<ServerCommandSource>(){
-                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                builder.suggest("ro");
-                                builder.suggest("wo");
-                                return builder.buildFuture();
-                            }
-                        })
-                        .then(
-                            argument("clock triggering edge", StringArgumentType.word())
-                            .suggests(new SuggestionProvider<ServerCommandSource>(){
-                                public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                    builder.suggest("pos");
-                                    builder.suggest("neg");
-                                    builder.suggest("dual");
-                                    return builder.buildFuture();
-                                }
-                            })
-                            .then(
-                                argument("name", StringArgumentType.string())
-                                .then(
-                                    argument("file", StringArgumentType.string())
-                                    .executes(Command::executeRcuFileRamNew)
-                                    .then(
-                                        argument("byte order", StringArgumentType.word())
-                                        .suggests(new SuggestionProvider<ServerCommandSource>(){
-                                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                                builder.suggest("le");
-                                                builder.suggest("be");
-                                                return builder.buildFuture();
-                                            }
-                                        })
-                                        .executes(Command::executeRcuFileRamNew)
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-                .then(
-                    literal("remove")
-                    .then(
-                        argument("name", StringArgumentType.string())
-                        .suggests(new SuggestionProvider<ServerCommandSource>(){
-                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                RCUtil.fileRams.forEach((k, v) -> {
-                                    builder.suggest(k);
-                                });
-                                return builder.buildFuture();
-                            }
-                        })
-                        .executes(Command::executeRcuFileRamRemove)
-                    )
-                )
-                .then(
-                    literal("start")
-                    .then(
-                        argument("name", StringArgumentType.string())
-                        .suggests(new SuggestionProvider<ServerCommandSource>(){
-                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                RCUtil.fileRams.forEach((k, v) -> {
-                                    if (!v.running) {
-                                        builder.suggest(k);
-                                    }
-                                });
-                                return builder.buildFuture();
-                            }
-                        })
-                        .executes(Command::executeRcuFileRamStart)
-                    )
-                )
-                .then(
-                    literal("stop")
-                    .then(
-                        argument("name", StringArgumentType.string())
-                        .suggests(new SuggestionProvider<ServerCommandSource>(){
-                            public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
-                                RCUtil.fileRams.forEach((k, v) -> {
-                                    if (v.running) {
-                                        builder.suggest(k);
-                                    }
-                                });
-                                return builder.buildFuture();
-                            }
-                        })
-                        .executes(Command::executeRcuFileRamStop)
-                    )
-                )
-                .then(
-                    literal("newfile")
-                    .then(
-                        argument("file", StringArgumentType.string())
-                        .then(
-                            argument("length in bytes", LongArgumentType.longArg(0))
-                            .executes(Command::executeRcuFileRamNewFile)
-                        )
-                    )
-                )
-                .then(
-                    literal("removefile")
-                    .then(
-                        argument("file", StringArgumentType.string())
-                        .executes(Command::executeRcuFileRamRemoveFile)
-                    )
-                )
+                literal("new")
+                .executes(RcuNew::execute)
             )
+            // // /rcu remove
+            // .then(
+            //     literal("remove")
+            //     .executes(RcuRemove::execute)
+            // )
+            // // /rcu info [...]
+            // .then(
+            //     literal("info")
+            //     .executes(RcuInfo::execute)
+            //     .then(
+            //         argument("option", StringArgumentType.string())
+            //         .executes(RcuInfo::execute)
+            //     )
+            // )
+            //     literal("fileram")
+            //     .executes(Command::executeRcuFileRamInfo)
+            //     .then(
+            //         literal("info")
+            //         .executes(Command::executeRcuFileRamInfo)
+            //         .then(
+            //             argument("name", StringArgumentType.string())
+            //             .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                     RCUtil.fileRams.forEach((k, v) -> {
+            //                         builder.suggest(k);
+            //                     });
+            //                     return builder.buildFuture();
+            //                 }
+            //             })
+            //             .executes(Command::executeRcuFileRamInfoSingle)
+            //         )
+            //     )
+            //     .then(
+            //         literal("new")
+            //         .then(
+            //             argument("type", StringArgumentType.word())
+            //             .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                     builder.suggest("ro");
+            //                     builder.suggest("wo");
+            //                     return builder.buildFuture();
+            //                 }
+            //             })
+            //             .then(
+            //                 argument("clock triggering edge", StringArgumentType.word())
+            //                 .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                         builder.suggest("pos");
+            //                         builder.suggest("neg");
+            //                         builder.suggest("dual");
+            //                         return builder.buildFuture();
+            //                     }
+            //                 })
+            //                 .then(
+            //                     argument("name", StringArgumentType.string())
+            //                     .then(
+            //                         argument("file", StringArgumentType.string())
+            //                         .executes(Command::executeRcuFileRamNew)
+            //                         .then(
+            //                             argument("byte order", StringArgumentType.word())
+            //                             .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                                     builder.suggest("le");
+            //                                     builder.suggest("be");
+            //                                     return builder.buildFuture();
+            //                                 }
+            //                             })
+            //                             .executes(Command::executeRcuFileRamNew)
+            //                         )
+            //                     )
+            //                 )
+            //             )
+            //         )
+            //     )
+            //     .then(
+            //         literal("remove")
+            //         .then(
+            //             argument("name", StringArgumentType.string())
+            //             .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                     RCUtil.fileRams.forEach((k, v) -> {
+            //                         builder.suggest(k);
+            //                     });
+            //                     return builder.buildFuture();
+            //                 }
+            //             })
+            //             .executes(Command::executeRcuFileRamRemove)
+            //         )
+            //     )
+            //     .then(
+            //         literal("start")
+            //         .then(
+            //             argument("name", StringArgumentType.string())
+            //             .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                     RCUtil.fileRams.forEach((k, v) -> {
+            //                         if (!v.running) {
+            //                             builder.suggest(k);
+            //                         }
+            //                     });
+            //                     return builder.buildFuture();
+            //                 }
+            //             })
+            //             .executes(Command::executeRcuFileRamStart)
+            //         )
+            //     )
+            //     .then(
+            //         literal("stop")
+            //         .then(
+            //             argument("name", StringArgumentType.string())
+            //             .suggests(new SuggestionProvider<ServerCommandSource>(){
+            //                 public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> c, SuggestionsBuilder builder) {
+            //                     RCUtil.fileRams.forEach((k, v) -> {
+            //                         if (v.running) {
+            //                             builder.suggest(k);
+            //                         }
+            //                     });
+            //                     return builder.buildFuture();
+            //                 }
+            //             })
+            //             .executes(Command::executeRcuFileRamStop)
+            //         )
+            //     )
+            //     .then(
+            //         literal("newfile")
+            //         .then(
+            //             argument("file", StringArgumentType.string())
+            //             .then(
+            //                 argument("length in bytes", LongArgumentType.longArg(0))
+            //                 .executes(Command::executeRcuFileRamNewFile)
+            //             )
+            //         )
+            //     )
+            //     .then(
+            //         literal("removefile")
+            //         .then(
+            //             argument("file", StringArgumentType.string())
+            //             .executes(Command::executeRcuFileRamRemoveFile)
+            //         )
+            //     )
+            // )
         );
     }
 

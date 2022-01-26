@@ -4,6 +4,8 @@
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 
+<!-- TODO: synchronize with the English README.
+
 ## 特性
 
 - 使用易于调试的游戏外文件充当红石计算机的内存
@@ -57,4 +59,4 @@
 
 版权所有 © 2021 NKID00
 
-使用 [MIT 许可证](./LICENSE)进行许可。
+使用 [MIT 许可证](./LICENSE)进行许可。 -->

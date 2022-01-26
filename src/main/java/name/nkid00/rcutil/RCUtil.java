@@ -13,13 +13,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-
+import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.enumeration.Status;
 import name.nkid00.rcutil.fileram.FileRam;
 import name.nkid00.rcutil.fileram.FileRamBuilder;
 
 public class RCUtil implements ModInitializer {
-    public static final int requiredPermissionLevel = 4;  // operations on files are dangerous
+    public static final int requiredPermissionLevel = 2;
+    public static final int requiredFileOperationPermissionLevel = 4;  // operations on files are dangerous
     public static final Item wandItem = Items.PINK_DYE;
     public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
     public static Status status = Status.Idle;
