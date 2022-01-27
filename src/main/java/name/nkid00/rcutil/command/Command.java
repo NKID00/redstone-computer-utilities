@@ -26,7 +26,6 @@ import name.nkid00.rcutil.RCUtil;
 import name.nkid00.rcutil.enumeration.FileRamEdgeTriggering;
 import name.nkid00.rcutil.enumeration.FileRamFileByteOrder;
 import name.nkid00.rcutil.enumeration.FileRamType;
-import name.nkid00.rcutil.enumeration.Status;
 import name.nkid00.rcutil.fileram.FileRam;
 import name.nkid00.rcutil.fileram.FileRamBuilder;
 

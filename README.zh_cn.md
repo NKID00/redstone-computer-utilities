@@ -1,6 +1,6 @@
 # Redstone Computer Utilities
 
-> 一些简单的红石计算机调试工具。
+> 一些红石计算机调试工具。
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 

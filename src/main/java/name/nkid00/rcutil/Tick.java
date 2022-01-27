@@ -10,7 +10,7 @@ import net.minecraft.world.dimension.DimensionType;
 import name.nkid00.rcutil.exception.BlockNotRedstoneWireException;
 
 public class Tick {
-    public static void register(ServerWorld world) {
+    public static void onTick(ServerWorld world) {
         DimensionType dimensionType = world.getDimension();
         RCUtil.fileRams.forEach((k, v) -> {
             if (v.running && dimensionType == v.dimensionType) {

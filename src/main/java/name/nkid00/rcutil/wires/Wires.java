@@ -29,7 +29,7 @@ public class Wires extends Component {
 
     public void writeData(ServerWorld world, BitSet bits) throws NotTargetBlockException {
         for (var ipos : new BlockPosUtil.BlocksInARowIterable(base, gap, size)) {
-                TargetBlockUtil.writeDigitalTargetBlockPower(world, ipos.pos, bits.get(ipos.index));
+            TargetBlockUtil.writeDigitalTargetBlockPower(world, ipos.pos, bits.get(ipos.index));
         }
     }
 }

@@ -5,59 +5,122 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
-
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.CommandStatus;
-import name.nkid00.rcutil.fileram.FileRam;
 import name.nkid00.rcutil.fileram.FileRamBuilder;
+import name.nkid00.rcutil.wires.Wires;
+import name.nkid00.rcutil.wires.WiresBuilder;
 
 public class RCUtil implements ModInitializer {
+    public static final Logger LOGGER = LogManager.getLogger();
     public static final int requiredPermissionLevel = 2;
-    public static final int requiredFileOperationPermissionLevel = 4;  // operations on files are dangerous
+    public static final int requiredFileOperationPermissionLevel = 4; // operations on files are dangerous
     public static final Item wandItem = Items.PINK_DYE;
     public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
-    public static Map<UUID,CommandStatus> commandStatus = null;
+    public static final HashMap<UUID, CommandStatus> commandStatus = new HashMap<>();
     public static FileRamBuilder fileRamBuilder = null;
     public static File baseDirectory = null;
-    public static File fileRamBaseDirectory = null;
+    public static File filesDirectory = null;
     // TODO: save & load
-    public static HashMap<String, FileRam> fileRams = new HashMap<>();
+    public static final HashMap<UUID, HashMap<String, Wires>> wires = new HashMap<>();
+    public static final HashMap<UUID, HashMap<String, Object>> bus = new HashMap<>();
+    public static final HashMap<UUID, HashMap<String, Object>> addrbus = new HashMap<>();
+    public static final HashMap<UUID, HashMap<String, Object>> ram = new HashMap<>();
+    public static final HashMap<UUID, HashMap<String, Object>> fileram = new HashMap<>();
+    public static final HashMap<UUID, HashMap<String, Object>> connection = new HashMap<>();
+    public static final HashMap<UUID, WiresBuilder> wiresBuilder = new HashMap<>();
+    public static final HashMap<UUID, Object> busBuilder = new HashMap<>();
+    public static final HashMap<UUID, Object> addrbusBuilder = new HashMap<>();
 
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             baseDirectory = new File(server.getRunDirectory(), "rcutil/");
             baseDirectory.mkdirs();
-            fileRamBaseDirectory = new File(baseDirectory, "fileram/");
-            fileRamBaseDirectory.mkdirs();
+            filesDirectory = new File(baseDirectory, "files/");
+            filesDirectory.mkdirs();
         });
-        // handle realtime input
-        ServerTickEvents.START_WORLD_TICK.register(Tick::register);
-        // handle wand
-        UseBlockCallback.EVENT.register(Wand::register);
+        // handle realtime
+        // ServerTickEvents.START_WORLD_TICK.register(Tick::onTick);
+        // handle wand action
+        UseBlockCallback.EVENT.register(Wand::onUse);
         // handle commands
         CommandRegistrationCallback.EVENT.register(Command::register);
     }
 
-    public static CommandStatus getCommandStatus(UUID uuid) {
-        if (RCUtil.commandStatus.containsKey(uuid)) {
-            return RCUtil.commandStatus.get(uuid);
+    // put and return the default value if key is not found
+    public static <K, V> V getOrPutDefault(Map<K, V> map, K key, V defaultValue) {
+        if (map.containsKey(key)) {
+            return map.get(key);
         } else {
-            setCommandStatus(uuid, CommandStatus.Idle);
-            return CommandStatus.Idle;
+            map.put(key, defaultValue);
+            return defaultValue;
         }
     }
 
+    // put and return the new value if key is not found
+    public static <K, K2, V> HashMap<K2, V> getOrPutNewHashMap(Map<K, HashMap<K2, V>> map, K key) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        } else {
+            var newValue = new HashMap<K2, V>();
+            map.put(key, newValue);
+            return newValue;
+        }
+    }
+
+    public static CommandStatus getCommandStatus(UUID uuid) {
+        return getOrPutDefault(commandStatus, uuid, CommandStatus.Idle);
+    }
+
     public static void setCommandStatus(UUID uuid, CommandStatus status) {
-        RCUtil.commandStatus.put(uuid, status);
+        commandStatus.put(uuid, status);
+    }
+
+    public static HashMap<String, Wires> getWires(UUID uuid) {
+        return getOrPutNewHashMap(wires, uuid);
+    }
+
+    public static HashMap<String, Object> getBus(UUID uuid) {
+        return getOrPutNewHashMap(bus, uuid);
+    }
+
+    public static HashMap<String, Object> getAddrbus(UUID uuid) {
+        return getOrPutNewHashMap(addrbus, uuid);
+    }
+
+    public static HashMap<String, Object> getRam(UUID uuid) {
+        return getOrPutNewHashMap(ram, uuid);
+    }
+
+    public static HashMap<String, Object> getFileram(UUID uuid) {
+        return getOrPutNewHashMap(fileram, uuid);
+    }
+
+    public static HashMap<String, Object> getConnection(UUID uuid) {
+        return getOrPutNewHashMap(connection, uuid);
+    }
+
+    public static WiresBuilder getWiresBuilder(UUID uuid) {
+        return getOrPutDefault(wiresBuilder, uuid, new WiresBuilder());
+    }
+
+    public static Object getBusBuilder(UUID uuid) {
+        return getOrPutDefault(busBuilder, uuid, new Object());
+    }
+
+    public static Object getAddrbusBuilder(UUID uuid) {
+        return getOrPutDefault(addrbusBuilder, uuid, new Object());
     }
 }
