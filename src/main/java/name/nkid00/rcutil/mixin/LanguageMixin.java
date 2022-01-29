@@ -13,12 +13,16 @@ import name.nkid00.rcutil.DedicatedServerUtil;
 
 @Mixin(Language.class)
 public abstract class LanguageMixin {
+    private static boolean languageLoaded = false;
+
     @Redirect(method = "create", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Language;load(Ljava/io/InputStream;Ljava/util/function/BiConsumer;)V"))
-    private static void loadLanguageFileForDedicatedServer(InputStream inputStream, BiConsumer<String, String> entryConsumer) {
+    private static void loadLanguageFileForDedicatedServer(InputStream inputStream,
+            BiConsumer<String, String> entryConsumer) {
         Language.load(inputStream, entryConsumer);
-        if (DedicatedServerUtil.isDedicatedServer) {
+        if (DedicatedServerUtil.isDedicatedServer && !languageLoaded) {
             InputStream languageFileStream = Language.class.getResourceAsStream("/assets/rcutil/lang/en_us.json");
             Language.load(languageFileStream, entryConsumer);
+            languageLoaded = true;
         }
     }
 }

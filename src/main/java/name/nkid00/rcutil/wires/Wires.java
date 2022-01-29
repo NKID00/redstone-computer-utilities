@@ -17,8 +17,6 @@ public class Wires extends Component {
     public Vec3i gap = null;
     public int size = 0;
 
-    public Component.ComponentStatus status = null;
-
     public BitSet readData(ServerWorld world) throws NotTargetBlockException {
         var bits = new BitSet(size);
         for (var ipos : new BlockPosUtil.BlocksInARowIterable(base, gap, size)) {

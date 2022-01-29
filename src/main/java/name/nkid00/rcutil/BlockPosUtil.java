@@ -2,6 +2,8 @@ package name.nkid00.rcutil;
 
 import java.util.Iterator;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
@@ -26,56 +28,103 @@ public class BlockPosUtil {
         return new BlockPos(v.getX() + offset.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ());
     }
 
-    public static boolean isBlocksInARow(BlockPos v1, BlockPos v2, BlockPos v3) {
-        // TODO: fix sloping lines
-        Vec3i offset12 = getOffset(v1, v2);
-        Vec3i offset13 = getOffset(v1, v3);
-        float x, y, z;
-        if (offset12.getX() == 0) {
-            if (offset13.getX() == 0) {
-                x = 0F;
+    @Nullable
+    public static BlocksInARowIterable resolveBlockPos(BlockPos lsb, BlockPos secondLsb, BlockPos msb) {
+        if (lsb.equals(secondLsb)) {
+            // lsb == secondLsb == msb -> size = 1
+            // lsb == secondLsb != msb -> null
+            return lsb.equals(msb) ? new BlocksInARowIterable(lsb, null, 1) : null;
+        }
+        // lsb != secondLsb && lsb == msb
+        if (msb.equals(lsb)) {
+            return null;
+        }
+        var gap = getOffset(lsb, secondLsb);
+        // lsb != secondLsb && lsb != msb && secondLsb == msb -> size = 2
+        if (secondLsb.equals(lsb)) {
+            return new BlocksInARowIterable(lsb, gap, 2);
+        }
+        // lsb != secondLsb && secondLsb != msb && lsb != msb
+        var offset = getOffset(lsb, msb);
+        var gx = gap.getX();
+        var gy = gap.getY();
+        var gz = gap.getZ();
+        var ox = offset.getX();
+        var oy = offset.getY();
+        var oz = offset.getZ();
+        Integer size = null;
+        // for each axis: size = offset / gap
+        // - size is not integral -> null
+        // - size is not equal to the sizes of other axises -> null
+        // - gap and offset: one is zero, another is non-zero -> null
+        if (gx != 0 && ox != 0) {
+            var t = ((float) ox) / gx;
+            if (MathUtil.isFloatIntegral(t)) {
+                size = (int) t;
             } else {
-                return false;
+                return null;
             }
-        } else {
-            x = offset13.getX() / offset12.getX();
+        } else if (gx != 0 || ox != 0) {
+            return null;
         }
-        if (offset12.getY() == 0) {
-            if (offset13.getY() == 0) {
-                y = 0F;
+        if (gy != 0 && oy != 0) {
+            var t = ((float) oy) / gy;
+            if (MathUtil.isFloatIntegral(t)) {
+                if (size == null) {
+                    size = (int) t;
+                } else if (!size.equals((int) t)) {
+                    return null;
+                }
             } else {
-                return false;
+                return null;
             }
-        } else {
-            y = offset13.getY() / offset12.getY();
+        } else if (gy != 0 || oy != 0) {
+            return null;
         }
-        if (offset12.getZ() == 0) {
-            if (offset13.getZ() == 0) {
-                z = 0F;
+        if (gz != 0 && oz != 0) {
+            var t = ((float) oz) / gz;
+            if (MathUtil.isFloatIntegral(t)) {
+                if (size == null) {
+                    size = (int) t;
+                } else if (!size.equals((int) t)) {
+                    return null;
+                }
             } else {
-                return false;
+                return null;
             }
-        } else {
-            z = offset13.getZ() / offset12.getZ();
+        } else if (gz != 0 || oz != 0) {
+            return null;
         }
-        if ((x == 0F && y == 0F) || (x == 0F && z == 0F) || (y == 0F && z == 0F)) {
-            return true;
-        } else {
-            return MathUtil.isFloatEqual(x, y) && MathUtil.isFloatEqual(y, z);
-        }
+        return size == null ? null : new BlocksInARowIterable(lsb, gap, size);
     }
 
     public static class IndexedBlockPos {
         public int index = 0;
         public BlockPos pos = null;
-    } 
+    }
 
     public static class BlocksInARowIterable implements Iterable<IndexedBlockPos> {
         public static class BlocksInARowIterator implements Iterator<IndexedBlockPos> {
             private BlockPos pos = null;
             private Vec3i gap = null;
-            private int i = 0;
+            private int index = 0;
             private int size = 0;
+
+            public BlockPos getPos() {
+                return pos;
+            }
+
+            public Vec3i getGap() {
+                return gap;
+            }
+
+            public int getIndex() {
+                return index;
+            }
+
+            public int getSize() {
+                return size;
+            }
 
             public BlocksInARowIterator(BlockPos base, Vec3i gap, int size) {
                 if (size <= 0) {
@@ -87,16 +136,16 @@ public class BlockPosUtil {
             }
 
             public boolean hasNext() {
-                return i < size;
+                return index < size;
             }
 
             public IndexedBlockPos next() {
                 var result = new IndexedBlockPos();
-                result.index = i;
+                result.index = index;
                 result.pos = pos;
-                if (i < size) {
+                index++;
+                if (index < size) {
                     pos = applyOffset(pos, gap);
-                    i++;
                 }
                 return result;
             }

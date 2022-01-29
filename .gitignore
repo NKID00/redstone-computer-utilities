@@ -31,3 +31,7 @@ bin/
 # fabric
 
 run/
+
+# debug
+
+debug-install-mod.sh

@@ -48,7 +48,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    // Fabric API.
+    // Fabric API
     Set<String> apiModules = [
         "fabric-command-api-v1",
         "fabric-events-interaction-v0",
@@ -66,6 +66,8 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
+
+    exclude "assets/rcutil/icon.kra"
 }
 
 tasks.withType(JavaCompile).configureEach {

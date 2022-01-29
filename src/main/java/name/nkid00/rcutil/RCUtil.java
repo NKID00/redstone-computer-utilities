@@ -18,7 +18,6 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.CommandStatus;
-import name.nkid00.rcutil.fileram.FileRamBuilder;
 import name.nkid00.rcutil.wires.Wires;
 import name.nkid00.rcutil.wires.WiresBuilder;
 
@@ -29,7 +28,6 @@ public class RCUtil implements ModInitializer {
     public static final Item wandItem = Items.PINK_DYE;
     public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
     public static final HashMap<UUID, CommandStatus> commandStatus = new HashMap<>();
-    public static FileRamBuilder fileRamBuilder = null;
     public static File baseDirectory = null;
     public static File filesDirectory = null;
     // TODO: save & load
@@ -80,6 +78,22 @@ public class RCUtil implements ModInitializer {
         }
     }
 
+    // put and return the new value if key is not found
+    public static <K, V> V getOrPutNewValue(Map<K, V> map, K key, Class<V> valueClass) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        } else {
+            V newValue;
+            try {
+                newValue = valueClass.getConstructor().newInstance();
+            } catch (Exception e) {
+                return null;
+            }
+            map.put(key, newValue);
+            return newValue;
+        }
+    }
+
     public static CommandStatus getCommandStatus(UUID uuid) {
         return getOrPutDefault(commandStatus, uuid, CommandStatus.Idle);
     }
@@ -113,14 +127,14 @@ public class RCUtil implements ModInitializer {
     }
 
     public static WiresBuilder getWiresBuilder(UUID uuid) {
-        return getOrPutDefault(wiresBuilder, uuid, new WiresBuilder());
+        return getOrPutNewValue(wiresBuilder, uuid, WiresBuilder.class);
     }
 
     public static Object getBusBuilder(UUID uuid) {
-        return getOrPutDefault(busBuilder, uuid, new Object());
+        return getOrPutNewValue(busBuilder, uuid, Object.class);
     }
 
     public static Object getAddrbusBuilder(UUID uuid) {
-        return getOrPutDefault(addrbusBuilder, uuid, new Object());
+        return getOrPutNewValue(addrbusBuilder, uuid, Object.class);
     }
 }

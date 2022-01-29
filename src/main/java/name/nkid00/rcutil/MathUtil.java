@@ -4,7 +4,7 @@ import java.util.BitSet;
 
 public class MathUtil {
     public static boolean isFloatIntegral(float v) {
-        int vi = (int)v;
+        int vi = (int) v;
         if (v >= 0) {
             return v - vi < 1e-5F || v - vi > 0.99999F;
         } else {
@@ -17,7 +17,7 @@ public class MathUtil {
     }
 
     public static int float2Int(float v) {
-        int vi = (int)v;
+        int vi = (int) v;
         if (v - vi > 0.99999F) {
             return vi + 1;
         } else if (-(v - vi) > 0.99999F) {
@@ -55,7 +55,7 @@ public class MathUtil {
     }
 
     public static byte reverseByte(byte v) {
-        BitSet bitSet = BitSet.valueOf(new byte[]{v});
+        BitSet bitSet = BitSet.valueOf(new byte[] { v });
         BitSet result = new BitSet(8);
         for (int i = 0; i < 8; i++) {
             result.set(i, bitSet.get(7 - i));
@@ -98,17 +98,17 @@ public class MathUtil {
         float x = c * (1F - Math.abs((h / 60F % 2F) - 1F));
         float m = v - c;
         if (0F <= h && h <= 60F) {
-            return new float[]{c + m, x + m, m};
+            return new float[] { c + m, x + m, m };
         } else if (60F < h && h <= 120F) {
-            return new float[]{x + m, c + m, m};
+            return new float[] { x + m, c + m, m };
         } else if (120F < h && h <= 180F) {
-            return new float[]{m, c + m, x + m};
+            return new float[] { m, c + m, x + m };
         } else if (180F < h && h <= 240F) {
-            return new float[]{m, x + m, c + m};
+            return new float[] { m, x + m, c + m };
         } else if (240F < h && h <= 300F) {
-            return new float[]{x + m, m, c + m};
-        } else {  // 300F < h && h <= 360F
-            return new float[]{c + m, m, x + m};
+            return new float[] { x + m, m, c + m };
+        } else { // 300F < h && h <= 360F
+            return new float[] { c + m, m, x + m };
         }
     }
 
@@ -117,7 +117,7 @@ public class MathUtil {
         if (v.length > 0) {
             StringBuilder stringBuilder = new StringBuilder(v.length * 9);
             for (byte b : v) {
-                BitSet bitSet = BitSet.valueOf(new byte[]{b});
+                BitSet bitSet = BitSet.valueOf(new byte[] { b });
                 for (int i = 0; i < 8; i++) {
                     stringBuilder.append(bitSet.get(i) ? '1' : '0');
                 }
@@ -138,6 +138,7 @@ public class MathUtil {
             }
             stringBuilder.append(' ');
         }
-        return String.format("\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits >> 3)), bits + (bits >> 3));
+        return String.format("\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits >> 3)),
+                bits + (bits >> 3));
     }
 }

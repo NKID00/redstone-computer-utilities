@@ -46,7 +46,7 @@ This mod provides various types components to interact with redstone signals and
   - Read-write random access memories which stores data in outside-game files.
   - Can be connected from or to an addrbus.
 
-Components can be selected with the form of `<type>:<name>` where `<name>` is a case-sensitive string made of letters, numbers and underlines. e.g. `addrbus:Input1` selects an addrbus named `Input1` and `fileram:new_executable` selects a fileram named `new_executable`. Components belonged to different types or different players can share the same name. Besides, it is possible but not recommended to name a component after the name of a component type.
+Components can be selected with the form of `<type>:<name>` where `<name>` is a case-sensitive string made of letters, digits and underlines. e.g. `addrbus:Input1` selects an addrbus named `Input1` and `fileram:new_executable` selects a fileram named `new_executable`. Components belonged to different types or different players can share the same name. Besides, it is possible but not recommended to name a component after the name of a component type.
 
 ### Connections (not fully implemented yet)
 
@@ -63,16 +63,16 @@ All the commands with abilities to perform operations on files (i.e. fileram-rel
 `/rcu`
 - Stop the running command if there is any, otherwise give the command source player a wand item (i.e. pink dye).
 
-`/rcu new ({component selector} | {connection selector}) [option ...]` (WIP)
+`/rcu new {component or connection selector} [option ...]` (WIP)
 - Create a component or connection.
 
-`/rcu remove ({component selector} | {connection selector})` (WIP)
+`/rcu remove {component or connection selector}` (WIP)
 - Remove the component or connection.
 
 `/rcu info` (WIP)
 - Display brief information and status.
 
-`/rcu info ({component selector} | {connection selector})` (WIP)
+`/rcu info {component or connection selector}` (WIP)
 - Display the detail of the component or connection.
 
 `/rcu read {component selector} [option ...]` (WIP)
@@ -81,10 +81,10 @@ All the commands with abilities to perform operations on files (i.e. fileram-rel
 `/rcu write {component selector} [option ...] (<data> | from {component selector} [option ...])` (WIP)
 - Write `<data>` or the result from reading from a component to the component.
 
-`/rcu start ({component selector} | {connection selector})` (WIP)
+`/rcu start {component or connection selector}` (WIP)
 - Start the component or connection.
 
-`/rcu stop ({component selector} | {connection selector})` (WIP)
+`/rcu stop {component or connection selector}` (WIP)
 - Stop the component or connection.
 
 `/rcu newfile <filename> <length in bytes>` (WIP)

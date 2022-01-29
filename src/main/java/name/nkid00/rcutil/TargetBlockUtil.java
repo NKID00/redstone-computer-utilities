@@ -8,7 +8,8 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 
 public class TargetBlockUtil {
-    public static class NotTargetBlockException extends RCUtilException { }
+    public static class NotTargetBlockException extends RCUtilException {
+    }
 
     public static boolean isTargetBlock(ServerWorld world, BlockPos pos) {
         return world.getBlockState(pos).isOf(Blocks.TARGET);
@@ -25,14 +26,16 @@ public class TargetBlockUtil {
         return readTargetBlockPower(world, pos) > 0;
     }
 
-    public static void writeTargetBlockPower(ServerWorld world, BlockPos pos, int power) throws NotTargetBlockException {
+    public static void writeTargetBlockPower(ServerWorld world, BlockPos pos, int power)
+            throws NotTargetBlockException {
         if (!isTargetBlock(world, pos)) {
             throw new NotTargetBlockException();
         }
         world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), Block.NOTIFY_ALL);
     }
 
-    public static void writeDigitalTargetBlockPower(ServerWorld world, BlockPos pos, boolean power) throws NotTargetBlockException {
+    public static void writeDigitalTargetBlockPower(ServerWorld world, BlockPos pos, boolean power)
+            throws NotTargetBlockException {
         writeTargetBlockPower(world, pos, power ? 15 : 0);
     }
 }
