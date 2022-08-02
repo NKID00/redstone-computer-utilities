@@ -22,7 +22,6 @@
     "main": [
       "name.nkid00.rcutil.RCUtil"
     ]
-    
   },
   "mixins": [
     "rcutil.mixins.json"
