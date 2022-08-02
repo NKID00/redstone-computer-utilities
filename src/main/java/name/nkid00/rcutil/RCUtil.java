@@ -22,7 +22,6 @@ public class RCUtil implements ModInitializer {
 
         // storage handler
         ServerLifecycleEvents.SERVER_STARTED.register(Storage::load);
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> Storage.save());
 
         // tick handler
         ServerTickEvents.START_WORLD_TICK.register(Tick::onTick);
