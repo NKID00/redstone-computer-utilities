@@ -18,7 +18,9 @@
 
 ## Install
 
-This mod supports Minecraft 1.18.1 and requires the latest Fabric Loader and Fabric API. This mod is mostly server-side but has to be installed both on server-side and client-side in order to display translatable information correctly.
+This mod supports Minecraft 1.19.1 and requires the latest Fabric Loader and Fabric API.
+
+This mod is mostly server-side but has to be installed both on server-side and client-side in order to display translatable information correctly.
 
 ## Usage
 
@@ -98,6 +100,14 @@ All the commands with abilities to perform operations on files (i.e. fileram-rel
 
 `/rcu disasm <instruction set architecture> [option ...] (<machine code> | from {component selector} [option ...])` (WIP)
 - Disassemble the given machine code or the result from reading from a component.
+
+## Build
+
+```sh
+./gradlew build
+```
+
+Built jars are located in `build/libs`.
 
 ## Copyright
 
