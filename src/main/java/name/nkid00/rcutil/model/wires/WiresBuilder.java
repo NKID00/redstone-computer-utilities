@@ -2,8 +2,8 @@ package name.nkid00.rcutil.model.wires;
 
 import org.jetbrains.annotations.Nullable;
 
-import name.nkid00.rcutil.component.ComponentBuilder;
-import name.nkid00.rcutil.helper.BlockPosUtil;
+import name.nkid00.rcutil.model.component.ComponentBuilder;
+import name.nkid00.rcutil.helper.BlockPosHelper;
 import net.minecraft.util.math.BlockPos;
 
 public class WiresBuilder extends ComponentBuilder {
@@ -14,7 +14,7 @@ public class WiresBuilder extends ComponentBuilder {
     @Override
     @Nullable
     public Wires build() {
-        var it = BlockPosUtil.resolveBlockPos(lsb, secondLsb, msb);
+        var it = BlockPosHelper.resolveBlockPos(lsb, secondLsb, msb);
         if (it == null) {
             return null;
         } else {

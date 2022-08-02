@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import name.nkid00.rcutil.enumeration.Status;
 
 public abstract class Component {
-
     @NotNull
     public String name = "";
     @NotNull

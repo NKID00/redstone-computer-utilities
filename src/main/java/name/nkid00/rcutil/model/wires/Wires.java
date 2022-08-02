@@ -3,9 +3,9 @@ package name.nkid00.rcutil.model.wires;
 import java.util.BitSet;
 
 import name.nkid00.rcutil.model.component.Component;
-import name.nkid00.rcutil.helper.BlockPosUtil;
-import name.nkid00.rcutil.helper.TargetBlockUtil;
-import name.nkid00.rcutil.helper.TargetBlockUtil.NotTargetBlockException;
+import name.nkid00.rcutil.exception.BlockNotTargetException;
+import name.nkid00.rcutil.helper.BlockPosHelper;
+import name.nkid00.rcutil.helper.TargetBlockHelper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -17,17 +17,17 @@ public class Wires extends Component {
     public Vec3i gap = null;
     public int size = 0;
 
-    public BitSet readData(ServerWorld world) throws NotTargetBlockException {
+    public BitSet readData(ServerWorld world) throws BlockNotTargetException {
         var bits = new BitSet(size);
-        for (var ipos : new BlockPosUtil.BlocksInARowIterable(base, gap, size)) {
-            bits.set(ipos.index, TargetBlockUtil.readDigitalTargetBlockPower(world, ipos.pos));
+        for (var ipos : new BlockPosHelper.BlocksInARowIterable(base, gap, size)) {
+            bits.set(ipos.index, TargetBlockHelper.readDigitalTargetBlockPower(world, ipos.pos));
         }
         return bits;
     }
 
-    public void writeData(ServerWorld world, BitSet bits) throws NotTargetBlockException {
-        for (var ipos : new BlockPosUtil.BlocksInARowIterable(base, gap, size)) {
-            TargetBlockUtil.writeDigitalTargetBlockPower(world, ipos.pos, bits.get(ipos.index));
+    public void writeData(ServerWorld world, BitSet bits) throws BlockNotTargetException {
+        for (var ipos : new BlockPosHelper.BlocksInARowIterable(base, gap, size)) {
+            TargetBlockHelper.writeDigitalTargetBlockPower(world, ipos.pos, bits.get(ipos.index));
         }
     }
 }

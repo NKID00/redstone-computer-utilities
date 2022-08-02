@@ -2,7 +2,7 @@ package name.nkid00.rcutil.helper;
 
 import java.util.BitSet;
 
-public class MathUtil {
+public class DataHelper {
     public static boolean isFloatIntegral(float v) {
         int vi = (int) v;
         if (v >= 0) {

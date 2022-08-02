@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-public class BlockPosUtil {
+public class BlockPosHelper {
     public static Vec3i BlockPos2Vec3i(BlockPos v) {
         return new Vec3i(v.getX(), v.getY(), v.getZ());
     }
@@ -59,7 +59,7 @@ public class BlockPosUtil {
         // - gap and offset: one is zero, another is non-zero -> null
         if (gx != 0 && ox != 0) {
             var t = ((float) ox) / gx;
-            if (MathUtil.isFloatIntegral(t)) {
+            if (DataHelper.isFloatIntegral(t)) {
                 size = (int) t;
             } else {
                 return null;
@@ -69,7 +69,7 @@ public class BlockPosUtil {
         }
         if (gy != 0 && oy != 0) {
             var t = ((float) oy) / gy;
-            if (MathUtil.isFloatIntegral(t)) {
+            if (DataHelper.isFloatIntegral(t)) {
                 if (size == null) {
                     size = (int) t;
                 } else if (!size.equals((int) t)) {
@@ -83,7 +83,7 @@ public class BlockPosUtil {
         }
         if (gz != 0 && oz != 0) {
             var t = ((float) oz) / gz;
-            if (MathUtil.isFloatIntegral(t)) {
+            if (DataHelper.isFloatIntegral(t)) {
                 if (size == null) {
                     size = (int) t;
                 } else if (!size.equals((int) t)) {
