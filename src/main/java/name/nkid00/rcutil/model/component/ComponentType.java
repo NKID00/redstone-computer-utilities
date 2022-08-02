@@ -1,4 +1,4 @@
-package name.nkid00.rcutil.component;
+package name.nkid00.rcutil.model.component;
 
 public enum ComponentType {
     Wires, Bus, AddrBus, Ram, Fileram;

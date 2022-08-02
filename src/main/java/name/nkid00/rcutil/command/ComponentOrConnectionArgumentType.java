@@ -28,22 +28,25 @@ public class ComponentOrConnectionArgumentType implements ArgumentType<Component
     public ComponentSelector parse(StringReader reader) throws CommandSyntaxException {
         if (!reader.canRead()) {
             throw INVALID_SELECTOR_EXCEPTION.createWithContext(reader);
-        } else if (!CommandUtil.isLetterDigitUnderline(reader.peek())) {
-            reader.skip();
-            throw INVALID_TYPE_EXCEPTION.createWithContext(reader);
         }
-        var typeString = reader.readStringUntil(':');
-        if (typeString.isEmpty()) {
-            throw INVALID_SELECTOR_EXCEPTION.createWithContext(reader);
-        }
-        var type = ComponentType.fromString(typeString);
-        if (type == null) {
+        var type = ComponentType.fromString("");
+        var name = "";
+        // else if (!CommandUtil.isLetterDigitUnderline(reader.peek())) {
+        //     reader.skip();
+        //     throw INVALID_TYPE_EXCEPTION.createWithContext(reader);
+        // }
+        // var typeString = reader.readStringUntil(':');
+        // if (typeString.isEmpty()) {
+        //     throw INVALID_SELECTOR_EXCEPTION.createWithContext(reader);
+        // }
+        // var type = ComponentType.fromString(typeString);
+        // if (type == null) {
 
-        }
-        var name = reader.readStringUntil('-');
-        if (typeString.isEmpty()) {
-            throw INVALID_SELECTOR_EXCEPTION.createWithContext(reader);
-        }
+        // }
+        // var name = reader.readStringUntil('-');
+        // if (typeString.isEmpty()) {
+        //     throw INVALID_SELECTOR_EXCEPTION.createWithContext(reader);
+        // }
         var selector = new ComponentSelector();
         selector.type = type;
         selector.name = name;

@@ -1,11 +1,11 @@
-package name.nkid00.rcutil.wires;
+package name.nkid00.rcutil.model.wires;
 
 import java.util.BitSet;
 
-import name.nkid00.rcutil.BlockPosUtil;
-import name.nkid00.rcutil.TargetBlockUtil;
-import name.nkid00.rcutil.TargetBlockUtil.NotTargetBlockException;
-import name.nkid00.rcutil.component.Component;
+import name.nkid00.rcutil.model.component.Component;
+import name.nkid00.rcutil.helper.BlockPosUtil;
+import name.nkid00.rcutil.helper.TargetBlockUtil;
+import name.nkid00.rcutil.helper.TargetBlockUtil.NotTargetBlockException;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;

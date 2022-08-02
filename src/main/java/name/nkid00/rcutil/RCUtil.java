@@ -15,11 +15,11 @@ import net.minecraft.text.Text;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.CommandStatus;
-import name.nkid00.rcutil.wires.Wires;
-import name.nkid00.rcutil.wires.WiresBuilder;
+import name.nkid00.rcutil.model.wires.Wires;
+import name.nkid00.rcutil.model.wires.WiresBuilder;
 
 public class RCUtil implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger();

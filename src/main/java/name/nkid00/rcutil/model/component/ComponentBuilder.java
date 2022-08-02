@@ -1,4 +1,4 @@
-package name.nkid00.rcutil.component;
+package name.nkid00.rcutil.model.component;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

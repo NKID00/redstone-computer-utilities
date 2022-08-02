@@ -1,11 +1,12 @@
 package name.nkid00.rcutil.enumeration;
 
-import net.minecraft.text.TranslatableText;
+import name.nkid00.rcutil.helper.I18n;
+import net.minecraft.text.Text;
 
-public enum FileRamEdgeTriggering {
+public enum TriggerType {
     Positive, Negative, Dual;
 
-    public static FileRamEdgeTriggering fromString(String s) {
+    public static TriggerType fromString(String s) {
         if (s.equals("pos")) {
             return Positive;
         } else if (s.equals("neg")) {
@@ -17,15 +18,15 @@ public enum FileRamEdgeTriggering {
         }
     }
 
-    public TranslatableText toText() {
+    public Text toText() {
         switch (this) {
             case Positive:
             default:
-                return new TranslatableText("rcutil.fileram.fancyname.pos");
+                return I18n.t("rcutil.fileram.fancyname.pos");
             case Negative:
-                return new TranslatableText("rcutil.fileram.fancyname.neg");
+                return I18n.t("rcutil.fileram.fancyname.neg");
             case Dual:
-                return new TranslatableText("rcutil.fileram.fancyname.dual");
+                return I18n.t("rcutil.fileram.fancyname.dual");
         }
     }
 }

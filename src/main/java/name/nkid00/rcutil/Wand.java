@@ -2,12 +2,13 @@ package name.nkid00.rcutil;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 import name.nkid00.rcutil.command.CommandStatus;
+import name.nkid00.rcutil.helper.I18n;
+import name.nkid00.rcutil.helper.TargetBlockUtil;
 
 public class Wand {
     public static ActionResult onUse(PlayerEntity player, World rawWorld, Hand hand, BlockHitResult hitResult) {
@@ -20,14 +21,14 @@ public class Wand {
         var status = RCUtil.getCommandStatus(uuid);
 
         if (status.isIdle()) {
-            s.sendError(new TranslatableText("rcutil.wand.failed.notfound"));
+            s.sendError(I18n.t("rcutil.wand.failed.notfound"));
             return ActionResult.FAIL;
         }
 
         var world = (ServerWorld) rawWorld;
         var pos = hitResult.getBlockPos();
         if (!TargetBlockUtil.isTargetBlock(world, pos)) {
-            s.sendError(new TranslatableText("rcutil.commands.rcu.new.component.failed.target"));
+            s.sendError(I18n.t("rcutil.commands.rcu.new.component.failed.target"));
             RCUtil.setCommandStatus(uuid, CommandStatus.Idle);
             return ActionResult.FAIL;
         }
@@ -37,20 +38,20 @@ public class Wand {
             if (status.equals(CommandStatus.RcuNewWiresLsb)) {
                 builder.dimensionType = world.getDimension();
             } else if (!builder.dimensionType.equals(world.getDimension())) {
-                s.sendError(new TranslatableText("rcutil.commands.rcu.new.component.failed.dimension"));
+                s.sendError(I18n.t("rcutil.commands.rcu.new.component.failed.dimension"));
                 RCUtil.setCommandStatus(uuid, CommandStatus.Idle);
                 return ActionResult.FAIL;
             }
             switch (status) {
                 case RcuNewWiresLsb:
                     builder.lsb = pos;
-                    s.sendFeedback(new TranslatableText("rcutil.commands.rcu.new.wires.step.2lsb",
+                    s.sendFeedback(I18n.t("rcutil.commands.rcu.new.wires.step.2lsb",
                             RCUtil.wandItemHoverableText), false);
                     RCUtil.setCommandStatus(uuid, CommandStatus.RcuNewWiresSecondLsb);
                     return ActionResult.SUCCESS;
                 case RcuNewWiresSecondLsb:
                     builder.secondLsb = pos;
-                    s.sendFeedback(new TranslatableText("rcutil.commands.rcu.new.wires.step.msb",
+                    s.sendFeedback(I18n.t("rcutil.commands.rcu.new.wires.step.msb",
                             RCUtil.wandItemHoverableText), false);
                     RCUtil.setCommandStatus(uuid, CommandStatus.RcuNewWiresMsb);
                     return ActionResult.SUCCESS;
@@ -58,11 +59,11 @@ public class Wand {
                     builder.msb = pos;
                     var wires = builder.build();
                     if (wires == null) {
-                        s.sendError(new TranslatableText("rcutil.commands.rcu.new.component.failed.notaligned"));
+                        s.sendError(I18n.t("rcutil.commands.rcu.new.component.failed.notaligned"));
                         return ActionResult.FAIL;
                     }
                     RCUtil.getWires(uuid).put(wires.name, wires);
-                    s.sendFeedback(new TranslatableText("rcutil.commands.rcu.new.component.success", wires.name), true);
+                    s.sendFeedback(I18n.t("rcutil.commands.rcu.new.component.success", wires.name), true);
                     RCUtil.setCommandStatus(uuid, CommandStatus.Idle);
                     return ActionResult.SUCCESS;
                 default:

@@ -1,11 +1,12 @@
 package name.nkid00.rcutil.enumeration;
 
-import net.minecraft.text.TranslatableText;
+import name.nkid00.rcutil.helper.I18n;
+import net.minecraft.text.Text;
 
-public enum FileRamFileByteOrder {
+public enum ByteOrder {
     LittleEndian, BigEndian;
 
-    public static FileRamFileByteOrder fromString(String s) {
+    public static ByteOrder fromString(String s) {
         if (s.equals("le")) {
             return LittleEndian;
         } else if (s.equals("be")) {
@@ -15,13 +16,13 @@ public enum FileRamFileByteOrder {
         }
     }
 
-    public TranslatableText toText() {
+    public Text toText() {
         switch (this) {
             case LittleEndian:
             default:
-                return new TranslatableText("rcutil.fileram.fancyname.le");
+                return I18n.t("rcutil.fileram.fancyname.le");
             case BigEndian:
-                return new TranslatableText("rcutil.fileram.fancyname.be");
+                return I18n.t("rcutil.fileram.fancyname.be");
         }
     }
 }

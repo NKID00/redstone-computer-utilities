@@ -1,4 +1,4 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.helper;
 
 import name.nkid00.rcutil.exception.RCUtilException;
 import net.minecraft.block.Block;
@@ -19,7 +19,7 @@ public class TargetBlockUtil {
         if (!isTargetBlock(world, pos)) {
             throw new NotTargetBlockException();
         }
-        return world.getBlockState(pos).get(Properties.POWER);
+        return world.getReceivedRedstonePower(pos);
     }
 
     public static boolean readDigitalTargetBlockPower(ServerWorld world, BlockPos pos) throws NotTargetBlockException {

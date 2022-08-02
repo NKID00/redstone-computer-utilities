@@ -1,4 +1,4 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.helper;
 
 import java.util.BitSet;
 

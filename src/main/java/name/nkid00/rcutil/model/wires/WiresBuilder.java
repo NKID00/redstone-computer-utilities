@@ -1,9 +1,9 @@
-package name.nkid00.rcutil.wires;
+package name.nkid00.rcutil.model.wires;
 
 import org.jetbrains.annotations.Nullable;
 
-import name.nkid00.rcutil.BlockPosUtil;
 import name.nkid00.rcutil.component.ComponentBuilder;
+import name.nkid00.rcutil.helper.BlockPosUtil;
 import net.minecraft.util.math.BlockPos;
 
 public class WiresBuilder extends ComponentBuilder {

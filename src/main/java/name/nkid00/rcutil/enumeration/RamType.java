@@ -1,11 +1,12 @@
 package name.nkid00.rcutil.enumeration;
 
-import net.minecraft.text.TranslatableText;
+import name.nkid00.rcutil.helper.I18n;
+import net.minecraft.text.Text;
 
-public enum FileRamType {
-    ReadOnly, WriteOnly;
+public enum RamType {
+    ReadOnly, WriteOnly, ReadWrite;
 
-    public static FileRamType fromString(String s) {
+    public static RamType fromString(String s) {
         if (s.equals("ro")) {
             return ReadOnly;
         } else if (s.equals("wo")) {
@@ -15,13 +16,13 @@ public enum FileRamType {
         }
     }
 
-    public TranslatableText toText() {
+    public Text toText() {
         switch (this) {
             case ReadOnly:
             default:
-                return new TranslatableText("rcutil.fileram.fancyname.ro");
+                return I18n.t("rcutil.fileram.fancyname.ro");
             case WriteOnly:
-                return new TranslatableText("rcutil.fileram.fancyname.wo");
+                return I18n.t("rcutil.fileram.fancyname.wo");
         }
     }
 }
