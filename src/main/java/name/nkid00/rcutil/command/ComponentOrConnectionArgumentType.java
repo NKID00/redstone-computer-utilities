@@ -12,17 +12,16 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.text.TranslatableText;
-
-import name.nkid00.rcutil.component.ComponentSelector;
-import name.nkid00.rcutil.component.ComponentType;
+import name.nkid00.rcutil.model.component.ComponentSelector;
+import name.nkid00.rcutil.model.component.ComponentType;
+import name.nkid00.rcutil.helper.I18n;
 
 public class ComponentOrConnectionArgumentType implements ArgumentType<ComponentSelector> {
     private static final Collection<String> EXAMPLES = Arrays.asList("addrbus:Input1", "fileram:new_executable", "wires:1", "ram:ram", "addrbus:Input_1->addrbus:Output_1", "wires:1->wires:2");
-    public static final SimpleCommandExceptionType INVALID_SELECTOR_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
-    public static final SimpleCommandExceptionType INVALID_TYPE_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
-    public static final SimpleCommandExceptionType INVALID_NAME_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
-    public static final SimpleCommandExceptionType ALREADY_EXISTS_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
+    public static final SimpleCommandExceptionType INVALID_SELECTOR_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
+    public static final SimpleCommandExceptionType INVALID_TYPE_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
+    public static final SimpleCommandExceptionType INVALID_NAME_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
+    public static final SimpleCommandExceptionType ALREADY_EXISTS_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
 
     @Override
     public ComponentSelector parse(StringReader reader) throws CommandSyntaxException {
@@ -47,9 +46,7 @@ public class ComponentOrConnectionArgumentType implements ArgumentType<Component
         // if (typeString.isEmpty()) {
         //     throw INVALID_SELECTOR_EXCEPTION.createWithContext(reader);
         // }
-        var selector = new ComponentSelector();
-        selector.type = type;
-        selector.name = name;
+        var selector = new ComponentSelector(type, name);
         return selector;
     }
 

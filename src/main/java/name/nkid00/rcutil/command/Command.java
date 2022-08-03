@@ -8,7 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import name.nkid00.rcutil.RCUtil;
+import name.nkid00.rcutil.storage.Options;
 
 import static net.minecraft.server.command.CommandManager.literal;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -18,7 +18,7 @@ public class Command {
             RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("rcu")
-                        .requires((s) -> s.hasPermissionLevel(RCUtil.requiredPermissionLevel))
+                        .requires((s) -> s.hasPermissionLevel(Options.requiredPermissionLevel))
                         // /rcu
                         .executes(Rcu::execute)
                         // /rcu new

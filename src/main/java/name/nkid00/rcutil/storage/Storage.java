@@ -1,49 +1,77 @@
 package name.nkid00.rcutil.storage;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import name.nkid00.rcutil.helper.Log;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
 public class Storage {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static Path rootPath = null;
-    private static Path playerDataMapPath = null;
+    private static final Gson GSON = new GsonBuilder().setLenient().create();
 
-    public static ConcurrentHashMap<UUID, PlayerData> playerDataMap = new ConcurrentHashMap<>();
+    private static Path rootPath = null;
+    private static File rootFile = null;
+    private static File playerDataMapFile = null;
+    private static File globalDataFile = null;
+
+    public static ConcurrentHashMap<UUID, DataRecord> playerDataMap = new ConcurrentHashMap<>();
+    public static DataRecord globalData = new DataRecord();
 
     public static void load(MinecraftServer server) {
-        Storage.rootPath = server.getSavePath(WorldSavePath.ROOT);
-        Storage.playerDataMapPath = Storage.rootPath.resolve("rcutil.json");
-        try {
-            Storage.playerDataMap = Storage.MAPPER.readValue(Storage.playerDataMapPath.toFile(),
-                    new TypeReference<ConcurrentHashMap<UUID, PlayerData>>() {
-                    });
-            Log.info("Loaded successfully");
+        rootPath = server.getSavePath(WorldSavePath.ROOT).resolve("rcu");
+        rootFile = rootPath.toFile();
+        playerDataMapFile = rootPath.resolve("player.json").toFile();
+        globalDataFile = rootPath.resolve("global.json").toFile();
+
+        try (var reader = new FileReader(playerDataMapFile, StandardCharsets.UTF_8)) {
+            playerDataMap = GSON.fromJson(reader,
+                    new TypeToken<ConcurrentHashMap<UUID, DataRecord>>() {
+                    }.getType());
         } catch (IOException e) {
-            Log.error("Failed to load", e);
-            Storage.playerDataMap = new ConcurrentHashMap<>();
+            playerDataMap = new ConcurrentHashMap<>();
+        } catch (JsonParseException e) {
+            Log.error("Failed to load player data, generating empty record", e);
+            playerDataMap = new ConcurrentHashMap<>();
         }
-        Storage.save();
+        try (var reader = new FileReader(globalDataFile, StandardCharsets.UTF_8)) {
+            globalData = GSON.fromJson(reader, DataRecord.class);
+        } catch (IOException e) {
+            globalData = new DataRecord();
+        } catch (JsonParseException e) {
+            Log.error("Failed to load global data, generating empty record", e);
+            globalData = new DataRecord();
+        }
+
+        save();
     }
 
     public static void save() {
-        try {
-            Storage.MAPPER.writeValue(Storage.playerDataMapPath.toFile(), Storage.playerDataMap);
-            Log.info("Saved successfully");
+        rootFile.mkdir();
+        try (var writer = new FileWriter(playerDataMapFile, StandardCharsets.UTF_8)) {
+            GSON.toJson(playerDataMap, writer);
         } catch (IOException e) {
-            Log.error("Failed to save", e);
+            Log.error("Failed to save player data", e);
+        }
+        try (var writer = new FileWriter(globalDataFile, StandardCharsets.UTF_8)) {
+            GSON.toJson(globalData, writer);
+        } catch (IOException e) {
+            Log.error("Failed to save global data", e);
         }
     }
 
-    public static PlayerData getPlayerData(UUID uuid) {
-        return Storage.playerDataMap.computeIfAbsent(uuid, _uuid -> new PlayerData());
+    public static DataRecord getPlayerData(UUID uuid) {
+        return playerDataMap.computeIfAbsent(uuid, _uuid -> new DataRecord());
     }
 }

@@ -12,15 +12,15 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import name.nkid00.rcutil.component.ComponentSelector;
-import name.nkid00.rcutil.component.ComponentType;
-import net.minecraft.text.TranslatableText;
+import name.nkid00.rcutil.helper.I18n;
+import name.nkid00.rcutil.model.component.ComponentSelector;
+import name.nkid00.rcutil.model.component.ComponentType;
 
 public class ComponentArgumentType implements ArgumentType<ComponentSelector> {
     private static final Collection<String> EXAMPLES = Arrays.asList("addrbus:Input1", "fileram:new_executable", "wires:1", "ram:ram");
-    public static final SimpleCommandExceptionType TYPE_NOT_FOUND_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
-    public static final SimpleCommandExceptionType ALREADY_EXISTS_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
-    public static final SimpleCommandExceptionType INVALID_COMPONENT_SELECTOR_EXCEPTION = new SimpleCommandExceptionType(new TranslatableText(""));
+    public static final SimpleCommandExceptionType TYPE_NOT_FOUND_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
+    public static final SimpleCommandExceptionType ALREADY_EXISTS_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
+    public static final SimpleCommandExceptionType INVALID_COMPONENT_SELECTOR_EXCEPTION = new SimpleCommandExceptionType(I18n.t(""));
 
     @Override
     public ComponentSelector parse(StringReader reader) throws CommandSyntaxException {
@@ -32,7 +32,7 @@ public class ComponentArgumentType implements ArgumentType<ComponentSelector> {
         if (type == null) {
 
         }
-        return new ComponentSelector();
+        return new ComponentSelector(ComponentType.Wires, "");
     }
 
     @Override
