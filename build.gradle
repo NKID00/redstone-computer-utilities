@@ -1,28 +1,15 @@
 plugins {
     id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
-    id 'org.ajoberstar.grgit' version '4.1.1'
+    id 'org.ajoberstar.grgit' version '5.0.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = "${buildVersion()}-mc${project.minecraft_version}+${buildMetadata()}"
+version = "${project.mod_version}-mc${project.minecraft_version}+${buildMetadata()}"
 group = project.maven_group
-
-def buildVersion() {
-    if (grgit != null) {
-        def tags = grgit.tag.list()
-        if (!tags.isEmpty()) {
-            return tags.sort({ a, b -> b.getName() <=> a.getName() }).get(0).getName()[1..-1]
-        } else {
-            return "unknown"
-        }
-    } else {
-        return "unknown"
-    }
-}
 
 def buildMetadata() {
     def ci_build = System.getenv("GITHUB_RUN_NUMBER")

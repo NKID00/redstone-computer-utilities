@@ -16,6 +16,8 @@
 
 这个模组主要工作在服务器侧，但必须同时安装在服务器侧和客户端侧来正确显示翻译。
 
+需要安装 Python 3.6 或更新版本来使用 Python 相关功能。
+
 ## 用法
 
 ### 部件（待开发）
@@ -95,16 +97,25 @@
 `/rcu disasm <指令集> [选项...] (<机器码> | from {部件选择器} [选项...])`（待开发）
 - 反汇编指定的机器码或从部件读取的结果。
 
-## 构建
+## 开发
+
+Java 源代码文件位于 `src/main/java/`。Python 源代码文件位于 `src/redstone_computer_utilities/`。
+
+要构建模组，需要安装 Java 17 或更新版本，Pytho 3.7.2 或更新版本和最新的 Poetry。运行以下命令：
 
 ```sh
-./gradlew build
+$ ./gradlew build
+$ poetry build
 ```
 
-构建出的 jar 文件位于 `build/libs` 目录。
+构建出的 jar 文件位于 `build/libs/`。构建出的 wheel 文件位于 `dist/`。
+
+## 鸣谢
+
+[Py4J](https://www.py4j.org/)，使用 [BSD-3-Clause](https://github.com/py4j/py4j/blob/master/LICENSE.txt) 许可证分发。
 
 ## 版权
 
 版权所有 © 2021-2022 NKID00
 
-使用 [MPL-2.0](./LICENSE) 进行许可。
+使用 [MPL-2.0](./LICENSE) 许可证分发。

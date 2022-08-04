@@ -16,11 +16,13 @@
 - Set-up instructions that are user-friendly
 - Built-in English and 简体中文 (Simplified Chinese) translation -->
 
-## Install
+## Installation
 
 This mod supports Minecraft 1.19.1 and requires the latest Fabric Loader and Fabric API.
 
 This mod is mostly server-side but has to be installed both on server-side and client-side in order to display translatable information correctly.
+
+Python 3.6 or newer is required to use Python-related features.
 
 ## Usage
 
@@ -101,16 +103,25 @@ All the commands with abilities to perform operations on files (i.e. fileram-rel
 `/rcu disasm <instruction set architecture> [option ...] (<machine code> | from {component selector} [option ...])` (WIP)
 - Disassemble the given machine code or the result from reading from a component.
 
-## Build
+## Development
+
+Java sources are located in `src/main/java/`. Python sources are located in `src/redstone_computer_utilities/`.
+
+To build the mod, Java 17 or newer, Python 3.7.2 or newer and the latest Poetry are required. Run the following commands:
 
 ```sh
-./gradlew build
+$ ./gradlew build
+$ poetry build
 ```
 
-Built jars are located in `build/libs`.
+Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
+
+## Credits
+
+[Py4J](https://www.py4j.org/), distributed under [BSD-3-Clause](https://github.com/py4j/py4j/blob/master/LICENSE.txt).
 
 ## Copyright
 
 Copyright © 2021-2022 NKID00
 
-Licensed under [MPL-2.0](./LICENSE).
+Distributed under [MPL-2.0](./LICENSE).
