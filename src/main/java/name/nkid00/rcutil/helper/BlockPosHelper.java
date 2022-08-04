@@ -8,11 +8,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
 public class BlockPosHelper {
-    public static Vec3i BlockPos2Vec3i(BlockPos v) {
+    public static Vec3i toVec3i(BlockPos v) {
         return new Vec3i(v.getX(), v.getY(), v.getZ());
     }
 
-    public static BlockPos Vec3i2BlockPos(Vec3i v) {
+    public static BlockPos fromVec3i(Vec3i v) {
         return new BlockPos(v);
     }
 

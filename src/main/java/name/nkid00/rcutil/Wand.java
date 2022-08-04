@@ -21,7 +21,7 @@ public class Wand {
         if (world.isClient || player.isSpectator() || !player.getStackInHand(hand).isOf(Options.wandItem)) {
             return ActionResult.PASS;
         }
-        // Storage.getPlayerData(player.getUuid()).selection.selectMsb(pos, world.getDimension());
+        Storage.getPlayerData(player.getUuid()).selection.selectMsb(pos, world.getDimension());
         return ActionResult.FAIL;
     }
 
@@ -31,7 +31,7 @@ public class Wand {
             return ActionResult.PASS;
         }
         var pos = hitResult.getBlockPos();
-        // Storage.getPlayerData(player.getUuid()).selection.selectLsb(pos, world.getDimension());
+        Storage.getPlayerData(player.getUuid()).selection.selectLsb(pos, world.getDimension());
         return ActionResult.FAIL;
     }
 
@@ -40,7 +40,7 @@ public class Wand {
         if (world.isClient || player.isSpectator() || !player.getStackInHand(hand).isOf(Options.wandItem) || entity != null || hitResult != null) {
             return ActionResult.PASS;
         }
-        // Storage.getPlayerData(player.getUuid()).selection.previousSelection();
+        Storage.getPlayerData(player.getUuid()).selection.previousSelection();
         return ActionResult.FAIL;
     }
 
@@ -50,7 +50,7 @@ public class Wand {
         if (world.isClient || player.isSpectator() || !itemStack.isOf(Options.wandItem)) {
             return TypedActionResult.pass(itemStack);
         }
-        // Storage.getPlayerData(player.getUuid()).selection.nextSelection();
+        Storage.getPlayerData(player.getUuid()).selection.nextSelection();
         return TypedActionResult.fail(itemStack);
     }
 }

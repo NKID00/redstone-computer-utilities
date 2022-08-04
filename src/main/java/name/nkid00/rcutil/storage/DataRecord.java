@@ -7,5 +7,5 @@ import name.nkid00.rcutil.model.connection.Connection;
 public class DataRecord {
     public ComponentData component = new ComponentData();
     public ConcurrentHashMap<String, Connection> connection = new ConcurrentHashMap<>();
-    // public SelectionData selection = new SelectionData();
+    public SelectionData selection = new SelectionData();
 }

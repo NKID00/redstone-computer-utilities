@@ -10,16 +10,16 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
+import name.nkid00.rcutil.helper.GsonHelper;
 import name.nkid00.rcutil.helper.Log;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
 public class Storage {
-    private static final Gson GSON = new GsonBuilder().setLenient().create();
+    private static Gson gson;
 
     private static Path rootPath = null;
     private static File rootFile = null;
@@ -34,9 +34,10 @@ public class Storage {
         rootFile = rootPath.toFile();
         playerDataMapFile = rootPath.resolve("player.json").toFile();
         globalDataFile = rootPath.resolve("global.json").toFile();
+        gson = GsonHelper.gsonBuilder(server).create();
 
         try (var reader = new FileReader(playerDataMapFile, StandardCharsets.UTF_8)) {
-            playerDataMap = GSON.fromJson(reader,
+            playerDataMap = gson.fromJson(reader,
                     new TypeToken<ConcurrentHashMap<UUID, DataRecord>>() {
                     }.getType());
         } catch (IOException e) {
@@ -46,7 +47,7 @@ public class Storage {
             playerDataMap = new ConcurrentHashMap<>();
         }
         try (var reader = new FileReader(globalDataFile, StandardCharsets.UTF_8)) {
-            globalData = GSON.fromJson(reader, DataRecord.class);
+            globalData = gson.fromJson(reader, DataRecord.class);
         } catch (IOException e) {
             globalData = new DataRecord();
         } catch (JsonParseException e) {
@@ -60,12 +61,12 @@ public class Storage {
     public static void save() {
         rootFile.mkdir();
         try (var writer = new FileWriter(playerDataMapFile, StandardCharsets.UTF_8)) {
-            GSON.toJson(playerDataMap, writer);
+            gson.toJson(playerDataMap, writer);
         } catch (IOException e) {
             Log.error("Failed to save player data", e);
         }
         try (var writer = new FileWriter(globalDataFile, StandardCharsets.UTF_8)) {
-            GSON.toJson(globalData, writer);
+            gson.toJson(globalData, writer);
         } catch (IOException e) {
             Log.error("Failed to save global data", e);
         }

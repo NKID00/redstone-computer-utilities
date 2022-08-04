@@ -7,21 +7,22 @@ import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import name.nkid00.rcutil.helper.GsonHelper;
 import name.nkid00.rcutil.helper.Log;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 // TODO: save & load
 public class Options {
-    private static final Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
+    private static Gson gson;
     private static File optionsFile;
 
     public static int requiredPermissionLevel;
@@ -50,10 +51,13 @@ public class Options {
         return true;
     }
 
-    public static void load(FabricLoader loader) {
+    public static void load(MinecraftServer server) {
+        var loader = FabricLoader.getInstance();
         optionsFile = loader.getConfigDir().resolve("rcu.json").toFile();
+        gson = GsonHelper.gsonBuilder(server).setPrettyPrinting().create();
+
         try (var reader = new FileReader(optionsFile, StandardCharsets.UTF_8)) {
-            var element = GSON.fromJson(reader, JsonElement.class);
+            var element = gson.fromJson(reader, JsonElement.class);
             var object = element.getAsJsonObject();
             requiredPermissionLevel = object.get("requiredPermissionLevel").getAsInt();
             fileOperationRequiredPermissionLevel = object.get("fileOperationRequiredPermissionLevel").getAsInt();
@@ -74,7 +78,7 @@ public class Options {
             object.addProperty("requiredPermissionLevel", requiredPermissionLevel);
             object.addProperty("fileOperationRequiredPermissionLevel", fileOperationRequiredPermissionLevel);
             object.addProperty("wandItem", wandItemName);
-            GSON.toJson(object, writer);
+            gson.toJson(object, writer);
         } catch (Exception e) {
             clear();
             Log.error("Failed to save options", e);

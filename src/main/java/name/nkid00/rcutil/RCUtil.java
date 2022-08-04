@@ -22,9 +22,9 @@ public class RCUtil implements ModInitializer {
     public void onInitialize() {
         var loader = FabricLoader.getInstance();
         isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
-        Options.load(loader);
 
         // storage handler
+        ServerLifecycleEvents.SERVER_STARTED.register(Options::load);
         ServerLifecycleEvents.SERVER_STARTED.register(Storage::load);
 
         // tick handler
