@@ -26,7 +26,7 @@ This mod is mostly server-side but has to be installed both on server-side and c
 
 ### Components (not fully implemented yet)
 
-This mod provides various types components to interact with redstone signals and digital data. Some of the components exist in the game with the form of a row of target blocks and can be connected to redstone dust to receive or emit redstone power. The followings are the types of components:
+This mod provides various types of components to interact with redstone signals and digital data. Some of the components exist in the game with the form of a row of target blocks and can be connected to redstone dust to receive or emit redstone power. The followings are the types of components:
 
 - wires (WIP)
   - Unsynchronized input and output interfaces, transfer data in real time (actually, when a neighbor block update is triggered).
@@ -60,7 +60,7 @@ Connections between components can be selected with the form of `{source compone
 
 ### Commands (not fully implemented yet)
 
-All the commands with abilities to perform operations on files (i.e. fileram-related, `/rcu newfile` and `/rcu removefile` etc.) require permission level 4 or higher (because operations on files are dangerous). This means that command blocks cannot run these commands. Other commands require permission level 2 or higher.
+All the commands with abilities to perform operations on files (i.e. fileram-related, `/rcu newfile` and `/rcu removefile` etc.) require permission level 4 (because operations on files are dangerous). This means that command blocks cannot run these commands. Other commands require permission level 2.
 
 `/rcu`
 - Stop the running command if there is any, otherwise give the command source player a wand item (i.e. pink dye).
@@ -95,8 +95,8 @@ All the commands with abilities to perform operations on files (i.e. fileram-rel
 `/rcu removefile <filename>` (WIP)
 - Remove the file.
 
-`/rcu asm <instruction set architecture> [option ...] <assembly code>` (WIP)
-- Assemble the given assembly code.
+`/rcu asm <instruction set architecture> [option ...] <assembly code> (to {component selector} [option ...])` (WIP)
+- Assemble the given assembly code and write the result to the component.
 
 `/rcu disasm <instruction set architecture> [option ...] (<machine code> | from {component selector} [option ...])` (WIP)
 - Disassemble the given machine code or the result from reading from a component.
@@ -113,4 +113,4 @@ Built jars are located in `build/libs`.
 
 Copyright © 2021-2022 NKID00
 
-Licensed under [the MIT license](./LICENSE).
+Licensed under [MPL-2.0](./LICENSE).
