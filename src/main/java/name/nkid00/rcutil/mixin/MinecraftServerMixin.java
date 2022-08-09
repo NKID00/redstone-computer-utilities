@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import name.nkid00.rcutil.storage.Storage;
+import name.nkid00.rcutil.Storage;
 import net.minecraft.server.MinecraftServer;
 
 @Mixin(MinecraftServer.class)

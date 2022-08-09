@@ -1,4 +1,4 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.model;
 
 import java.util.BitSet;
 
@@ -10,14 +10,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.dimension.DimensionType;
 
-// typo is deliberate to avoid collision with java keyword
-public class Interfaze {
-    public DimensionType dimensionType = null;
-    public BlockPos base = null;
-    public Vec3i gap = null;
-    public int size = 0;
-
-    public Interfaze(Selection selection) {}
+public record Interface(DimensionType dimensionType, BlockPos base, Vec3i gap, int size) {
+    public static Interface tryFromSelection(Selection selection) {
+        return new Interface(null, null, null, 0);
+    }
 
     public BitSet readData(ServerWorld world) throws BlockNotTargetException {
         var bits = new BitSet(size);

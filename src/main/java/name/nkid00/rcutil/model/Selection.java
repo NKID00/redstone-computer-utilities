@@ -1,4 +1,4 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.model;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
@@ -26,16 +26,16 @@ public class Selection {
     }
 
     public void selectLsb(BlockPos pos, DimensionType dimension) {
-        // this.LsbPos = pos;
-        // this.LsbDimension = dimension;
-        // if (this.MsbPos != null) {
-        //     if (dimension != this.MsbDimension) {
-        //         this.MsbPos = null;
-        //         this.MsbDimension = null;
-        //         this.selected = false;
-        //     } else {
-        //         this.selected = true;
-        //     }
-        // }
+        this.LsbPos = pos;
+        this.LsbDimension = dimension;
+        if (this.MsbPos != null) {
+            if (dimension != this.MsbDimension) {
+                this.MsbPos = null;
+                this.MsbDimension = null;
+                this.selected = false;
+            } else {
+                this.selected = true;
+            }
+        }
     }
 }
