@@ -1,8 +1,7 @@
-package name.nkid00.rcutil.model.wires;
+package name.nkid00.rcutil;
 
 import java.util.BitSet;
 
-import name.nkid00.rcutil.model.component.Component;
 import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
@@ -11,11 +10,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.dimension.DimensionType;
 
-public class Wires extends Component {
+// typo is deliberate to avoid collision with java keyword
+public class Interfaze {
     public DimensionType dimensionType = null;
     public BlockPos base = null;
     public Vec3i gap = null;
     public int size = 0;
+
+    public Interfaze(Selection selection) {}
 
     public BitSet readData(ServerWorld world) throws BlockNotTargetException {
         var bits = new BitSet(size);

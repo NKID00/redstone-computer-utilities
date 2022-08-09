@@ -1,4 +1,4 @@
-package name.nkid00.rcutil.model.selection;
+package name.nkid00.rcutil;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;

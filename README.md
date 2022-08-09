@@ -26,7 +26,7 @@ Before any further operation with redstone signals, it is essential to abstract 
 
 ### Scripts (not fully implemented yet)
 
-Scripts can read or write interfaces. Currently scripts can only be written in Python.
+Scripts can read or write interfaces and response to specific events (e.g. gametick, data change, called from other scripts). See [docs/Scripts.md](./docs/Scripts.md) for details.
 
 ### Commands (not fully implemented yet)
 
@@ -36,19 +36,31 @@ Command `/rcu run` requires permission level 2 or higher, which is determined by
 - Give the command source player a wand item (configurable, pink dye as default).
 
 `/rcu new <interface name> [option...]` (WIP)
-- Create a interface.
+- Create an interface. Name of an interface MUST be unique among all interfaces and MUST be a string only consists of letters, numbers and underlines.
 
-`/rcu remove <interface name>` (WIP)
-- Remove the interface.
+`/rcu remove <interface name...>` (WIP)
+- Remove the interface(s).
 
 `/rcu info` (WIP)
 - Display brief information and status.
 
-`/rcu info <interface name>` (WIP)
-- Display the detail of the interface.
+`/rcu info interface` (WIP)
+- Display information and status about interfaces.
+
+`/rcu info interface <interface name...>` (WIP)
+- Display the detail of the interface(s).
+
+`/rcu info script` (WIP)
+- Display information and status about scripts.
+
+`/rcu info script <script name...>` (WIP)
+- Display the detail of the script(s).
 
 `/rcu run <script name> [argument...]` (WIP)
 - Run the script with the arguments.
+
+`/rcu reload` (WIP)
+- Reload all scripts.
 
 ## Development
 
@@ -65,7 +77,7 @@ Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
 
 ## Credits
 
-[Py4J](https://www.py4j.org/), distributed under [BSD-3-Clause](https://github.com/py4j/py4j/blob/master/LICENSE.txt).
+[GSON](https://www.py4j.org/), distributed under [BSD-3-Clause](https://github.com/py4j/py4j/blob/master/LICENSE.txt).
 
 ## Copyright
 

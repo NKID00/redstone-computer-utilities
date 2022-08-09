@@ -1,0 +1,74 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "version": "0.1.0",
+        "title": "redstone-computer-utilities Json-RPC Callback",
+        "description": "Event callbacks for redstone-computer-utilities scripts."
+    },
+    "methods": [
+        {
+            "name": "onScriptLoad",
+            "summary": "Event callback called after all scripts are loaded when scripts are loading.",
+            "tags": [
+                {
+                    "name": "ScriptLifecycle"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            }
+        },
+        {
+            "name": "onScriptUnload",
+            "summary": "Event callback called before any script is unloaded when scripts are unloading.",
+            "tags": [
+                {
+                    "name": "ScriptLifecycle"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            }
+        },
+        {
+            "name": "onScriptRun",
+            "summary": "Event callback called after all scripts are loaded when scripts are loading.",
+            "tags": [
+                {
+                    "name": "ScriptLifecycle"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/args"
+                }
+            ],
+            "result": 
+                {
+                    "$ref": "#/components/contentDescriptors/args"
+                }
+        },
+        {
+            "name": "onScriptInvoke",
+            "summary": "Event callback called before any script is unloaded when scripts are unloading.",
+            "tags": [
+                {
+                    "name": "ScriptLifecycle"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            }
+        }
+    ],
+    "components": {
+        "$ref": "components-openrpc.json#/"
+    }
+}

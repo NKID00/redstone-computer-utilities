@@ -1,0 +1,556 @@
+{
+    "openrpc": "1.2.6",
+    "info": {
+        "version": "0.1.0",
+        "title": "redstone-computer-utilities Json-RPC API",
+        "description": "APIs for redstone-computer-utilities scripts."
+    },
+    "servers": [
+        {
+            "url": "localhost:37265"
+        }
+    ],
+    "methods": [
+        {
+            "name": "registerScript",
+            "description": "Register the script.",
+            "tags": [
+                {
+                    "name": "Script"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/description"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/permissionLevel"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/IllegalName"
+                },
+                {
+                    "$ref": "#/components/errors/NameExists"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidPermissionLevel"
+                }
+            ]
+        },
+        {
+            "name": "deregisterScript",
+            "description": "Deregister the script.",
+            "tags": [
+                {
+                    "name": "Script"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "listScript",
+            "description": "List registered script.",
+            "tags": [
+                {
+                    "name": "Script"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "name": "scripts",
+                "schema": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[A-Za-z0-9_]+$": {
+                            "type": "object",
+                            "properties": {
+                                "description": {
+                                    "$ref": "#/components/contentDescriptors/description"
+                                },
+                                "permissionLevel": {
+                                    "$ref": "#/components/contentDescriptors/permissionLevel"
+                                },
+                                "events": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/contentDescriptors/event"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "invokeScript",
+            "description": "List registered scripts.",
+            "tags": [
+                {
+                    "name": "Script"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/args"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/anyValue"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptNotRegistered"
+                },
+                {
+                    "$ref": "#/components/errors/IllegalArgument"
+                },
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "registerCallback",
+            "description": "Register the event callback. Only one callback can be registered for the same event within the script.",
+            "tags": [
+                {
+                    "name": "EventCallback"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/event"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/callback"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/EventNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/EventCallbackAlreadyRegistered"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "deregisterCallback",
+            "description": "Deregister the event callback.",
+            "tags": [
+                {
+                    "name": "EventCallback"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/event"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/EventNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/EventCallbackNotRegistered"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "listCallback",
+            "description": "(experimental) List registered event callbacks of the script.",
+            "tags": [
+                {
+                    "name": "EventCallback"
+                },
+                {
+                    "name": "Experimental"
+                }
+            ],
+            "deprecated": true,
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "name": "events",
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/contentDescriptors/event"
+                    }
+                }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptNotRegistered"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "invokeCallback",
+            "description": "(experimental) Invoke the event callback of the script.",
+            "tags": [
+                {
+                    "name": "EventCallback"
+                },
+                {
+                    "name": "Experimental"
+                }
+            ],
+            "deprecated": true,
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/event"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/args"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/anyValue"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptNotRegistered"
+                },
+                {
+                    "$ref": "#/components/errors/EventNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/EventCallbackNotRegistered"
+                },
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "newInterface",
+            "description": "Create an interface.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/args"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/IllegalName"
+                },
+                {
+                    "$ref": "#/components/errors/NameExists"
+                },
+                {
+                    "$ref": "#/components/errors/IllegalArgument"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "removeInterface",
+            "description": "Remove the interface.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InterfaceNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/AccessDenied"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "listInterface",
+            "description": "List interfaces.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "name": "interfaces",
+                "schema": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[A-Za-z0-9_]+$": {
+                            "$ref": "#/components/contentDescriptors/args"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "readInterface",
+            "description": "Read the interface.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/data"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InterfaceNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "writeInterface",
+            "description": "Write the interface.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": 
+            {
+                "$ref": "#/components/contentDescriptors/data"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/IllegalName"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "info",
+            "description": "Log the message as information.",
+            "tags": [
+                {
+                    "name": "Logging"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/message"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "warn",
+            "description": "Log the message as warning.",
+            "tags": [
+                {
+                    "name": "Logging"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/message"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "error",
+            "description": "Log the message as error.",
+            "tags": [
+                {
+                    "name": "Logging"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/message"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        }
+    ],
+    "components": {
+        "$ref": "components.json#/"
+    }
+}

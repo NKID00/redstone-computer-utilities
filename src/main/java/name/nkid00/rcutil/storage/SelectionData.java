@@ -2,9 +2,9 @@ package name.nkid00.rcutil.storage;
 
 import java.util.LinkedHashMap;
 
+import name.nkid00.rcutil.Selection;
 import name.nkid00.rcutil.helper.Log;
-import name.nkid00.rcutil.model.selection.Selection;
-import name.nkid00.rcutil.model.selection.SingleSelection;
+import name.nkid00.rcutil.selection.SingleSelection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 
