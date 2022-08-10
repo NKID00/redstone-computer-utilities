@@ -2,7 +2,7 @@
 
 # Redstone Computer Utilities
 
-> Various debug tools for redstone computers.
+>  Lightweight and Modular Redstone Computer Debugging Tools. 
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 

@@ -2,7 +2,7 @@
 
 # Redstone Computer Utilities
 
-> 一些红石计算机调试工具。
+>  轻量级模块化红石计算机调试工具。
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 
