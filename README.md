@@ -30,7 +30,7 @@ Scripts can read or write interfaces and response to specific events (e.g. gamet
 
 ### Commands (not fully implemented yet)
 
-All commands provided by the mod require at least permission level 2 (configurable). Specially, command `/rcu run` may require higher permission level, which is determined by the script. This means that command blocks may not be able run it.
+All commands provided by the mod require at least permission level 2 (configurable). Specially, command `/rcu run` may require higher permission level, which is determined by the script. This means that command blocks may not be able to run it.
 
 `/rcu`
 - Give the command source player a wand item (configurable, pink dye as default).
