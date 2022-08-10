@@ -1,8 +1,10 @@
 # Scripts (not fully implemented yet)
 
-Scripts are language-neutral programs outside the game that can read or write interfaces and are called when specific event occurs (e.g. gametick, data change, called from other scripts). Communication between the mod and scripts is accomplished with two-way Json-RPC on a single TCP connection. For scripts written in Python, a library is provided to simplify the development.
+Scripts are language-neutral programs outside the game that can read or write interfaces and are called when specific event occurs (e.g. gametick, data change, called from other scripts). For scripts written in Python, a library is provided to simplify the development. Name of a script MUST be unique among all registered scripts and MUST be a string consists of only letters, numbers and underlines.
 
-Name of a script MUST be unique among all registered scripts and MUST be a string consists of only letters, numbers and underlines.
+## Communication
+
+Communication between the mod and scripts is accomplished with two-way Json-RPC on a single TCP connection. Once initialized, the mod will bind host `localhost` (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection can be reused by multiple scripts with authorization keys as identifiers.
 
 ## Authorization
 
