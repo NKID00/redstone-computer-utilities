@@ -4,6 +4,10 @@ plugins {
     id 'org.ajoberstar.grgit' version '5.0.0'
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/rcutil.accesswidener")
+}
+
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 

@@ -1,17 +1,14 @@
 package name.nkid00.rcutil.command;
 
-import java.util.regex.Pattern;
-
 import com.mojang.brigadier.context.CommandContext;
 
-import name.nkid00.rcutil.RCUtil;
+import name.nkid00.rcutil.helper.Log;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuNew {
-    private static final Pattern componentSelectorPattern = Pattern.compile("(\\w+):(\\w+)");
-    private static final Pattern connectionSelectorPattern = Pattern.compile("(\\w+):(\\w+)->(\\w+):(\\w+)");
 
     public static int execute(CommandContext<ServerCommandSource> c) {
+        Log.info("RcuNew::execute");
         // var s = c.getSource();
         // var player = Command.getPlayerOrNull(s);
         // if (player == null) {
