@@ -136,7 +136,7 @@
                 }
             ],
             "result": {
-                "$ref": "#/components/contentDescriptors/anyValue"
+                "$ref": "#/components/contentDescriptors/any"
             },
             "errors": [
                 {
@@ -287,7 +287,7 @@
                 }
             ],
             "result": {
-                "$ref": "#/components/contentDescriptors/anyValue"
+                "$ref": "#/components/contentDescriptors/any"
             },
             "errors": [
                 {
@@ -411,7 +411,36 @@
         },
         {
             "name": "readInterface",
-            "description": "Read the interface.",
+            "description": "Read from the interface.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/data"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InterfaceNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "writeInterface",
+            "description": "Write to the interface.",
             "tags": [
                 {
                     "name": "Interface"
@@ -435,36 +464,6 @@
             "errors": [
                 {
                     "$ref": "#/components/errors/InterfaceNotFound"
-                },
-                {
-                    "$ref": "#/components/errors/InvalidAuthKey"
-                }
-            ]
-        },
-        {
-            "name": "writeInterface",
-            "description": "Write the interface.",
-            "tags": [
-                {
-                    "name": "Interface"
-                }
-            ],
-            "paramStructure": "by-name",
-            "params": [
-                {
-                    "$ref": "#/components/contentDescriptors/interface"
-                },
-                {
-                    "$ref": "#/components/contentDescriptors/authKey"
-                }
-            ],
-            "result": 
-            {
-                "$ref": "#/components/contentDescriptors/data"
-            },
-            "errors": [
-                {
-                    "$ref": "#/components/errors/IllegalName"
                 },
                 {
                     "$ref": "#/components/errors/InvalidAuthKey"

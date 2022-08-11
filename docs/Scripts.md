@@ -4,7 +4,7 @@ Scripts are language-neutral programs outside the game that can read or write in
 
 ## Communication
 
-Communication between the mod and scripts is accomplished with two-way Json-RPC on a single TCP connection. Once initialized, the mod will bind host `localhost` (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection can be reused by multiple scripts with authorization keys as identifiers.
+Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connection. Once initialized, the mod will bind host `localhost` (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection can be reused by multiple scripts with authorization keys as identifiers.
 
 ## Authorization
 
@@ -14,6 +14,10 @@ An authorization key will be given when the script is loaded and will be destroy
 
 When a script registers itself, it will not be runnable immediately. Instead, it will be queued and become loaded after `/rcu reload` is executed.
 
+## Stability
+
+Major version zero (0.x.x) is not considered stable, API and event callbacks may change at any time. Breaking changes may also occur when major version changes.
+
 ## API
 
 See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs with caution!
@@ -22,6 +26,7 @@ See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs wi
   - registerScript
   - deregisterScript
   - listScript
+  - infoScript
   - invokeScript
 - Event Callback
   - registerCallback
@@ -32,6 +37,7 @@ See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs wi
   - newInterface
   - removeInterface
   - listInterface
+  - infoInterface
   - readInterface
   - writeInterface
 - Logging
@@ -44,16 +50,16 @@ See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs wi
 See [callback-openrpc.json](./callback-openrpc.json) for details. Use experimental event callbacks with caution!
 
 - Script Lifecycle
-  - onLoadScript
-  - onUnloadScript
-  - onRunScript
-  - onInvokeScript
+  - onScriptLoad
+  - onScriptUnload
+  - onScriptRun
+  - onScriptInvoke
 - Gametick
   - onGametickStart
   - onGametickEnd
 - Interface
-  - onDataChangeInterface
-  - onReadInterface
-  - onWriteInterface
-  - *onNewInterface (experimental)*
-  - *onRemoveInterface (experimental)*
+  - onInterfaceRedstoneUpdate
+  - onInterfaceRead
+  - onInterfaceWrite
+  - *onInterfaceNew (experimental)*
+  - *onInterfaceRemove (experimental)*

@@ -8,7 +8,7 @@
     "methods": [
         {
             "name": "onScriptLoad",
-            "summary": "Event callback called after all scripts are loaded when scripts are loading.",
+            "summary": "Called after all scripts are loaded when scripts started to load.",
             "tags": [
                 {
                     "name": "ScriptLifecycle"
@@ -18,11 +18,16 @@
             "params": [],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
-            }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
         },
         {
             "name": "onScriptUnload",
-            "summary": "Event callback called before any script is unloaded when scripts are unloading.",
+            "summary": "Called before any script is unloaded when scripts started to unload.",
             "tags": [
                 {
                     "name": "ScriptLifecycle"
@@ -32,11 +37,16 @@
             "params": [],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
-            }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
         },
         {
             "name": "onScriptRun",
-            "summary": "Event callback called after all scripts are loaded when scripts are loading.",
+            "summary": "Called when `/rcu run` is executed.",
             "tags": [
                 {
                     "name": "ScriptLifecycle"
@@ -45,27 +55,211 @@
             "paramStructure": "by-name",
             "params": [
                 {
-                    "$ref": "#/components/contentDescriptors/args"
-                }
-            ],
-            "result": 
+                    "$ref": "#/components/contentDescriptors/uuid"
+                },
                 {
                     "$ref": "#/components/contentDescriptors/args"
                 }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/integerResult"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/IllegalArgument"
+                },
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
         },
         {
             "name": "onScriptInvoke",
-            "summary": "Event callback called before any script is unloaded when scripts are unloading.",
+            "summary": "Called when invoked by the script.",
             "tags": [
                 {
                     "name": "ScriptLifecycle"
                 }
             ],
             "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/args"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/any"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/IllegalArgument"
+                },
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onGametickStart",
+            "summary": "Called at the start of a gametick.",
+            "tags": [
+                {
+                    "name": "Gametick"
+                }
+            ],
+            "paramStructure": "by-name",
             "params": [],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
-            }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onGametickEnd",
+            "summary": "Called at the end of a gametick.",
+            "tags": [
+                {
+                    "name": "Gametick"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onInterfaceRedstoneUpdate",
+            "summary": "Called at the end of the gametick when redstone signal received by the interface is changed.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onInterfaceRead",
+            "summary": "Called when the interface is read successfully by the script.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onInterfaceWrite",
+            "summary": "Called when the interface is written successfully by the script.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/script"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onInterfaceNew",
+            "summary": "Called when the interface is created successfully.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onInterfaceRemove",
+            "summary": "Called when the interface is removed successfully.",
+            "tags": [
+                {
+                    "name": "Interface"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/interface"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
         }
     ],
     "components": {

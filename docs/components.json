@@ -6,10 +6,17 @@
                 "type": "null"
             }
         },
-        "anyValue": {
-            "name": "anyValue",
+        "any": {
+            "name": "any",
             "required": true,
             "schema": true
+        },
+        "integerResult": {
+            "name": "result",
+            "required": true,
+            "schema": {
+                "type": "integer"
+            }
         },
         "authKey": {
             "name": "authKey",
@@ -100,6 +107,14 @@
         "message": {
             "name": "message",
             "description": "Message to be logged, SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
+            "required": true,
+            "schema": {
+                "type": "string"
+            }
+        },
+        "uuid": {
+            "name": "uuid",
+            "description": "UUID of the player.",
             "required": true,
             "schema": {
                 "type": "string"
