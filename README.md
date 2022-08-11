@@ -77,7 +77,11 @@ Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
 
 ## Credits
 
-[GSON](https://www.py4j.org/), distributed under [BSD-3-Clause](https://github.com/py4j/py4j/blob/master/LICENSE.txt).
+- [Fabric Loader](https://github.com/FabricMC/fabric-loader), distributed under [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE).
+
+- [Fabric API](https://github.com/FabricMC/fabric), distributed under [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE).
+
+- [GSON](https://github.com/google/gson), distributed under [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE).
 
 ## Copyright
 

@@ -77,7 +77,11 @@ $ poetry build
 
 ## 鸣谢
 
-[Py4J](https://www.py4j.org/)，使用 [BSD-3-Clause](https://github.com/py4j/py4j/blob/master/LICENSE.txt) 许可证分发。
+- [Fabric Loader](https://github.com/FabricMC/fabric-loader)，使用 [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE) 许可证分发。
+
+- [Fabric API](https://github.com/FabricMC/fabric)，使用 [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE) 许可证分发。
+
+- [GSON](https://github.com/google/gson)，使用 [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE) 许可证分发。
 
 ## 版权
 
