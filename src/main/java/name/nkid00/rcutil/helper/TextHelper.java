@@ -1,9 +1,9 @@
-package name.nkid00.rcutil.compat;
+package name.nkid00.rcutil.helper;
 
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
-public class TextCompat {
+public class TextHelper {
     public static MutableText copy(Text text) {
         return text.copy();
     }

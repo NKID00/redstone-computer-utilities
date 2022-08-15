@@ -4,20 +4,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 
 public class Selection {
-    public String name;
     public boolean selected = false;
-    public BlockPos LsbPos = null;
-    public DimensionType LsbDimension = null;
-    public BlockPos MsbPos = null;
-    public DimensionType MsbDimension = null;
+    public BlockPos lsbPos = null;
+    public DimensionType lsbDimension = null;
+    public BlockPos msbPos = null;
+    public DimensionType msbDimension = null;
 
     public void selectMsb(BlockPos pos, DimensionType dimension) {
-        this.MsbPos = pos;
-        this.MsbDimension = dimension;
-        if (this.LsbPos != null) {
-            if (dimension != this.LsbDimension) {
-                this.LsbPos = null;
-                this.LsbDimension = null;
+        this.msbPos = pos;
+        this.msbDimension = dimension;
+        if (this.lsbPos != null) {
+            if (dimension != this.lsbDimension) {
+                this.lsbPos = null;
+                this.lsbDimension = null;
                 this.selected = false;
             } else {
                 this.selected = true;
@@ -26,12 +25,12 @@ public class Selection {
     }
 
     public void selectLsb(BlockPos pos, DimensionType dimension) {
-        this.LsbPos = pos;
-        this.LsbDimension = dimension;
-        if (this.MsbPos != null) {
-            if (dimension != this.MsbDimension) {
-                this.MsbPos = null;
-                this.MsbDimension = null;
+        this.lsbPos = pos;
+        this.lsbDimension = dimension;
+        if (this.msbPos != null) {
+            if (dimension != this.msbDimension) {
+                this.msbPos = null;
+                this.msbDimension = null;
                 this.selected = false;
             } else {
                 this.selected = true;

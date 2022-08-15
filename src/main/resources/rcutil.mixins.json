@@ -4,7 +4,6 @@
   "package": "name.nkid00.rcutil.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "LanguageMixin",
     "MinecraftServerMixin"
   ],
   "client": [

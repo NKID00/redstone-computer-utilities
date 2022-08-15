@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import name.nkid00.rcutil.helper.BlockPosHelper;
@@ -14,12 +15,20 @@ public class BlockPosAdapter extends TypeAdapter<BlockPos> {
 
     @Override
     public void write(JsonWriter out, BlockPos value) throws IOException {
-        VEC3I_ADAPTER.write(out, BlockPosHelper.toVec3i(value));
+        if (value == null) {
+            out.nullValue();
+        } else {
+            VEC3I_ADAPTER.write(out, BlockPosHelper.toVec3i(value));
+        }
     }
 
     @Override
     public BlockPos read(JsonReader in) throws IOException {
-        return BlockPosHelper.fromVec3i(VEC3I_ADAPTER.read(in));
+        if (in.peek().equals(JsonToken.NULL)) {
+            in.nextNull();
+            return null;
+        } else {
+            return BlockPosHelper.fromVec3i(VEC3I_ADAPTER.read(in));
+        }
     }
-
 }

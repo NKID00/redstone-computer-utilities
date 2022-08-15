@@ -1,5 +1,5 @@
 package name.nkid00.rcutil.script;
 
-public class ScriptManager {
+public class EventCallback {
     
 }

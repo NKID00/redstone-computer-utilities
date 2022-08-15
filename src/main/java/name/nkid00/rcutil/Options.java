@@ -1,12 +1,13 @@
 package name.nkid00.rcutil;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 
 import name.nkid00.rcutil.helper.GsonHelper;
@@ -20,7 +21,7 @@ import net.minecraft.text.Text;
 
 public class Options {
     private static Gson gson;
-    private static File optionsFile;
+    private static File file;
     private static Options instance;
 
     private Options() {
@@ -56,17 +57,17 @@ public class Options {
         return instance.wandItemHoverableText;
     }
 
-    public static void load(MinecraftServer server) {
+    public static void init(MinecraftServer server) {
         var loader = FabricLoader.getInstance();
-        optionsFile = loader.getConfigDir().resolve("rcutil.json").toFile();
+        file = loader.getConfigDir().resolve("rcutil.json").toFile();
         gson = GsonHelper.gsonBuilder(server).excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 
-        try (var reader = new FileReader(optionsFile, StandardCharsets.UTF_8)) {
+        try (var reader = new FileReader(file, StandardCharsets.UTF_8)) {
             instance = gson.fromJson(reader, Options.class);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             instance = new Options();
-        } catch (Exception e) {
-            Log.error("Failed to load options, generating empty record", e);
+        } catch (JsonParseException e) {
+            Log.error("Error occurred when loading options, generating empty record", e);
             instance = new Options();
         }
         instance.wandItemHoverableText = new ItemStack(wandItem()).toHoverableText();
@@ -74,10 +75,12 @@ public class Options {
     }
 
     public static void save() {
-        try (var writer = new FileWriter(optionsFile, StandardCharsets.UTF_8)) {
+        try (var writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             gson.toJson(instance, writer);
-        } catch (Exception e) {
-            Log.error("Failed to save options", e);
+        } catch (IOException e) {
+            Log.error("Error occurred when saving options", e);
+        } catch (JsonParseException e) {
+            Log.error("Error occurred when saving options", e);
         }
     }
 }
