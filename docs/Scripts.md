@@ -4,11 +4,11 @@ Scripts are language-neutral programs outside the game that can read or write in
 
 ## Communication
 
-Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connection. Once initialized, the mod will bind host `localhost` (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection can be reused by multiple scripts with authorization keys as identifiers.
+Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind host `localhost` (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection can be reused by multiple scripts, multiple connections can also be used by a single script, with authorization keys as identifiers.
 
 ## Authorization
 
-An authorization key will be given when the script is loaded and will be destroyed when the script is unloaded. Any further API call will require this key.
+An authorization key will be given when the script is registered and will be destroyed when the script is deregistered or unloaded. Any further API call will require this key.
 
 ## Registration
 

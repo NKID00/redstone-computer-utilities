@@ -57,7 +57,7 @@ All commands provided by the mod require at least permission level 2 (configurab
 - Display the detail of the script(s).
 
 `/rcu run <script name> [argument...]` (WIP)
-- Run the script with the arguments.
+- Run the script with the arguments. Arguments may be interface names, script names or strings. Strings as arguments may be quoted to avoid ambiguity.
 
 `/rcu reload` (WIP)
 - Reload all scripts.
