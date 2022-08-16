@@ -26,9 +26,13 @@ jobs:
         run: |
           echo "ARTIFACT_JAVA=$( find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar )" >> $GITHUB_ENV
           echo "ARTIFACT_PYTHON=$( find ./dist/ -name *.whl )" >> $GITHUB_ENV
-      - name: Upload artifacts
+      - name: Upload Java artifact
         uses: actions/upload-artifact@v2
         with:
           path: |
             ${{ env.ARTIFACT_JAVA }}
+      - name: Upload Python artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
             ${{ env.ARTIFACT_PYTHON }}
