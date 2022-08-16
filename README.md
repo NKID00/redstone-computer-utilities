@@ -72,7 +72,15 @@ To build the mod, Java 17 or newer, Python 3.7.2 or newer and the latest Poetry 
 $ ./gradlew build
 ```
 
-Built jars are located in `build/libs/`. Built wheels are located in `dist/`. Extracted translation keys are located in `build/messages.po`.
+Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
+
+To extract translation keys, Java 17 or newer and the latest GNU gettext are required. Run the following commands:
+
+```sh
+$ ./gradlew extract
+```
+
+Extracted translation keys are located in `build/messages.po`.
 
 Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities).
 

@@ -70,10 +70,19 @@ Java 源代码文件位于 `src/main/java/`。Python 源代码文件位于 `src/
 
 ```sh
 $ ./gradlew build
-$ poetry build
 ```
 
 构建出的 jar 文件位于 `build/libs/`。构建出的 wheel 文件位于 `dist/`。
+
+要提取翻译键，需要安装 Java 17 或更新版本和最新的 GNU gettext。运行以下命令：
+
+```sh
+$ ./gradlew extract
+```
+
+提取的翻译键位于 `build/messages.po`。
+
+翻译使用 [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities) 托管。
 
 ## 鸣谢
 
