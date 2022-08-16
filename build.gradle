@@ -87,3 +87,22 @@ publishing {
     repositories {
     }
 }
+
+task python {
+    exec {
+        workingDir "${projectDir}"
+        executable 'poetry'
+        args 'build'
+    }
+}
+
+task extract {
+    exec {
+        workingDir "${buildDir}"
+        executable 'bash'
+        args '-c', "find ${projectDir}/src/main/java/ -iname \"*.java\" | xargs xgettext -kI18n.t"
+    }
+}
+
+tasks.findByName('build').dependsOn 'python'
+tasks.findByName('build').dependsOn 'extract'
