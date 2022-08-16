@@ -22,7 +22,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class ScriptArgumentType implements NamedArgumentType<Script> {
     private static final Collection<String> EXAMPLES = Arrays.asList("name", "42", "_0");
     public static final DynamicCommandExceptionType SCRIPT_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(
-            name -> I18n.t("rcutil.commands.argument.script.notfound", name));
+            name -> I18n.t("rcutil.argument.script.notfound", name));
 
     private String argumentName;
 

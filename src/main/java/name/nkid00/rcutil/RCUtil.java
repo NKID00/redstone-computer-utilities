@@ -3,6 +3,7 @@ package name.nkid00.rcutil;
 import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.argument.Argument;
 import name.nkid00.rcutil.helper.Log;
+import name.nkid00.rcutil.helper.RegistryHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -13,28 +14,31 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class RCUtil implements ModInitializer {
-        public static boolean isDedicatedServer = false;
+    public static boolean isDedicatedServer = false;
 
-        @Override
-        public void onInitialize() {
-                var loader = FabricLoader.getInstance();
-                isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
+    @Override
+    public void onInitialize() {
+        var loader = FabricLoader.getInstance();
+        isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
 
-                // storage handler
-                ServerLifecycleEvents.SERVER_STARTED.register(Options::init);
-                ServerLifecycleEvents.SERVER_STARTED.register(Storage::init);
+        // storage handler
+        ServerLifecycleEvents.SERVER_STARTED.register(Options::init);
+        ServerLifecycleEvents.SERVER_STARTED.register(Storage::init);
 
-                // tick handler
-                ServerTickEvents.START_WORLD_TICK.register(Tick::onTick);
+        // registry handler
+        ServerLifecycleEvents.SERVER_STARTED.register(RegistryHelper::init);
 
-                // wand handler
-                AttackBlockCallback.EVENT.register(Wand::onAttack);
-                UseBlockCallback.EVENT.register(Wand::onUse);
+        // tick handler
+        ServerTickEvents.START_WORLD_TICK.register(Tick::onTick);
 
-                // command handler
-                Argument.register();
-                CommandRegistrationCallback.EVENT.register(Command::register);
+        // wand handler
+        AttackBlockCallback.EVENT.register(Wand::onAttack);
+        UseBlockCallback.EVENT.register(Wand::onUse);
 
-                Log.info("Initialized");
-        }
+        // command handler
+        Argument.register();
+        CommandRegistrationCallback.EVENT.register(Command::register);
+
+        Log.info("Initialized");
+    }
 }

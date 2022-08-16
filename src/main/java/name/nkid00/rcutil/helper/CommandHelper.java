@@ -14,6 +14,7 @@ import com.mojang.brigadier.tree.CommandNode;
 
 import name.nkid00.rcutil.command.argument.NamedArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.rcon.RconCommandOutput;
 
 public class CommandHelper {
     public static boolean isLetterDigitUnderline(char c) {
@@ -79,5 +80,9 @@ public class CommandHelper {
             super(s.output, s.position, s.rotation, s.world, s.level, s.name, s.displayName, s.server, s.entity,
                     s.silent, s.resultConsumer, s.entityAnchor, s.signedArguments, s.messageChainTaskQueue);
         }
+    }
+
+    public static boolean isConsole(ServerCommandSource s) {
+        return s.output == s.server || s.output instanceof RconCommandOutput;
     }
 }

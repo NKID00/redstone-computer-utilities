@@ -20,7 +20,7 @@ import name.nkid00.rcutil.model.Interface;
 public class InterfaceArgumentType implements ArgumentType<Interface> {
     private static final Collection<String> EXAMPLES = Arrays.asList("name", "42", "_0");
     public static final DynamicCommandExceptionType INTERFACE_NOT_FOUND_EXCEPTION = new DynamicCommandExceptionType(
-            name -> I18n.t("rcutil.commands.argument.interface.notfound", name));
+            name -> I18n.t("rcutil.argument.interface.notfound", name));
 
     public static InterfaceArgumentType interfaze() {
         return new InterfaceArgumentType();

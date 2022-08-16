@@ -12,7 +12,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class RcuNew {
     public static int execute(CommandContext<ServerCommandSource> c) {
         var s = c.getSource();
-        var player = Command.getPlayerOrNull(s);
+        var player = s.getPlayer();
         if (player == null) {
             s.sendError(I18n.t("rcutil.command.rcu.new.failed.notplayerentity"));
             return 0;

@@ -10,17 +10,17 @@ import net.minecraft.server.command.ServerCommandSource;
 public class Rcu {
     public static int execute(CommandContext<ServerCommandSource> c) {
         var s = c.getSource();
-        var player = Command.getPlayerOrNull(s);
+        var player = s.getPlayer();
         if (player == null) {
-            s.sendError(I18n.t("rcutil.commands.rcu.failed.notplayerentity"));
+            s.sendError(I18n.t("rcutil.command.rcu.fail.notplayerentity"));
             return 0;
         }
         if (player.getInventory().insertStack(new ItemStack(Options.wandItem()))) {
-            s.sendFeedback(I18n.t("rcutil.commands.rcu.success.item", Options.wandItemHoverableText()),
+            s.sendFeedback(I18n.t("rcutil.command.rcu.success.item", Options.wandItemHoverableText()),
                     true);
             return 1;
         } else {
-            s.sendError(I18n.t("rcutil.commands.rcu.failed.item"));
+            s.sendError(I18n.t("rcutil.command.rcu.fail.item"));
             return 0;
         }
     }

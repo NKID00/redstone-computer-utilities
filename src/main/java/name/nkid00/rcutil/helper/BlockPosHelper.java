@@ -161,4 +161,8 @@ public class BlockPosHelper {
             return iter;
         }
     }
+
+    public static String toString(BlockPos pos) {
+        return "%s, %s, %s".formatted(pos.getX(), pos.getY(), pos.getZ());
+    }
 }

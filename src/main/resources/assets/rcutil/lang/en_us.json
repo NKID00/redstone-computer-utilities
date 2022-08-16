@@ -1,9 +1,10 @@
 {
-    "rcutil.wand.failed.notfound": "\"/rcu new\" command is not running",
-    "rcutil.commands.rcu.success.item": "Gave wand item %s",
-    "rcutil.commands.rcu.success.stop": "Stopped \"/rcu new\" command successfully",
-    "rcutil.commands.rcu.failed.item": "Inventory is full",
-    "rcutil.commands.rcu.failed.notplayerentity": "\"/rcu\" must be executed by or as players",
+    "rcutil.select.success": "",
+    "rcutil.select.msb": "",
+    "rcutil.command.rcu.success.item": "Gave wand item %s",
+    "rcutil.command.rcu.fail.item": "Inventory is full",
+    "rcutil.command.rcu.fail.notplayerentity": "\"/rcu\" must be executed by or as players",
+
     "rcutil.commands.rcu.new.failed.notplayerentity": "\"/rcu new\" must be executed by or as players",
     "rcutil.commands.rcu.new.failed.running": "Another \"/rcu new\" command is already running, use \"/rcu\" to stop it",
     "rcutil.commands.rcu.new.failed.selector": "Component or connection selector not recognized",

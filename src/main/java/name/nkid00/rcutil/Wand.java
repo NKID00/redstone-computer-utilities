@@ -1,6 +1,9 @@
 package name.nkid00.rcutil;
 
+import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.I18n;
+import name.nkid00.rcutil.helper.RegistryHelper;
+import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.manager.SelectionManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -18,12 +21,9 @@ public class Wand {
             return ActionResult.PASS;
         }
         var uuid = player.getUuid();
-        SelectionManager.selectMsb(uuid, pos, world.getDimension());
-        if (SelectionManager.selected(uuid)) {
-            player.sendMessage(I18n.t("rcutil.select.selected"));
-        } else {
-            player.sendMessage(I18n.t("rcutil.select.msb.success"));
-        }
+        var dimension = world.getDimension();
+        SelectionManager.selectMsb(uuid, pos, dimension);
+        player.sendMessage(I18n.t("rcutil.select.msb", BlockPosHelper.toString(pos), RegistryHelper.toString(dimension)));
         return ActionResult.FAIL;
     }
 
@@ -34,12 +34,9 @@ public class Wand {
         }
         var pos = hitResult.getBlockPos();
         var uuid = player.getUuid();
-        SelectionManager.selectLsb(uuid, pos, world.getDimension());
-        if (SelectionManager.selected(uuid)) {
-            player.sendMessage(I18n.t("rcutil.select.selected"));
-        } else {
-            player.sendMessage(I18n.t("rcutil.select.lsb.success"));
-        }
+        var dimension = world.getDimension();
+        SelectionManager.selectLsb(uuid, pos, dimension);
+        player.sendMessage(I18n.t("rcutil.select.lsb", BlockPosHelper.toString(pos), RegistryHelper.toString(dimension)));
         return ActionResult.FAIL;
     }
 }
