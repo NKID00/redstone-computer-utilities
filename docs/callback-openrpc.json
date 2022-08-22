@@ -117,7 +117,11 @@
                 }
             ],
             "paramStructure": "by-name",
-            "params": [],
+            "params": [
+                {
+                    "$ref": "#/components/errors/gametime"
+                }
+            ],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
             },
@@ -136,7 +140,11 @@
                 }
             ],
             "paramStructure": "by-name",
-            "params": [],
+            "params": [
+                {
+                    "$ref": "#/components/errors/gametime"
+                }
+            ],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
             },
@@ -317,7 +325,7 @@
             },
             "permissionLevel": {
                 "name": "permissionLevel",
-                "summary": "Permission level required to run the script.",
+                "summary": "Permission level required to run the script, SHOULD be a integer in [2, 4].",
                 "required": true,
                 "schema": {
                     "type": "integer",
@@ -390,6 +398,14 @@
                 "required": true,
                 "schema": {
                     "type": "string"
+                }
+            },
+            "gametime": {
+                "name": "gametime",
+                "summary": "Current monotonic world time of the overworld in gametick. Remain unchanged for onGametickStart and onGametickEnd called in the same gametick.",
+                "required": true,
+                "schema": {
+                    "type": "integer"
                 }
             }
         },

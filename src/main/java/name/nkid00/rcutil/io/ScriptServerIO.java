@@ -24,11 +24,14 @@ import name.nkid00.rcutil.helper.Log;
 
 public class ScriptServerIO {
     private static MultithreadEventLoopGroup group;
+    private static InetAddress address;
+    private static int port;
+    private static ServerBootstrap bootstrap;
     private static Channel channel;
 
     public static void init() {
-        InetAddress address = null;
-        var port = Options.port();
+        address = null;
+        port = Options.port();
         if (Options.localhostOnly()) {
             address = InetAddress.getLoopbackAddress();
             Log.info("Strarting script server on localhost:{}", port);
@@ -41,32 +44,35 @@ public class ScriptServerIO {
             }
             Log.info("Strarting script server on {}:{}", address == null ? "*" : address.getHostAddress(), port);
         }
-        var b = new ServerBootstrap();
+        bootstrap = new ServerBootstrap();
         var threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat("rcutil script server #%d")
                 .setDaemon(true)
                 .build();
         if (Epoll.isAvailable()) {
             group = new EpollEventLoopGroup(0, threadFactory);
-            b.channel(EpollServerSocketChannel.class);
+            bootstrap.channel(EpollServerSocketChannel.class);
         } else {
             group = new NioEventLoopGroup(0, threadFactory);
-            b.channel(NioServerSocketChannel.class);
+            bootstrap.channel(NioServerSocketChannel.class);
         }
-        b.group(group);
-        b.childHandler(new ChannelInitializer<SocketChannel>() {
+        bootstrap.group(group);
+        bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline()
                         .addLast(new LengthFieldBasedFrameDecoder(ByteOrder.BIG_ENDIAN, 32767, 0, 2, 0, 2, true))
+                        .addLast(new LengthFieldPrepender(ByteOrder.BIG_ENDIAN, 2, 0, false))
                         .addLast(new JsonCodec())
-                        .addLast(new ScriptServerIOHandler())
-                        .addLast(new LengthFieldPrepender(ByteOrder.BIG_ENDIAN, 2, 0, false));
+                        .addLast(new ScriptServerIOHandler());
             }
         });
-        b.childOption(ChannelOption.TCP_NODELAY, true);
-        b.childOption(ChannelOption.SO_KEEPALIVE, true);
-        channel = b.bind(address, port).syncUninterruptibly().channel();
+        bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
+        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
+    }
+
+    public static void start() {
+        channel = bootstrap.bind(address, port).syncUninterruptibly().channel();
     }
 
     public static void stop() {
