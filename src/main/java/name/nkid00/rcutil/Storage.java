@@ -42,14 +42,14 @@ public class Storage {
                         LanguageManager.load(reader, gson);
                         break;
                     default:
-                        Log.error("Read unknown field when loading");
+                        Log.error("Read unknown field while loading");
 
                 }
             }
             reader.endObject();
         } catch (IOException e) {
         } catch (JsonParseException e) {
-            Log.error("Error occurred when loading", e);
+            Log.error("Error occurred while loading", e);
         }
         save();
     }
@@ -65,7 +65,7 @@ public class Storage {
             LanguageManager.save(writer, gson);
             writer.endObject();
         } catch (IOException e) {
-            Log.error("Error occurred when saving", e);
+            Log.error("Error occurred while saving", e);
         }
     }
 }

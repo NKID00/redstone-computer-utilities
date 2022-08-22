@@ -4,6 +4,7 @@ import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.argument.Argument;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.RegistryHelper;
+import name.nkid00.rcutil.io.ScriptServerIO;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -22,11 +23,11 @@ public class RCUtil implements ModInitializer {
         isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
 
         // storage handler
-        ServerLifecycleEvents.SERVER_STARTED.register(Options::init);
-        ServerLifecycleEvents.SERVER_STARTED.register(Storage::init);
+        ServerLifecycleEvents.SERVER_STARTING.register(Options::init);
+        ServerLifecycleEvents.SERVER_STARTING.register(Storage::init);
 
         // registry handler
-        ServerLifecycleEvents.SERVER_STARTED.register(RegistryHelper::init);
+        ServerLifecycleEvents.SERVER_STARTING.register(RegistryHelper::init);
 
         // tick handler
         ServerTickEvents.START_WORLD_TICK.register(Tick::onTick);
@@ -39,6 +40,8 @@ public class RCUtil implements ModInitializer {
         Argument.register();
         CommandRegistrationCallback.EVENT.register(Command::register);
 
-        Log.info("Initialized");
+        // script server handler
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> ScriptServerIO.init());
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> ScriptServerIO.stop());
     }
 }

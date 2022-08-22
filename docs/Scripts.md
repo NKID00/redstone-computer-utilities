@@ -4,7 +4,7 @@ Scripts are language-neutral programs outside the game that can read or write in
 
 ## Communication
 
-Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind host `localhost` (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection can be reused by multiple scripts, multiple connections can also be used by a single script, with authorization keys as identifiers.
+Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind the loopback address (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection may be reused by multiple scripts, multiple connections may also be used by a single script, with authorization keys as identifiers. Each json element MUST be prepended with a 2-byte big-endian length field while transferring.
 
 ## Authorization
 

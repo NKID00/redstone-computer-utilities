@@ -1,19 +1,20 @@
 {
     "openrpc": "1.2.6",
     "info": {
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "redstone-computer-utilities Json-RPC API",
         "description": "APIs for redstone-computer-utilities scripts."
     },
     "servers": [
         {
+            "name": "default server",
             "url": "localhost:37265"
         }
     ],
     "methods": [
         {
             "name": "registerScript",
-            "description": "Register the script.",
+            "summary": "Register the script.",
             "tags": [
                 {
                     "name": "Script"
@@ -48,7 +49,7 @@
         },
         {
             "name": "deregisterScript",
-            "description": "Deregister the script.",
+            "summary": "Deregister the script.",
             "tags": [
                 {
                     "name": "Script"
@@ -71,7 +72,7 @@
         },
         {
             "name": "listScript",
-            "description": "List registered script.",
+            "summary": "List registered script.",
             "tags": [
                 {
                     "name": "Script"
@@ -117,7 +118,7 @@
         },
         {
             "name": "invokeScript",
-            "description": "List registered scripts.",
+            "summary": "List registered scripts.",
             "tags": [
                 {
                     "name": "Script"
@@ -155,7 +156,7 @@
         },
         {
             "name": "registerCallback",
-            "description": "Register the event callback. Only one callback can be registered for the same event within the script.",
+            "summary": "Register the event callback. Only one callback can be registered for the same event within the script.",
             "tags": [
                 {
                     "name": "EventCallback"
@@ -190,7 +191,7 @@
         },
         {
             "name": "deregisterCallback",
-            "description": "Deregister the event callback.",
+            "summary": "Deregister the event callback.",
             "tags": [
                 {
                     "name": "EventCallback"
@@ -222,7 +223,7 @@
         },
         {
             "name": "listCallback",
-            "description": "(experimental) List registered event callbacks of the script.",
+            "summary": "(experimental) List registered event callbacks of the script.",
             "tags": [
                 {
                     "name": "EventCallback"
@@ -261,7 +262,7 @@
         },
         {
             "name": "invokeCallback",
-            "description": "(experimental) Invoke the event callback of the script.",
+            "summary": "(experimental) Invoke the event callback of the script.",
             "tags": [
                 {
                     "name": "EventCallback"
@@ -309,7 +310,7 @@
         },
         {
             "name": "newInterface",
-            "description": "Create an interface.",
+            "summary": "Create an interface.",
             "tags": [
                 {
                     "name": "Interface"
@@ -347,7 +348,7 @@
         },
         {
             "name": "removeInterface",
-            "description": "Remove the interface.",
+            "summary": "Remove the interface.",
             "tags": [
                 {
                     "name": "Interface"
@@ -379,7 +380,7 @@
         },
         {
             "name": "listInterface",
-            "description": "List interfaces.",
+            "summary": "List interfaces.",
             "tags": [
                 {
                     "name": "Interface"
@@ -411,7 +412,7 @@
         },
         {
             "name": "readInterface",
-            "description": "Read from the interface.",
+            "summary": "Read from the interface.",
             "tags": [
                 {
                     "name": "Interface"
@@ -440,7 +441,7 @@
         },
         {
             "name": "writeInterface",
-            "description": "Write to the interface.",
+            "summary": "Write to the interface.",
             "tags": [
                 {
                     "name": "Interface"
@@ -472,7 +473,7 @@
         },
         {
             "name": "info",
-            "description": "Log the message as information.",
+            "summary": "Log the message as information.",
             "tags": [
                 {
                     "name": "Logging"
@@ -498,7 +499,7 @@
         },
         {
             "name": "warn",
-            "description": "Log the message as warning.",
+            "summary": "Log the message as warning.",
             "tags": [
                 {
                     "name": "Logging"
@@ -524,7 +525,7 @@
         },
         {
             "name": "error",
-            "description": "Log the message as error.",
+            "summary": "Log the message as error.",
             "tags": [
                 {
                     "name": "Logging"
@@ -550,6 +551,179 @@
         }
     ],
     "components": {
-        "$ref": "components.json#/"
+        "contentDescriptors": {
+            "null": {
+                "name": "null",
+                "required": true,
+                "schema": {
+                    "type": "null"
+                }
+            },
+            "any": {
+                "name": "any",
+                "required": true,
+                "schema": true
+            },
+            "integerResult": {
+                "name": "result",
+                "summary": "Integer result.",
+                "required": true,
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "authKey": {
+                "name": "authKey",
+                "summary": "Authorization key.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "script": {
+                "name": "script",
+                "summary": "Name of the script, MUST be unique among all registered scripts and MUST be a string consists of only letters, numbers and underlines.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]+$"
+                }
+            },
+            "description": {
+                "name": "description",
+                "summary": "Description of the script, SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "permissionLevel": {
+                "name": "permissionLevel",
+                "summary": "Permission level required to run the script.",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 4
+                }
+            },
+            "event": {
+                "name": "event",
+                "summary": "Name of the event.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "callback": {
+                "name": "callback",
+                "summary": "Name of the method called when event occurs.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "args": {
+                "name": "args",
+                "summary": "Arguments to invoke the script.",
+                "required": false,
+                "schema": {
+                    "anyOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "array"
+                        }
+                    ]
+                }
+            },
+            "interface": {
+                "name": "interface",
+                "summary": "Name of the interface, MUST be unique among all interfaces and MUST be a string consists of only letters, numbers and underlines.",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]+$"
+                }
+            },
+            "data": {
+                "name": "data",
+                "summary": "Data to be read or written in an little-endian array of 32 bit integers.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "message": {
+                "name": "message",
+                "summary": "Message to be logged, SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "uuid": {
+                "name": "uuid",
+                "summary": "UUID of the player.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "errors": {
+            "InvalidAuthKey": {
+                "code": -1,
+                "message": "Invalid authorization key."
+            },
+            "IllegalName": {
+                "code": -2,
+                "message": "Illegal name."
+            },
+            "NameExists": {
+                "code": -3,
+                "message": "Target with the name already exists."
+            },
+            "InvalidPermissionLevel": {
+                "code": -4,
+                "message": "Invalid permission level."
+            },
+            "ScriptNotRegistered": {
+                "code": -5,
+                "message": "Script is not registered."
+            },
+            "IllegalArgument": {
+                "code": -6,
+                "message": "Illegal argument."
+            },
+            "ScriptInternalError": {
+                "code": -7,
+                "message": "Script internal error."
+            },
+            "EventNotFound": {
+                "code": -8,
+                "message": "Event is not found."
+            },
+            "EventCallbackAlreadyRegistered": {
+                "code": -9,
+                "message": "Event callback is already registered."
+            },
+            "EventCallbackNotRegistered": {
+                "code": -10,
+                "message": "Event callback is not registered."
+            },
+            "AccessDenied": {
+                "code": -11,
+                "message": "Access denied."
+            },
+            "InterfaceNotFound": {
+                "code": -12,
+                "message": "Interface is not found."
+            }
+        }
     }
 }

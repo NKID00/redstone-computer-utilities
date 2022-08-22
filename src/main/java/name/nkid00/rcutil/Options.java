@@ -28,7 +28,7 @@ public class Options {
     }
 
     @Expose
-    private String host = "localhost";
+    private String host = "";
     @Expose
     private int port = 37265;
     @Expose
@@ -36,6 +36,8 @@ public class Options {
     @Expose
     private Item wandItem = Items.PINK_DYE;
     private Text wandItemHoverableText;
+    @Expose
+    private boolean localhostOnly = true;
 
     public static String host() {
         return instance.host;
@@ -57,6 +59,10 @@ public class Options {
         return instance.wandItemHoverableText;
     }
 
+    public static boolean localhostOnly() {
+        return instance.localhostOnly;
+    }
+
     public static void init(MinecraftServer server) {
         var loader = FabricLoader.getInstance();
         file = loader.getConfigDir().resolve("rcutil.json").toFile();
@@ -67,7 +73,7 @@ public class Options {
         } catch (IOException e) {
             instance = new Options();
         } catch (JsonParseException e) {
-            Log.error("Error occurred when loading options, generating empty record", e);
+            Log.error("Error occurred while loading options, generating empty record", e);
             instance = new Options();
         }
         instance.wandItemHoverableText = new ItemStack(wandItem()).toHoverableText();
@@ -78,9 +84,9 @@ public class Options {
         try (var writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             gson.toJson(instance, writer);
         } catch (IOException e) {
-            Log.error("Error occurred when saving options", e);
+            Log.error("Error occurred while saving options", e);
         } catch (JsonParseException e) {
-            Log.error("Error occurred when saving options", e);
+            Log.error("Error occurred while saving options", e);
         }
     }
 }
