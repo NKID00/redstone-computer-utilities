@@ -4,17 +4,21 @@ Scripts are language-neutral programs outside the game that can read or write in
 
 ## Communication
 
-Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind the loopback address (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection may be reused by multiple scripts, multiple connections may also be used by a single script, with authorization keys as identifiers.
+Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind the loopback address (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection may be reused by multiple scripts, with authorization keys as identifiers. Each script MUST use only one connection. When a connection is lost, all scripts related to the connection will be deregistered.
 
-Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 65535. To avoid id collision, ids of requests sent by the script server MUST be a string started with `s_` while ids of requests sent by script clients MUST be a string started with `c_` and SHOULD be a string started start with `c_<script name>_`.
+Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 65535. To avoid collision, ids of requests sent by the mod MUST be a string started with `s_`, while ids of requests sent by scripts MUST be a string started with `c_` and SHOULD be a string started start with `c_<script name>_`. Names of event callback methods SHOULD start with `<script name>_`. The above `<script name>` excludes the angle brackets.
 
 ## Authorization
 
-An authorization key will be given when the script is registered and will be destroyed when the script is deregistered or unloaded. Any further API call will require this key.
+An authorization key will be given when the script is registered and will be destroyed when the script is deregistered. Any further API call will require this key.
 
 ## Registration
 
 When a script registers itself, it will not be runnable immediately. Instead, it will be queued and become loaded after `/rcu reload` is executed.
+
+## Reload
+
+When a script is registered or deregistered, other scripts that depends on it may malfunction and `/rcu reload` SHOULD be executed to reload all scripts. When `/rcu reload` is executed, `onScriptUnload` event callback will be called on all scripts, afterward, `onScriptLoad` event callback will be called on all scripts.
 
 ## Stability
 
