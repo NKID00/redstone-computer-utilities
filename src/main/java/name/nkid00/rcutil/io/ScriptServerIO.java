@@ -1,5 +1,6 @@
 package name.nkid00.rcutil.io;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
@@ -112,7 +113,7 @@ public class ScriptServerIO {
         return response;
     }
 
-    private static JsonElement send(JsonObject request, String clientAddress) throws ResponseException {
+    private static JsonElement send(JsonObject request, String clientAddress) throws ResponseException, IOException {
         var id = request.get("id").getAsString();
         var ctx = connections.get(clientAddress);
         Promise<JsonObject> promise = ctx.executor().newPromise();
@@ -138,6 +139,11 @@ public class ScriptServerIO {
         request.addProperty("method", method);
         request.add("params", params);
         request.addProperty("id", id());
-        return send(request, clientAddress);
+        try {
+            return send(request, clientAddress);
+        } catch (IOException e) {
+            Log.error("IOException caught");
+            return null;
+        }
     }
 }
