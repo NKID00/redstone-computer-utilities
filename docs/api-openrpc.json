@@ -156,7 +156,8 @@
         },
         {
             "name": "registerCallback",
-            "summary": "Register the event callback. Only one callback can be registered for the same event within the script.",
+            "summary": "Register the event callback.",
+            "description": "Only one callback can be registered for the same event within the script.",
             "tags": [
                 {
                     "name": "EventCallback"
@@ -472,6 +473,30 @@
             ]
         },
         {
+            "name": "gametime",
+            "summary": "Get current monotonic world time of the overworld in gametick.",
+            "description": "Guaranteed to return the same value as player executes `/time query gametime` in the same gametick. Also guaranteed to return the same value when called from callbacks of event onGametickStart and onGametickEnd in the same gametick.",
+            "tags": [
+                {
+                    "name": "Miscellaneous"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/gametime"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
             "name": "info",
             "summary": "Log the message as information.",
             "tags": [
@@ -582,7 +607,8 @@
             },
             "script": {
                 "name": "script",
-                "summary": "Name of the script, MUST be unique among all registered scripts and MUST be a string consists of only letters, numbers and underlines.",
+                "summary": "Name of the script.",
+                "description": "MUST be unique among all registered scripts and MUST be a string consists of only letters, numbers and underlines.",
                 "required": true,
                 "schema": {
                     "type": "string",
@@ -591,7 +617,8 @@
             },
             "description": {
                 "name": "description",
-                "summary": "Description of the script, SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
+                "summary": "Description of the script.",
+                "description": "SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
                 "required": true,
                 "schema": {
                     "type": "string"
@@ -599,7 +626,8 @@
             },
             "permissionLevel": {
                 "name": "permissionLevel",
-                "summary": "Permission level required to run the script, SHOULD be a integer in [2, 4].",
+                "summary": "Permission level required to run the script.",
+                "description": "SHOULD be a integer >= 2 and <= 4.",
                 "required": true,
                 "schema": {
                     "type": "integer",
@@ -626,7 +654,7 @@
             "args": {
                 "name": "args",
                 "summary": "Arguments to invoke the script.",
-                "required": false,
+                "required": true,
                 "schema": {
                     "anyOf": [
                         {
@@ -640,7 +668,8 @@
             },
             "interface": {
                 "name": "interface",
-                "summary": "Name of the interface, MUST be unique among all interfaces and MUST be a string consists of only letters, numbers and underlines.",
+                "summary": "Name of the interface.",
+                "description": "MUST be unique among all interfaces and MUST be a string consists of only letters, numbers and underlines.",
                 "required": true,
                 "schema": {
                     "type": "string",
@@ -649,7 +678,8 @@
             },
             "data": {
                 "name": "data",
-                "summary": "Data to be read or written in an little-endian array of 32 bit integers.",
+                "summary": "Data to be read or written.",
+                "description": "Represented in a little-endian array of 32 bit integers.",
                 "required": true,
                 "schema": {
                     "type": "array",
@@ -660,7 +690,8 @@
             },
             "message": {
                 "name": "message",
-                "summary": "Message to be logged, SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
+                "summary": "Message to be logged.",
+                "description": "SHOULD be any unicode string that can be displayed as plain text in Minecraft.",
                 "required": true,
                 "schema": {
                     "type": "string"
@@ -676,10 +707,11 @@
             },
             "gametime": {
                 "name": "gametime",
-                "summary": "Current monotonic world time of the overworld in gametick. Remain unchanged for onGametickStart and onGametickEnd called in the same gametick.",
+                "summary": "Monotonic world time of the overworld in gametick.",
                 "required": true,
                 "schema": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "64-bit integer."
                 }
             }
         },

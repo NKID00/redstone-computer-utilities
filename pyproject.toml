@@ -6,8 +6,8 @@ authors = ["NKID00 <nkid00@pm.me>"]
 license = "MPL-2.0"
 
 [tool.poetry.dependencies]
-python = "^3.6"
-py4j = "^0.10.9"
+python = "^3.7"
+alive-progress = "^2.4.1"
 
 [tool.poetry.dev-dependencies]
 pylint = {version = "^2.14.5", python = "^3.7.2"}

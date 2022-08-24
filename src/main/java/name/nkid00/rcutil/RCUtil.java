@@ -2,6 +2,7 @@ package name.nkid00.rcutil;
 
 import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.argument.Argument;
+import name.nkid00.rcutil.helper.GametimeHelper;
 import name.nkid00.rcutil.helper.RegistryHelper;
 import name.nkid00.rcutil.io.ScriptServerIO;
 import net.fabricmc.api.EnvType;
@@ -29,8 +30,9 @@ public class RCUtil implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register(RegistryHelper::init);
 
         // tick handler
-        ServerTickEvents.START_WORLD_TICK.register(Tick::onTickStart);
-        ServerTickEvents.END_WORLD_TICK.register(Tick::onTickEnd);
+        ServerTickEvents.START_SERVER_TICK.register(GametimeHelper::onTickStart);
+        ServerTickEvents.START_SERVER_TICK.register(Tick::onTickStart);
+        ServerTickEvents.END_SERVER_TICK.register(Tick::onTickEnd);
 
         // wand handler
         AttackBlockCallback.EVENT.register(Wand::onAttack);

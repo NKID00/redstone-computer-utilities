@@ -1,12 +1,11 @@
 package name.nkid00.rcutil;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.MinecraftServer;
 
 public class Tick {
-    public static void onTickStart(ServerWorld world) {
-
+    public static void onTickStart(MinecraftServer world) {
     }
-    public static void onTickEnd(ServerWorld world) {
 
+    public static void onTickEnd(MinecraftServer world) {
     }
 }

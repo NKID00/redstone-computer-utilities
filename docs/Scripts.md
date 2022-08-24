@@ -4,7 +4,7 @@ Scripts are language-neutral programs outside the game that can read or write in
 
 ## Communication
 
-Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind the loopback address (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection may be reused by multiple scripts, multiple connections may also be used by a single script, with authorization keys as identifiers. Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 32767.
+Communication between the mod and scripts is accomplished with two-way Json-RPC on one or more TCP connections. Once initialized, the mod will bind the loopback address (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection may be reused by multiple scripts, multiple connections may also be used by a single script, with authorization keys as identifiers. Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 65535.
 
 ## Authorization
 
@@ -17,6 +17,10 @@ When a script registers itself, it will not be runnable immediately. Instead, it
 ## Stability
 
 Major version zero (0.x.x) is not considered stable, API and event callbacks may change at any time. Breaking changes may also occur when major version changes.
+
+## Chunk Unloading
+
+Manipulating interfaces located in unloaded chunks is undefined behavior.
 
 ## API
 
@@ -40,6 +44,8 @@ See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs wi
   - infoInterface
   - readInterface
   - writeInterface
+- Miscellaneous
+  - gametime
 - Logging
   - info
   - warn
