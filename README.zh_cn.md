@@ -66,7 +66,7 @@
 
 Java 源代码文件位于 `src/main/java/`。Python 源代码文件位于 `src/redstone_computer_utilities/`。
 
-要构建模组，需要安装 Java 17 或更新版本，Python 3.7.2 或更新版本和最新的 Poetry。运行以下命令：
+要构建模组，需要安装 Java 17 或更新版本，Python 3.7.2 或更新版本和 Poetry。运行以下命令：
 
 ```sh
 $ ./gradlew build
@@ -74,15 +74,16 @@ $ ./gradlew build
 
 构建出的 jar 文件位于 `build/libs/`。构建出的 wheel 文件位于 `dist/`。
 
-要提取翻译键，需要安装 Java 17 或更新版本和最新的 GNU gettext。运行以下命令：
+要提取翻译键，需要安装 Java 和 GNU gettext。运行以下命令：
 
 ```sh
 $ ./gradlew extract
 ```
 
-提取的翻译键位于 `build/messages.po`。
+提取的翻译键位于 `build/messages.po`。翻译使用 [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities) 托管。要将翻译转换为 Minecraft 兼容的格式，需要安装 Python。运行以下命令：
 
-翻译使用 [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities) 托管。
+```sh
+$ python po2minecraft.py 文件路径/messages.po 文件路径/messages.json
 
 ## 鸣谢
 

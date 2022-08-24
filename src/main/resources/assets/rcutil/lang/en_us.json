@@ -1,20 +1,13 @@
 {
-    "rcutil.select.success": "",
-    "rcutil.select.msb": "",
-    "rcutil.command.rcu.success.item": "Gave wand item %s",
-    "rcutil.command.rcu.fail.item": "Inventory is full",
+    "rcutil.select.msb": "Most significant bit set to %s, %s",
+    "rcutil.select.lsb": "Least significant bit set to %s, %s",
+    "rcutil.command.rcu.new.failed.notplayerentity": "\"/rcu new\" must be executed by or as players",
+    "rcutil.command.rcu.new.failed.notselected": "Nothing is selected",
+    "rcutil.command.rcu.new.failed.exists": "Interface with name \"%s\" already exists",
+    "rcutil.command.rcu.new.failed.unknown": "Interface cannot be inferred from the selection",
+    "rcutil.argument.interface.notfound": "Interface with name \"%s\" cannot be found",
+    "rcutil.argument.script.notfound": "Script with name \"%s\" cannot be found",
     "rcutil.command.rcu.fail.notplayerentity": "\"/rcu\" must be executed by or as players",
-
-    "rcutil.commands.rcu.new.failed.notplayerentity": "\"/rcu new\" must be executed by or as players",
-    "rcutil.commands.rcu.new.failed.running": "Another \"/rcu new\" command is already running, use \"/rcu\" to stop it",
-    "rcutil.commands.rcu.new.failed.selector": "Component or connection selector not recognized",
-    "rcutil.commands.rcu.new.component.success": "%s created successfully",
-    "rcutil.commands.rcu.new.component.failed.exists": "%s already exists",
-    "rcutil.commands.rcu.new.component.failed.type": "Component type %s does not exist",
-    "rcutil.commands.rcu.new.component.failed.target": "Failed to create component: block selected is not target block",
-    "rcutil.commands.rcu.new.component.failed.dimension": "Failed to create component: blocks located in different dimensions",
-    "rcutil.commands.rcu.new.component.failed.notaligned": "Failed to create component: blocks are not in a row",
-    "rcutil.commands.rcu.new.wires.step.lsb": "Select the least significant bit of the wires then use the wand item %s",
-    "rcutil.commands.rcu.new.wires.step.2lsb": "Select the 2nd least significant bit of the wires then use the wand item %s",
-    "rcutil.commands.rcu.new.wires.step.msb": "Select the most significant bit of the wires then use the wand item %s"
+    "rcutil.command.rcu.success.item": "Gave wand item %s",
+    "rcutil.command.rcu.fail.item": "Inventory is full"
 }
