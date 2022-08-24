@@ -42,11 +42,11 @@ public class ScriptArgumentType implements NamedArgumentType<Script> {
     public Script parse(StringReader reader) throws CommandSyntaxException {
         Log.info("ScriptArgumentType::parse");
         var name = CommandHelper.getName(reader);
-        if (!ScriptManager.hasScript(name)) {
+        if (!ScriptManager.nameExists(name)) {
             Log.info("Script not found");
             throw SCRIPT_NOT_FOUND_EXCEPTION.create(name);
         }
-        return ScriptManager.script(name);
+        return ScriptManager.scriptByName(name);
     }
 
     @SuppressWarnings("unchecked")

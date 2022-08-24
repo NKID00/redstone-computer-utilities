@@ -89,22 +89,23 @@ public class ScriptServerIO {
     }
 
     private static String id() {
-        return "<server>_%d".formatted(id.incrementAndGet());
+        return "s_%d".formatted(id.incrementAndGet());
     }
 
     public static JsonObject handleRequest(JsonObject request) {
         var response = new JsonObject();
+        var id = request.get("id").getAsString();
         try {
             response.add("result", ScriptApi.dispatch(
                     request.get("method").getAsString(),
                     request.get("params").getAsJsonObject()));
         } catch (ResponseException e) {
-            return e.toResponse();
-        } catch (IllegalStateException | NullPointerException e) {
-            return new ResponseException(-32600, "Invalid Request", request.get("id")).toResponse();
+            return e.toResponse(id);
+        } catch (IllegalStateException | ClassCastException | NullPointerException e) {
+            return ResponseException.INVALID_REQUEST.toResponse(id);
         }
         response.addProperty("jsonrpc", "2.0");
-        response.add("id", request.get("id"));
+        response.addProperty("id", id);
         return response;
     }
 

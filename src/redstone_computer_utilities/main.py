@@ -5,7 +5,7 @@ import asyncio
 import itertools
 
 from .script import Script
-from .io import MethodNotFoundError, _JsonRpcIO
+from .io import MethodNotFoundError, _JsonRpcIO, ResponseError
 
 __version__ = _version(__package__)
 
@@ -85,12 +85,17 @@ def _info(message: str):
     print('  ' + message)
 
 
+_warn = _info
+_error = _info
+
+
 async def _run_async(host: str, port: int) -> None:
     async def dispatch_request(method: str, params: Dict[str, Any]
                                ) -> Any:
         for script in _registered_scripts:
             try:
-                return await script.dispatch_request(method, params)
+                # pylint: disable=protected-access
+                return await script._dispatch_request(method, params)
             except MethodNotFoundError:
                 continue
         raise MethodNotFoundError()
@@ -106,13 +111,25 @@ async def _run_async(host: str, port: int) -> None:
                 break
     _info(f'Connected to script server {host}:{port}')
 
+    task = asyncio.create_task(io.run())
+
     scripts_len = len(_registered_scripts)
+    success_count = 0
     async with _wait() as wait:
         for i, script in enumerate(_registered_scripts):
             wait(f'Registering script(s) ({i}/{scripts_len})')
-            script.set_io(io)
-            await script.register()
-    _info(f'Registered {scripts_len} script(s)')
+            script._set_io(io)  # pylint: disable=protected-access
+            try:
+                await script._register()  # pylint: disable=protected-access
+            except ResponseError as exc:
+                _error(f'Error occurred while registering script '
+                       f'"{script.name}": {exc}')
+            else:
+                success_count += 1
+                _info(f'Script "{script.name}" is registered')
+    _info(f'Registered {success_count}/{scripts_len} script(s)')
+    if success_count == 0:
+        raise KeyboardInterrupt()
 
     async with _wait('Running') as wait:
-        await io.run()
+        await asyncio.wait([task])

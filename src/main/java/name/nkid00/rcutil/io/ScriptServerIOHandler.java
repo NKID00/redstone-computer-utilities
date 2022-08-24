@@ -23,7 +23,7 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
             {"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}"""
             .getBytes(StandardCharsets.UTF_8));
     private ChannelHandlerContext ctx;
-    private ConcurrentHashMap<JsonElement, Promise<JsonObject>> responsePromises = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Promise<JsonObject>> responsePromises = new ConcurrentHashMap<>();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -34,7 +34,6 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, JsonElement msg) throws Exception {
-        Log.info("Received message {}", msg);
         if (msg.isJsonObject()) {
             dispatch(ctx, msg.getAsJsonObject());
         } else if (msg.isJsonArray()) {
@@ -61,13 +60,13 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
 
     private void dispatch(ChannelHandlerContext ctx, JsonObject msg) throws Exception {
         try {
-            if (msg.get("jsonrpc").getAsString() != "2.0") {
+            if (!msg.get("jsonrpc").getAsString().equals("2.0")) {
                 INVALID_REQUEST_RESPONSE.retain();
                 ctx.writeAndFlush(INVALID_REQUEST_RESPONSE);
             } else if (msg.has("method")) {
                 ctx.writeAndFlush(ScriptServerIO.handleRequest(msg));
             } else if (msg.has("result") || msg.has("error")) {
-                var id = msg.get("id");
+                var id = msg.get("id").getAsString();
                 if (responsePromises.contains(id)) {
                     responsePromises.get(id).trySuccess(msg);
                 }
@@ -82,7 +81,7 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
     }
 
     public Promise<JsonObject> send(JsonObject request) {
-        var id = request.get("id");
+        var id = request.get("id").getAsString();
         Promise<JsonObject> promise = ctx.executor().newPromise();
         responsePromises.put(id, promise);
         ctx.writeAndFlush(request).syncUninterruptibly();

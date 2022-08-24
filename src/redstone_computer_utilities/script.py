@@ -1,4 +1,5 @@
-from typing import Any, Awaitable, Callable, Dict, List, Optional, TypeVar, cast
+from typing import (Any, Awaitable, Callable, Dict, List, Optional, TypeVar,
+                    cast)
 import asyncio
 
 from .io import MethodNotFoundError, _JsonRpcIO
@@ -28,19 +29,27 @@ class Script:
         self._io: Optional[_JsonRpcIO] = None
         self._id_lock: asyncio.Lock = asyncio.Lock()
         self._id_value: int = 0
+        self._auth_key: str = ''
+    
+    @property
+    def name(self) -> str:
+        return self._name
 
-    def set_io(self, io: _JsonRpcIO):
+    def _set_io(self, io: _JsonRpcIO):
+        '''Set the underlying io.'''
         self._io = io
 
     @property
     def _id(self) -> str:
         self._id_value += 1
-        return f'c2s_{self._name}_{self._id_value}'
+        return f'c_{self._name}_{self._id_value}'
 
     async def _call_api(self, method: str,
                         params: Dict[str, Any] = None) -> Any:
         if params is None:
             params = {}
+        if self._auth_key != '':
+            params['authKey'] = self._auth_key
         return await cast(_JsonRpcIO, self._io).send(method, params, self._id)
 
     def _register_event_callback(self, event: str, callback: _C) -> _C:
@@ -52,7 +61,8 @@ class Script:
     def _event_callback_registerer(self, event: str) -> Callable[[_C], _C]:
         return lambda callback: self._register_event_callback(event, callback)
 
-    async def dispatch_request(self, method: str, params: Dict[str, Any]) -> Any:
+    async def _dispatch_request(self, method: str, params: Dict[str, Any]
+                                ) -> Any:
         if method.startswith(self._name + '_'):
             event = method.split('_', 1)[1]
             if event in self._event_callbacks:
@@ -61,8 +71,24 @@ class Script:
                 return result
         raise MethodNotFoundError()
 
-    async def register(self) -> None:
-        pass
+    async def _register(self) -> None:
+        self._auth_key = await self._call_api('registerScript', {
+            'script': self._name,
+            'description': self._description,
+            'permissionLevel': self._permission_level
+        })
+        for event in self._event_callbacks:
+            await self._call_api('registerCallback', {
+                'event': event,
+                'callback': f'{self._name}_{event}'
+            })
+
+    async def _deregister(self) -> None:
+        if self._auth_key != '':
+            await self._call_api('deregisterScript', {
+                'authKey': self._auth_key
+            })
+            self._auth_key = ''
 
     async def gametime(self) -> int:
         '''Get current monotonic world time of the overworld in gametick.

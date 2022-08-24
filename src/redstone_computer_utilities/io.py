@@ -5,7 +5,7 @@ from typing import Any, Awaitable, Callable, Dict, NoReturn, Optional
 
 
 class ResponseError(Exception):
-    def __init__(self, code: int, message: str, id_: int | str) -> None:
+    def __init__(self, code: int, message: str, id_: str) -> None:
         super().__init__()
         self._code = code
         self._message = message
@@ -18,7 +18,7 @@ class ResponseError(Exception):
         return ResponseError(error['code'], error['message'],
                              response['id'])
 
-    def to_response(self, id_: Optional[int | str] = None) -> Dict[str, Any]:
+    def to_response(self, id_: Optional[str] = None) -> Dict[str, Any]:
         '''Convert exception to json-rpc response dict.'''
         if id_ is None:
             id_ = self._id
@@ -33,7 +33,7 @@ class ResponseError(Exception):
         '''Get message.'''
         return self._message
 
-    def get_id(self) -> int | str:
+    def get_id(self) -> str:
         '''Get id.'''
         return self._id
 
@@ -59,9 +59,9 @@ class _JsonRpcIO:
                                            Awaitable[Optional[Any]]]) -> None:
         self._reader = reader
         self._writer = writer
-        self._responses: Dict[int | str, Dict[str, Any]] = {}
+        self._responses: Dict[str, Dict[str, Any]] = {}
         self._request_handler = request_handler
-        self._response_events: Dict[int | str, asyncio.Event] = {}
+        self._response_events: Dict[str, asyncio.Event] = {}
 
     async def _write(self, data: Dict[str, Any]) -> None:
         data_bytes = json.dumps(data, ensure_ascii=False, indent=None,
@@ -127,10 +127,11 @@ class _JsonRpcIO:
                 else:
                     await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
 
-    async def send(self, method: str, params: Dict[str, Any], id_: int | str
+    async def send(self, method: str, params: Dict[str, Any], id_: str
                    ) -> Any:
-        '''Send a request and receive the corresponding response. An
-        OverflowError is raised when length of json is greater than 65535'''
+        '''Send a request and receive the corresponding response. A
+        ResponseError is raised when an error is received. An OverflowError is
+        raised when length of json is greater than 65535'''
         self._response_events[id_] = asyncio.Event()
         await self._write({'jsonrpc': '2.0', 'method': method,
                            'params': params, 'id': id_})
