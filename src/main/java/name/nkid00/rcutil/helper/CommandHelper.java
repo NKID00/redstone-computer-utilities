@@ -10,6 +10,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 
 import name.nkid00.rcutil.command.argument.NamedArgumentType;
@@ -84,5 +85,74 @@ public class CommandHelper {
 
     public static boolean isConsole(ServerCommandSource s) {
         return s.output == s.server || s.output instanceof RconCommandOutput;
+    }
+
+    public static LinkedList<String> parseArguments(String greedyString) throws CommandSyntaxException {
+        var reader = new StringReader(greedyString);
+        var result = new LinkedList<String>();
+        while (reader.canRead()) {
+            reader.skipWhitespace();
+            if (!reader.canRead()) {
+                break;
+            }
+            result.add(reader.readString());
+        }
+        return result;
+    }
+
+    private static LinkedList<String> parseArgumentsSuppress(String greedyString) {
+        var reader = new StringReader(greedyString);
+        var result = new LinkedList<String>();
+        while (reader.canRead()) {
+            reader.skipWhitespace();
+            if (!reader.canRead()) {
+                break;
+            }
+            var remaining = reader.getRemaining();
+            try {
+                result.add(reader.readString());
+            } catch (CommandSyntaxException e) {
+                result.add(remaining);
+                break;
+            }
+        }
+        return result;
+    }
+
+    private static int splitLastArgument(String greedyString) {
+        var reader = new StringReader(greedyString);
+        int cursor = 0;
+        while (reader.canRead()) {
+            reader.skipWhitespace();
+            if (!reader.canRead()) {
+                break;
+            }
+            cursor = reader.getCursor();
+            try {
+                reader.readString();
+            } catch (CommandSyntaxException e) {
+                break;
+            }
+        }
+        return cursor;
+    }
+
+    public static Collection<String> suggestUniqueArguments(String greedyString, Collection<String> suggestion) {
+        LinkedList<String> arguments;
+        try {
+            arguments = parseArguments(greedyString);
+        } catch (Exception e) {
+            arguments = parseArgumentsSuppress(greedyString);
+        }
+        if (arguments.size() == 0) {
+            return suggestion;
+        }
+        arguments.removeLast();
+        var makeCompilerHappy = arguments;
+        var previousArguments = greedyString.substring(0, splitLastArgument(greedyString));
+        return suggestion.stream()
+                .filter(s -> !makeCompilerHappy.contains(s))
+                .map(s -> previousArguments + s)
+                .toList();
     }
 }
