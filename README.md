@@ -66,7 +66,7 @@ All commands provided by the mod require at least permission level 2 (configurab
 
 Java sources are located in `src/main/java/`. Python sources are located in `src/redstone_computer_utilities/`.
 
-To build the mod, Java 17 or newer, Python 3.7.2 or newer and Poetry are required. Run the following commands:
+To build the mod, Java 17 or newer, Python 3.7.2 or newer and Poetry are required. Run the following command:
 
 ```sh
 $ ./gradlew build
@@ -74,13 +74,13 @@ $ ./gradlew build
 
 Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
 
-To extract translation keys, Java and GNU gettext are required. Run the following commands:
+To extract translation keys, Java and GNU gettext are required. Run the following command:
 
 ```sh
 $ ./gradlew extract
 ```
 
-Extracted translation keys are located in `build/messages.json`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities). To convert translations into Minecraft-compatible json format, Python is required. Run the following commands:
+Extracted translation keys are located in `build/messages.json`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities). To convert translations into Minecraft-compatible json format, run the following command:
 
 ```sh
 $ python po2minecraft.py path/to/messages.po path/to/messages.json
