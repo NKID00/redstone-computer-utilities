@@ -1,10 +1,9 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.manager;
 
+import name.nkid00.rcutil.Options;
 import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.RegistryHelper;
-import name.nkid00.rcutil.helper.TextHelper;
-import name.nkid00.rcutil.manager.SelectionManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -13,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class Wand {
+public class WandManager {
     // select msb
     public static ActionResult onAttack(PlayerEntity player, World world, Hand hand, BlockPos pos,
             Direction direction) {

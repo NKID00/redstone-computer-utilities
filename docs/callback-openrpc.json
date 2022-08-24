@@ -78,7 +78,7 @@
         },
         {
             "name": "onScriptInvoke",
-            "summary": "Called when invoked by the script.",
+            "summary": "Called when invoked by another script.",
             "tags": [
                 {
                     "name": "ScriptLifecycle"

@@ -86,6 +86,9 @@ public class ResponseException extends Exception {
     }
 
     public boolean equals(ResponseException e) {
+        if (this == e) {
+                return true;
+        }
         return e.code == code;
     }
 

@@ -1,10 +1,11 @@
 package name.nkid00.rcutil;
 
-import name.nkid00.rcutil.command.Command;
 import name.nkid00.rcutil.command.argument.Argument;
-import name.nkid00.rcutil.helper.GametimeHelper;
 import name.nkid00.rcutil.helper.RegistryHelper;
 import name.nkid00.rcutil.io.ScriptServerIO;
+import name.nkid00.rcutil.manager.CommandManager;
+import name.nkid00.rcutil.manager.TickManager;
+import name.nkid00.rcutil.manager.WandManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -30,17 +31,16 @@ public class RCUtil implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register(RegistryHelper::init);
 
         // tick handler
-        ServerTickEvents.START_SERVER_TICK.register(GametimeHelper::onTickStart);
-        ServerTickEvents.START_SERVER_TICK.register(Tick::onTickStart);
-        ServerTickEvents.END_SERVER_TICK.register(Tick::onTickEnd);
+        ServerTickEvents.START_SERVER_TICK.register(TickManager::onTickStart);
+        ServerTickEvents.END_SERVER_TICK.register(TickManager::onTickEnd);
 
         // wand handler
-        AttackBlockCallback.EVENT.register(Wand::onAttack);
-        UseBlockCallback.EVENT.register(Wand::onUse);
+        AttackBlockCallback.EVENT.register(WandManager::onAttack);
+        UseBlockCallback.EVENT.register(WandManager::onUse);
 
         // command handler
         Argument.register();
-        CommandRegistrationCallback.EVENT.register(Command::register);
+        CommandRegistrationCallback.EVENT.register(CommandManager::init);
 
         // script server handler
         ServerLifecycleEvents.SERVER_STARTING.register(server -> ScriptServerIO.init());

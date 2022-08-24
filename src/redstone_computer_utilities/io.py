@@ -1,11 +1,12 @@
 from __future__ import annotations
 import asyncio
 import json
-from typing import Any, Awaitable, Callable, Dict, NoReturn, Optional
+from typing import Any, Awaitable, Callable, Deque, Dict, NoReturn, Optional
 
 
 class ResponseError(Exception):
-    def __init__(self, code: int, message: str, id_: str) -> None:
+    def __init__(self, code: int, message: str, id_: Optional[str] = None
+                 ) -> None:
         super().__init__()
         self._code = code
         self._message = message
@@ -25,6 +26,9 @@ class ResponseError(Exception):
         return {'jsonrpc': '2.0', 'error': {
             'code': self._code, 'message': self._message}, 'id': id_}
 
+    def with_id(self, id_: str) -> ResponseError:
+        return ResponseError(self._code, self._message, id_)
+
     def get_code(self) -> int:
         '''Get code.'''
         return self._code
@@ -33,7 +37,7 @@ class ResponseError(Exception):
         '''Get message.'''
         return self._message
 
-    def get_id(self) -> str:
+    def get_id(self) -> Optional[str]:
         '''Get id.'''
         return self._id
 
@@ -56,12 +60,16 @@ class _JsonRpcIO:
     def __init__(self, reader: asyncio.StreamReader,
                  writer: asyncio.StreamWriter,
                  request_handler: Callable[[str, Dict[str, Any]],
-                                           Awaitable[Optional[Any]]]) -> None:
+                                           Awaitable[Optional[Any]]],
+                 tasks: Deque[asyncio.Task],
+                 task_added_event: asyncio.Event) -> None:
         self._reader = reader
         self._writer = writer
         self._responses: Dict[str, Dict[str, Any]] = {}
         self._request_handler = request_handler
         self._response_events: Dict[str, asyncio.Event] = {}
+        self._tasks = tasks
+        self._task_added_event = task_added_event
 
     async def _write(self, data: Dict[str, Any]) -> None:
         data_bytes = json.dumps(data, ensure_ascii=False, indent=None,
@@ -80,7 +88,10 @@ class _JsonRpcIO:
             result = await self._request_handler(request['method'],
                                                  request['params'])
         except ResponseError as exc:
-            response = exc.to_response()
+            if exc.get_id() is None:
+                response = exc.to_response(request['id'])
+            else:
+                raise
         except MethodNotFoundError:
             response = ResponseError(-32601, "Method not found", request['id']
                                      ).to_response()
@@ -118,12 +129,16 @@ class _JsonRpcIO:
                 await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
             else:
                 if isinstance(data, dict):
-                    await self._dispatch(data)
+                    self._tasks.append(asyncio.create_task(
+                        self._dispatch(data)))
+                    self._task_added_event.set()
                 elif isinstance(data, list):
                     if len(data) == 0:
                         await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
                     for item in data:
-                        await self._dispatch(item)
+                        self._tasks.append(asyncio.create_task(
+                            self._dispatch(item)))
+                        self._task_added_event.set()
                 else:
                     await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
 

@@ -1,6 +1,7 @@
+from collections import deque
 import contextlib
 from importlib.metadata import version as _version
-from typing import Any, Dict, List, Optional
+from typing import Any, Deque, Dict, List, NoReturn, Optional
 import asyncio
 import itertools
 
@@ -40,12 +41,11 @@ def run(host: str = 'localhost', port: int = 37265) -> None:
         try:
             asyncio.run(_run_async(host, port))
         except KeyboardInterrupt:
-            print()
-            _info('Stopped')
             break
         except asyncio.IncompleteReadError:
-            print()
-            _info('Disconnected')
+            pass
+    print()
+    _info('Stopped')
 
 
 _SPINNER = itertools.cycle('⠸⢰⣠⣄⡆⠇⠋⠙')
@@ -89,6 +89,10 @@ _warn = _info
 _error = _info
 
 
+class EventTriggeredError(Exception):
+    pass
+
+
 async def _run_async(host: str, port: int) -> None:
     async def dispatch_request(method: str, params: Dict[str, Any]
                                ) -> Any:
@@ -100,18 +104,51 @@ async def _run_async(host: str, port: int) -> None:
                 continue
         raise MethodNotFoundError()
 
+    tasks: Deque[asyncio.Task] = deque()
+    task_added_event = asyncio.Event()
+
     async with _wait(f'Connecting to script server {host}:{port}'):
         while True:
             try:
                 io = _JsonRpcIO(*await asyncio.open_connection(host, port),
-                                dispatch_request)
+                                dispatch_request, tasks, task_added_event)
             except OSError:
                 await asyncio.sleep(1)
             else:
                 break
     _info(f'Connected to script server {host}:{port}')
 
-    task = asyncio.create_task(io.run())
+    async def task_added_event_listener() -> NoReturn:
+        nonlocal task_added_event
+        await task_added_event.wait()
+        raise EventTriggeredError()
+
+    async def watch_dog() -> NoReturn:
+        nonlocal tasks
+        while True:
+            _done, _pending = await asyncio.wait(
+                tasks.copy(), return_when=asyncio.FIRST_EXCEPTION)
+            tasks_new: Deque[asyncio.Task] = deque()
+            for task in tasks:
+                try:
+                    task.result()
+                except asyncio.InvalidStateError:
+                    tasks_new.append(task)
+                    continue
+                except EventTriggeredError:
+                    task_added_event.clear()
+                    tasks_new.append(asyncio.create_task(
+                        task_added_event_listener()))
+                    continue
+                except asyncio.IncompleteReadError:
+                    _info('Disconnected')
+                    raise
+            tasks.clear()
+            tasks.extend(tasks_new)
+
+    tasks.append(asyncio.create_task(task_added_event_listener()))
+    watch_dog_task = asyncio.create_task(watch_dog())
+    tasks.append(asyncio.create_task(io.run()))
 
     scripts_len = len(_registered_scripts)
     success_count = 0
@@ -132,4 +169,5 @@ async def _run_async(host: str, port: int) -> None:
         raise KeyboardInterrupt()
 
     async with _wait('Running') as wait:
-        await asyncio.wait([task])
+        await asyncio.wait([watch_dog_task])
+        watch_dog_task.result()

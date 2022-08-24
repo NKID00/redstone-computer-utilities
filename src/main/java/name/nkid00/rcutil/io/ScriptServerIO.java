@@ -3,6 +3,7 @@ package name.nkid00.rcutil.io;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -11,6 +12,7 @@ import com.google.gson.JsonObject;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MultithreadEventLoopGroup;
@@ -22,6 +24,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.util.concurrent.Promise;
 import name.nkid00.rcutil.Options;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.script.ScriptApi;
@@ -31,9 +34,9 @@ public class ScriptServerIO {
     private static InetAddress address;
     private static int port;
     private static ServerBootstrap bootstrap;
-    private static Channel channel;
-    private static ScriptServerIOHandler handler;
+    private static Channel serverChannel;
     private static AtomicLong id = new AtomicLong(0);
+    public static ConcurrentHashMap<String, ChannelHandlerContext> connections = new ConcurrentHashMap<>();
 
     public static void init() {
         address = null;
@@ -52,7 +55,7 @@ public class ScriptServerIO {
         }
         bootstrap = new ServerBootstrap();
         var threadFactory = new ThreadFactoryBuilder()
-                .setNameFormat("rcutil script server #%d")
+                .setNameFormat("rcutilScriptServer#%d")
                 .setDaemon(true)
                 .build();
         if (Epoll.isAvailable()) {
@@ -78,13 +81,12 @@ public class ScriptServerIO {
     }
 
     public static void start() {
-        channel = bootstrap.bind(address, port).syncUninterruptibly().channel();
-        handler = channel.pipeline().get(ScriptServerIOHandler.class);
+        serverChannel = bootstrap.bind(address, port).syncUninterruptibly().channel();
     }
 
     public static void stop() {
         Log.info("Stopping script server");
-        channel.close().syncUninterruptibly();
+        serverChannel.close().syncUninterruptibly();
         group.shutdownGracefully().syncUninterruptibly();
     }
 
@@ -92,13 +94,14 @@ public class ScriptServerIO {
         return "s_%d".formatted(id.incrementAndGet());
     }
 
-    public static JsonObject handleRequest(JsonObject request) {
+    public static JsonObject handleRequest(JsonObject request, String clientAddress) {
         var response = new JsonObject();
         var id = request.get("id").getAsString();
         try {
             response.add("result", ScriptApi.dispatch(
                     request.get("method").getAsString(),
-                    request.get("params").getAsJsonObject()));
+                    request.get("params").getAsJsonObject(),
+                    clientAddress));
         } catch (ResponseException e) {
             return e.toResponse(id);
         } catch (IllegalStateException | ClassCastException | NullPointerException e) {
@@ -109,21 +112,32 @@ public class ScriptServerIO {
         return response;
     }
 
-    private static JsonElement send(JsonObject request) throws ResponseException {
-        var response = handler.send(request).syncUninterruptibly().getNow();
-        if (response.has("error")) {
+    private static JsonElement send(JsonObject request, String clientAddress) throws ResponseException {
+        var id = request.get("id").getAsString();
+        var ctx = connections.get(clientAddress);
+        Promise<JsonObject> promise = ctx.executor().newPromise();
+        var handler = (ScriptServerIOHandler) ctx.handler();
+        handler.responsePromises.put(id, promise);
+        ctx.writeAndFlush(request).syncUninterruptibly();
+        // Log.info("send1"); // TODO: remove
+        var response = promise.syncUninterruptibly().getNow();
+        // Log.info("send2"); // TODO: remove
+        handler.responsePromises.remove(id);
+        if (response == null) {
+            return null;
+        } else if (response.has("error")) {
             throw ResponseException.fromResponse(response);
         } else {
             return response.get("result");
         }
     }
 
-    public static JsonElement send(String method, JsonObject params) throws ResponseException {
+    public static JsonElement send(String method, JsonObject params, String clientAddress) throws ResponseException {
         var request = new JsonObject();
         request.addProperty("jsonrpc", "2.0");
         request.addProperty("method", method);
         request.add("params", params);
         request.addProperty("id", id());
-        return send(request);
+        return send(request, clientAddress);
     }
 }

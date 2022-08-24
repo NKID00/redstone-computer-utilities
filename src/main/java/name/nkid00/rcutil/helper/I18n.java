@@ -18,4 +18,16 @@ public class I18n {
     public static MutableText t(UUID uuid, String key, Object... args) {
         return t(LanguageManager.languageOrDefault(uuid), key, args);
     }
+
+    public static String s(Language language, String key, Object... args) {
+        return TextHelper.translatable(language.get(key), args).toString();
+    }
+
+    public static String s(String key, Object... args) {
+        return s(LanguageManager.defaultLanguage(), key, args);
+    }
+
+    public static String s(UUID uuid, String key, Object... args) {
+        return s(LanguageManager.languageOrDefault(uuid), key, args);
+    }
 }

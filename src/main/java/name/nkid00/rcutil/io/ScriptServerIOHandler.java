@@ -1,5 +1,6 @@
 package name.nkid00.rcutil.io;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +14,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.concurrent.Promise;
 import name.nkid00.rcutil.helper.Log;
+import name.nkid00.rcutil.manager.ScriptManager;
 
 public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonElement> {
     private String addr;
@@ -22,13 +24,12 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
     private static final ByteBuf INVALID_REQUEST_RESPONSE = Unpooled.wrappedBuffer("""
             {"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}"""
             .getBytes(StandardCharsets.UTF_8));
-    private ChannelHandlerContext ctx;
-    private ConcurrentHashMap<String, Promise<JsonObject>> responsePromises = new ConcurrentHashMap<>();
+    public ConcurrentHashMap<String, Promise<JsonObject>> responsePromises = new ConcurrentHashMap<>();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         addr = ctx.channel().remoteAddress().toString();
-        this.ctx = ctx;
+        ScriptServerIO.connections.put(addr, ctx);
         Log.info("{} connected", addr);
     }
 
@@ -45,7 +46,12 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        ScriptServerIO.connections.remove(addr);
+        for (var promise : responsePromises.values()) {
+            promise.trySuccess(null);
+        }
         Log.info("{} disconnected", addr);
+        ScriptManager.deregisterClientAddress(addr);
     }
 
     @Override
@@ -53,6 +59,9 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
         if (cause instanceof DecoderException) {
             PARSE_ERROR_RESPONSE.retain();
             ctx.writeAndFlush(PARSE_ERROR_RESPONSE);
+        } else if (cause instanceof IOException) {
+            Log.error("IOException caught, disconnected");
+            ctx.close();
         } else {
             ctx.fireExceptionCaught(cause);
         }
@@ -64,10 +73,10 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
                 INVALID_REQUEST_RESPONSE.retain();
                 ctx.writeAndFlush(INVALID_REQUEST_RESPONSE);
             } else if (msg.has("method")) {
-                ctx.writeAndFlush(ScriptServerIO.handleRequest(msg));
+                ctx.writeAndFlush(ScriptServerIO.handleRequest(msg, addr));
             } else if (msg.has("result") || msg.has("error")) {
                 var id = msg.get("id").getAsString();
-                if (responsePromises.contains(id)) {
+                if (responsePromises.containsKey(id)) {
                     responsePromises.get(id).trySuccess(msg);
                 }
             } else {
@@ -78,13 +87,5 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
             INVALID_REQUEST_RESPONSE.retain();
             ctx.writeAndFlush(INVALID_REQUEST_RESPONSE);
         }
-    }
-
-    public Promise<JsonObject> send(JsonObject request) {
-        var id = request.get("id").getAsString();
-        Promise<JsonObject> promise = ctx.executor().newPromise();
-        responsePromises.put(id, promise);
-        ctx.writeAndFlush(request).syncUninterruptibly();
-        return promise;
     }
 }
