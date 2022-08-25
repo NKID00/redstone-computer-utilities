@@ -1,11 +1,14 @@
 package name.nkid00.rcutil.manager;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import name.nkid00.rcutil.helper.Log;
@@ -69,7 +72,8 @@ public class ScriptManager {
         clientAddressScript.removeAll(clientAddress);
     }
 
-    public static void suggest(SuggestionsBuilder builder) {
+    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         MapHelper.forEachKeySynchronized(nameScript, builder::suggest);
+        return builder.buildFuture();
     }
 }

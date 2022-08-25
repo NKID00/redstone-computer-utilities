@@ -4,10 +4,12 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import name.nkid00.rcutil.helper.ArgumentHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.SelectionManager;
+import name.nkid00.rcutil.model.Interface;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuNew {
@@ -32,10 +34,16 @@ public class RcuNew {
             s.sendError(I18n.t("rcutil.command.rcu_new.fail.exists"));
             return 0;
         }
-        var options = CommandHelper.getArguments(c, "option...");
-        var interfaze = InterfaceManager.tryNewinterface(name, uuid, options);
+        var options = ArgumentHelper.getMulti(c, "option...");
+        Interface interfaze;
+        try {
+            interfaze = InterfaceManager.tryNewinterface(name, uuid, options);
+        } catch (IllegalArgumentException e) {
+            s.sendError(I18n.t("rcutil.command.rcu_new.fail.invalid_option", e.getMessage()));
+            return 0;
+        }
         if (interfaze == null) {
-            s.sendError(I18n.t("rcutil.command.rcu_new.fail.invalid_option"));
+            s.sendError(I18n.t("rcutil.command.rcu_new.fail.invalid_selection"));
             return 0;
         } else {
             return 1;

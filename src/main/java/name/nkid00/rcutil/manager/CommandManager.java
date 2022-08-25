@@ -15,7 +15,7 @@ import name.nkid00.rcutil.command.RcuNew;
 import name.nkid00.rcutil.command.RcuReload;
 import name.nkid00.rcutil.command.RcuRemove;
 import name.nkid00.rcutil.command.RcuRun;
-import name.nkid00.rcutil.helper.CommandHelper;
+import name.nkid00.rcutil.helper.ArgumentHelper;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
@@ -40,12 +40,7 @@ public class CommandManager {
         dispatcher.register(literal("rcu")
                 .then(literal("remove")
                         .then(argument("interface name...", StringArgumentType.greedyString())
-                                .suggests(CommandHelper.uniqueArgumentsWrapper((context, builder) -> {
-                                    for (int i = 0; i < 10; i++) {
-                                        builder.suggest("argument_" + i);
-                                    }
-                                    return builder.buildFuture();
-                                }))
+                                .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
                                 .executes(RcuRemove::execute))));
         // /rcu info
         dispatcher.register(literal("rcu")
@@ -56,24 +51,27 @@ public class CommandManager {
                 .then(literal("info")
                         .then(literal("interface")
                                 .executes(RcuInfoInterface::execute)
-                                .then(argument("interface name...",
-                                        StringArgumentType.greedyString())
+                                .then(argument("interface name...", StringArgumentType.greedyString())
+                                        .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
                                         .executes(RcuInfoInterface::execute)))));
         // /rcu info script [script name...]
         dispatcher.register(literal("rcu")
                 .then(literal("info")
                         .then(literal("script")
                                 .executes(RcuInfoScript::execute)
-                                .then(argument("script name...",
-                                        StringArgumentType.greedyString())
+                                .then(argument("script name...", StringArgumentType.greedyString())
+                                        .suggests(ArgumentHelper.uniqueMulti(ScriptManager::getSuggestions))
                                         .executes(RcuInfoInterface::execute)))));
         // /rcu run <script name> [argument...]
         dispatcher.register(literal("rcu")
                 .then(literal("run")
                         .then(argument("script name", StringArgumentType.word())
+                                .suggests(ScriptManager::getSuggestions)
                                 .executes(RcuRun::execute)
-                                .then(argument("argument...",
-                                        StringArgumentType.greedyString())
+                                .then(argument("argument...", StringArgumentType.greedyString())
+                                        .suggests(ArgumentHelper.repeatableMulti(ArgumentHelper.merge(
+                                                InterfaceManager::getSuggestions,
+                                                ScriptManager::getSuggestions)))
                                         .executes(RcuRun::execute)))));
         // /rcu reload
         dispatcher.register(literal("rcu")

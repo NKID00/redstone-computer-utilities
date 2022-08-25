@@ -2,6 +2,7 @@ package name.nkid00.rcutil.manager;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
@@ -9,6 +10,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import name.nkid00.rcutil.helper.Log;
@@ -35,8 +38,9 @@ public class InterfaceManager {
         return interfaze;
     }
 
-    public static void suggest(SuggestionsBuilder builder) {
+    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         MapHelper.forEachKeySynchronized(interfaces, builder::suggest);
+        return builder.buildFuture();
     }
 
     public static void load(JsonReader reader, Gson gson) {
