@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -64,6 +66,14 @@ public class CommandHelper {
             result.add(reader.readString());
         }
         return result;
+    }
+
+    public static <S> LinkedList<String> getArguments(CommandContext<S> context, String name) throws CommandSyntaxException {
+        try {
+            return parseArguments(StringArgumentType.getString(context, name));
+        } catch (IllegalArgumentException e) {
+            return new LinkedList<>();
+        }
     }
 
     private static LinkedList<String> parseArgumentsInternal(String greedyString) throws CommandSyntaxException {

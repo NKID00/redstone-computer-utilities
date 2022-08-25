@@ -1,5 +1,6 @@
 package name.nkid00.rcutil.manager;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +26,7 @@ public class InterfaceManager {
         return interfaces.containsKey(name);
     }
 
-    public static Interface tryNewinterface(String name, UUID uuid, String option) {
+    public static Interface tryNewinterface(String name, UUID uuid, Collection<String> options) {
         var interfaze = Interface.tryFromSelection(SelectionManager.selection(uuid));
         if (interfaze == null) {
             return null;

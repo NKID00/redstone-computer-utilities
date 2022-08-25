@@ -12,15 +12,15 @@ public class Rcu {
         var s = c.getSource();
         var player = s.getPlayer();
         if (player == null) {
-            s.sendError(I18n.t("rcutil.command.rcu.fail.notplayerentity"));
+            s.sendError(I18n.t("rcutil.command.rcu.fail.not_player_entity"));
             return 0;
         }
         if (player.getInventory().insertStack(new ItemStack(Options.wandItem()))) {
-            s.sendFeedback(I18n.t("rcutil.command.rcu.success.item", Options.wandItemHoverableText()),
+            s.sendFeedback(I18n.t("rcutil.command.rcu.success", Options.wandItemHoverableText()),
                     true);
             return 1;
         } else {
-            s.sendError(I18n.t("rcutil.command.rcu.fail.item"));
+            s.sendError(I18n.t("rcutil.command.rcu.fail.inventory_full"));
             return 0;
         }
     }
