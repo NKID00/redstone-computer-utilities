@@ -91,12 +91,9 @@ $ python po2minecraft.py path/to/messages.po path/to/messages.json
 ## Credits
 
 - [Fabric Loader](https://github.com/FabricMC/fabric-loader), distributed under [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE).
-
 - [Fabric API](https://github.com/FabricMC/fabric), distributed under [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE).
-
 - [GSON](https://github.com/google/gson), distributed under [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE).
-
-- [colorama](https://github.com/tartley/colorama), distributed under [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt)
+- [colorama](https://github.com/tartley/colorama), distributed under [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt).
 
 ## Copyright
 

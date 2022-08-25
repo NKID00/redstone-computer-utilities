@@ -91,11 +91,8 @@ $ python po2minecraft.py 文件路径/messages.po 文件路径/messages.json
 ## 鸣谢
 
 - [Fabric Loader](https://github.com/FabricMC/fabric-loader)，使用 [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE) 许可证分发。
-
 - [Fabric API](https://github.com/FabricMC/fabric)，使用 [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE) 许可证分发。
-
 - [GSON](https://github.com/google/gson)，使用 [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE) 许可证分发。
-
 - [colorama](https://github.com/tartley/colorama)，使用 [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt) 许可证分发。
 
 ## 版权
