@@ -61,7 +61,7 @@ public class CommandManager {
                                 .executes(RcuInfoScript::execute)
                                 .then(argument("script name...", StringArgumentType.greedyString())
                                         .suggests(ArgumentHelper.uniqueMulti(ScriptManager::getSuggestions))
-                                        .executes(RcuInfoInterface::execute)))));
+                                        .executes(RcuInfoScript::execute)))));
         // /rcu run <script name> [argument...]
         dispatcher.register(literal("rcu")
                 .then(literal("run")
