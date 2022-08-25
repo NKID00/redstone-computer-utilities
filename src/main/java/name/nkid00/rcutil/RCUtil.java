@@ -1,6 +1,5 @@
 package name.nkid00.rcutil;
 
-import name.nkid00.rcutil.helper.RegistryHelper;
 import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.CommandManager;
 import name.nkid00.rcutil.manager.TickManager;
@@ -25,9 +24,6 @@ public class RCUtil implements ModInitializer {
         // storage handler
         ServerLifecycleEvents.SERVER_STARTING.register(Options::init);
         ServerLifecycleEvents.SERVER_STARTING.register(Storage::init);
-
-        // registry handler
-        ServerLifecycleEvents.SERVER_STARTING.register(RegistryHelper::init);
 
         // tick handler
         ServerTickEvents.START_SERVER_TICK.register(TickManager::onTickStart);

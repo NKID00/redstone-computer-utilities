@@ -30,7 +30,7 @@ public class InterfaceManager {
     }
 
     public static Interface tryNewinterface(String name, UUID uuid, Collection<String> options) {
-        var interfaze = Interface.tryFromSelection(SelectionManager.selection(uuid));
+        var interfaze = Interface.resolve(SelectionManager.selection(uuid));
         if (interfaze == null) {
             return null;
         }
@@ -38,7 +38,8 @@ public class InterfaceManager {
         return interfaze;
     }
 
-    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
+            final SuggestionsBuilder builder) {
         MapHelper.forEachKeySynchronized(interfaces, builder::suggest);
         return builder.buildFuture();
     }

@@ -11,8 +11,8 @@ import com.google.gson.stream.JsonWriter;
 
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.model.Selection;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionType;
 
 public class SelectionManager {
     private static ConcurrentHashMap<UUID, Selection> selections = new ConcurrentHashMap<>();
@@ -21,12 +21,12 @@ public class SelectionManager {
         return selections.computeIfAbsent(uuid, _uuid -> new Selection());
     }
 
-    public static void selectMsb(UUID uuid, BlockPos pos, DimensionType dimension) {
-        selection(uuid).selectMsb(pos, dimension);
+    public static void selectMsb(UUID uuid, BlockPos pos, ServerWorld world) {
+        selection(uuid).selectMsb(pos, world);
     }
 
-    public static void selectLsb(UUID uuid, BlockPos pos, DimensionType dimension) {
-        selection(uuid).selectLsb(pos, dimension);
+    public static void selectLsb(UUID uuid, BlockPos pos, ServerWorld world) {
+        selection(uuid).selectLsb(pos, world);
     }
 
     public static boolean selected(UUID uuid) {
