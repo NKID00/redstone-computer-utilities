@@ -1,12 +1,11 @@
 from collections import deque
-import contextlib
 from importlib.metadata import version as _version
-from typing import Any, Deque, Dict, List, NoReturn, Optional
+from typing import Any, Deque, Dict, List, NoReturn
 import asyncio
-import itertools
 
 from .script import Script
 from .io import MethodNotFoundError, _JsonRpcIO, ResponseError
+from .cli import _cli_init, _wait, _info, _warn, _error
 
 __version__ = _version(__package__)
 
@@ -37,6 +36,7 @@ def create_script(name: str, description: str = '',
 
 def run(host: str = 'localhost', port: int = 37265) -> None:
     '''Try to connect with script server and enter the main loop.'''
+    _cli_init()
     while True:
         try:
             asyncio.run(_run_async(host, port))
@@ -44,49 +44,7 @@ def run(host: str = 'localhost', port: int = 37265) -> None:
             break
         except asyncio.IncompleteReadError:
             pass
-    print()
-    _info('Stopped')
-
-
-_SPINNER = itertools.cycle('⠸⢰⣠⣄⡆⠇⠋⠙')
-
-
-class _Wait:
-    def __init__(self, message: Optional[str]) -> None:
-        self._message = message
-
-    def __call__(self, message: Optional[str]) -> Any:
-        self._message = message
-
-    def get_message(self) -> Optional[str]:
-        return self._message
-
-    def set_message(self, message: Optional[str]) -> None:
-        self._message = message
-
-
-@contextlib.asynccontextmanager
-async def _wait(message: Optional[str] = None):
-    wait_object = _Wait(message)
-
-    async def wait():
-        while True:
-            if message is not None:
-                print(f'\r{next(_SPINNER)} {wait_object.get_message()}', end='')
-            await asyncio.sleep(0.1)
-    task = asyncio.create_task(wait())
-    yield wait_object
-    task.cancel()
-    spaces = ' ' * len(f'{next(_SPINNER)} {wait_object.get_message()}')
-    print('\r' + spaces, end='\r')
-
-
-def _info(message: str):
-    print('  ' + message)
-
-
-_warn = _info
-_error = _info
+    _info('  Stopped')
 
 
 class EventTriggeredError(Exception):
@@ -116,7 +74,7 @@ async def _run_async(host: str, port: int) -> None:
                 await asyncio.sleep(1)
             else:
                 break
-    _info(f'Connected to script server {host}:{port}')
+        _info(f'Connected to script server {host}:{port}')
 
     async def task_added_event_listener() -> NoReturn:
         nonlocal task_added_event
@@ -164,7 +122,7 @@ async def _run_async(host: str, port: int) -> None:
             else:
                 success_count += 1
                 _info(f'Script "{script.name}" is registered')
-    _info(f'Registered {success_count}/{scripts_len} script(s)')
+        _info(f'Registered {success_count}/{scripts_len} script(s)')
     if success_count == 0:
         raise KeyboardInterrupt()
 
