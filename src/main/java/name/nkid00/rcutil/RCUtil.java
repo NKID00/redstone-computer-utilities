@@ -1,6 +1,5 @@
 package name.nkid00.rcutil;
 
-import name.nkid00.rcutil.command.argument.Argument;
 import name.nkid00.rcutil.helper.RegistryHelper;
 import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.CommandManager;
@@ -39,7 +38,6 @@ public class RCUtil implements ModInitializer {
         UseBlockCallback.EVENT.register(WandManager::onUse);
 
         // command handler
-        Argument.register();
         CommandRegistrationCallback.EVENT.register(CommandManager::init);
 
         // script server handler

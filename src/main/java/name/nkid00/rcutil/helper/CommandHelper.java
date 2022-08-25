@@ -1,29 +1,31 @@
 package name.nkid00.rcutil.helper;
 
-import static net.minecraft.server.command.CommandManager.argument;
-
-import java.util.Collection;
 import java.util.LinkedList;
-import java.util.function.BiFunction;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import name.nkid00.rcutil.command.argument.NamedArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.rcon.RconCommandOutput;
 
 public class CommandHelper {
     public static boolean isLetterDigitUnderline(char c) {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+        return Character.isLetterOrDigit(c) || c == '_';
     }
 
     public static boolean isLetterDigitUnderline(String s) {
         return s.chars().mapToObj(i -> (char) i).allMatch(CommandHelper::isLetterDigitUnderline);
+    }
+
+    public static boolean isAllowedInUnquotedString(char c) {
+        return !(Character.isWhitespace(c)
+                || c == '\\' || c == '\"' || c == '\''
+                || Character.isISOControl(c));
     }
 
     public static String getName(StringReader reader) {
@@ -34,61 +36,25 @@ public class CommandHelper {
         return reader.getString().substring(begin, reader.getCursor());
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> void addOneOrMoreArguments(CommandNode<ServerCommandSource> node, String name,
-            ArgumentType<T> type, BiFunction<CommandContext<ServerCommandSource>, String, T> argGetter,
-            Command<ServerCommandSource> command) {
-        node.addChild(argument(name, type)
-                .redirect(node, c -> {
-                    var rawSource = c.getSource();
-                    OneOrMoreArgumentsServerCommandSource<T> s;
-                    if (rawSource instanceof OneOrMoreArgumentsServerCommandSource) {
-                        s = (OneOrMoreArgumentsServerCommandSource<T>) rawSource;
-                    } else {
-                        s = new OneOrMoreArgumentsServerCommandSource<>(rawSource);
-                    }
-                    s.args.add(argGetter.apply(c, name));
-                    return s;
-                })
-                .executes(command)
-                .build());
-    }
-
-    public static <T> void addOneOrMoreArguments(CommandNode<ServerCommandSource> node,
-            NamedArgumentType<T> type, BiFunction<CommandContext<ServerCommandSource>, String, T> argGetter,
-            Command<ServerCommandSource> command) {
-        addOneOrMoreArguments(node, type.argumentName(), type, argGetter, command);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> Collection<T> getOneOrMoreArguments(CommandContext<ServerCommandSource> c, String name,
-            BiFunction<CommandContext<ServerCommandSource>, String, T> argGetter) {
-        var rawSource = c.getSource();
-        LinkedList<T> args;
-        if (rawSource instanceof OneOrMoreArgumentsServerCommandSource) {
-            args = ((OneOrMoreArgumentsServerCommandSource<T>) rawSource).args;
-        } else {
-            args = new LinkedList<T>();
-        }
-        args.add(argGetter.apply(c, name));
-        return args;
-    }
-
-    private static class OneOrMoreArgumentsServerCommandSource<T> extends ServerCommandSource {
-        public LinkedList<T> args = new LinkedList<T>();
-
-        public OneOrMoreArgumentsServerCommandSource(ServerCommandSource s) {
-            super(s.output, s.position, s.rotation, s.world, s.level, s.name, s.displayName, s.server, s.entity,
-                    s.silent, s.resultConsumer, s.entityAnchor, s.signedArguments, s.messageChainTaskQueue);
-        }
-    }
-
     public static boolean isConsole(ServerCommandSource s) {
         return s.output == s.server || s.output instanceof RconCommandOutput;
     }
 
+    private static StringReader anyUnquotedStringReader(String s) {
+        return new StringReader(s) {
+            @Override
+            public String readUnquotedString() {
+                int begin = getCursor();
+                while (canRead() && CommandHelper.isAllowedInUnquotedString(peek())) {
+                    skip();
+                }
+                return getString().substring(begin, getCursor());
+            }
+        };
+    }
+
     public static LinkedList<String> parseArguments(String greedyString) throws CommandSyntaxException {
-        var reader = new StringReader(greedyString);
+        var reader = anyUnquotedStringReader(greedyString);
         var result = new LinkedList<String>();
         while (reader.canRead()) {
             reader.skipWhitespace();
@@ -100,12 +66,27 @@ public class CommandHelper {
         return result;
     }
 
-    private static LinkedList<String> parseArgumentsSuppress(String greedyString) {
-        var reader = new StringReader(greedyString);
+    private static LinkedList<String> parseArgumentsInternal(String greedyString) throws CommandSyntaxException {
+        var reader = anyUnquotedStringReader(greedyString);
         var result = new LinkedList<String>();
         while (reader.canRead()) {
             reader.skipWhitespace();
             if (!reader.canRead()) {
+                result.add("");
+                break;
+            }
+            result.add(reader.readString());
+        }
+        return result;
+    }
+
+    private static LinkedList<String> parseArgumentsInternalSuppress(String greedyString) {
+        var reader = anyUnquotedStringReader(greedyString);
+        var result = new LinkedList<String>();
+        while (reader.canRead()) {
+            reader.skipWhitespace();
+            if (!reader.canRead()) {
+                result.add("");
                 break;
             }
             var remaining = reader.getRemaining();
@@ -123,6 +104,7 @@ public class CommandHelper {
         var reader = new StringReader(greedyString);
         int cursor = 0;
         while (reader.canRead()) {
+            cursor = reader.getCursor() + 1;
             reader.skipWhitespace();
             if (!reader.canRead()) {
                 break;
@@ -137,22 +119,43 @@ public class CommandHelper {
         return cursor;
     }
 
-    public static Collection<String> suggestUniqueArguments(String greedyString, Collection<String> suggestion) {
+    public static List<String> suggestUniqueArguments(String greedyString, Suggestions suggestions) {
         LinkedList<String> arguments;
         try {
-            arguments = parseArguments(greedyString);
-        } catch (Exception e) {
-            arguments = parseArgumentsSuppress(greedyString);
+            arguments = parseArgumentsInternal(greedyString);
+        } catch (CommandSyntaxException e) {
+            arguments = parseArgumentsInternalSuppress(greedyString);
         }
         if (arguments.size() == 0) {
-            return suggestion;
+            return suggestions.getList().stream()
+                    .map(s -> s.getText())
+                    .toList();
         }
         arguments.removeLast();
         var makeCompilerHappy = arguments;
         var previousArguments = greedyString.substring(0, splitLastArgument(greedyString));
-        return suggestion.stream()
+        return suggestions.getList().stream()
+                .map(s -> s.getText())
                 .filter(s -> !makeCompilerHappy.contains(s))
                 .map(s -> previousArguments + s)
                 .toList();
+    }
+
+    public static <S> SuggestionProvider<S> uniqueArgumentsWrapper(SuggestionProvider<S> provider) {
+        return (context, builder) -> {
+            var input = builder.getInput();
+            var start = builder.getStart();
+            var emptyBuilder = new SuggestionsBuilder(input, start);
+            Suggestions suggestions;
+            try {
+                suggestions = provider.getSuggestions(context, emptyBuilder).get();
+            } catch (InterruptedException | ExecutionException e) {
+                return builder.buildFuture();
+            }
+            suggestUniqueArguments(builder.getRemaining(), suggestions).forEach(s -> {
+                builder.suggest(s);
+            });
+            return builder.buildFuture();
+        };
     }
 }
