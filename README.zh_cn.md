@@ -80,10 +80,13 @@ $ ./gradlew build
 $ ./gradlew extract
 ```
 
-提取的翻译键位于 `build/messages.po`。翻译使用 [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities) 托管。要将翻译转换为 Minecraft 兼容的格式，运行以下命令：
+提取的翻译键位于 `build/messages.po`。翻译使用 [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities) 托管。
+
+要将翻译转换为 Minecraft 兼容的格式，运行以下命令：
 
 ```sh
 $ python po2minecraft.py 文件路径/messages.po 文件路径/messages.json
+```
 
 ## 鸣谢
 
@@ -92,6 +95,8 @@ $ python po2minecraft.py 文件路径/messages.po 文件路径/messages.json
 - [Fabric API](https://github.com/FabricMC/fabric)，使用 [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE) 许可证分发。
 
 - [GSON](https://github.com/google/gson)，使用 [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE) 许可证分发。
+
+- [colorama](https://github.com/tartley/colorama)，使用 [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt) 许可证分发。
 
 ## 版权
 

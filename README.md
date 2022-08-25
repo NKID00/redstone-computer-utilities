@@ -80,7 +80,9 @@ To extract translation keys, Java and GNU gettext are required. Run the followin
 $ ./gradlew extract
 ```
 
-Extracted translation keys are located in `build/messages.json`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities). To convert translations into Minecraft-compatible json format, run the following command:
+Extracted translation keys are located in `build/messages.json`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities).
+
+To convert translations into Minecraft-compatible json format, run the following command:
 
 ```sh
 $ python po2minecraft.py path/to/messages.po path/to/messages.json
@@ -93,6 +95,8 @@ $ python po2minecraft.py path/to/messages.po path/to/messages.json
 - [Fabric API](https://github.com/FabricMC/fabric), distributed under [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE).
 
 - [GSON](https://github.com/google/gson), distributed under [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE).
+
+- [colorama](https://github.com/tartley/colorama), distributed under [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt)
 
 ## Copyright
 
