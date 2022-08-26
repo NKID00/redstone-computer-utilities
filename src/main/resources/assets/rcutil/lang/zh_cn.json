@@ -1,1 +1,19 @@
-{}
+{
+    "rcutil.command.fail.interface_not_found": "名为\"%s\"的接口不存在",
+    "rcutil.command.fail.not_player_entity": "该命令必须由玩家或以玩家身份执行",
+    "rcutil.command.fail.script_not_found": "名为\"%s\"的外部程序不存在",
+    "rcutil.command.rcu.fail.inventory_full": "物品栏已满",
+    "rcutil.command.rcu.success": "已给予魔杖物品%s",
+    "rcutil.command.rcu_lang.fail.already_set": "显示语言已经为\"%s\"",
+    "rcutil.command.rcu_lang.fail.invalid_language": "语言\"%s\"无效，可用的语言有：%s",
+    "rcutil.command.rcu_lang.success.display": "当前显示语言为\"%s\"",
+    "rcutil.command.rcu_lang.success.set": "显示语言已设置为\"%s\"",
+    "rcutil.command.rcu_new.fail.exists": "名称为%s的接口已存在",
+    "rcutil.command.rcu_new.fail.invalid_name": "名称%s无效",
+    "rcutil.command.rcu_new.fail.invalid_option": "选项%s无效",
+    "rcutil.command.rcu_new.fail.invalid_selection": "无法从选区推导接口",
+    "rcutil.command.rcu_new.fail.not_selected": "选区不完整",
+    "rcutil.select.lsb": "最低有效位已设置为%s, %s",
+    "rcutil.select.msb": "最高有效位已设置为%s, %s",
+    "rcutil.select.not_target_block": "只能选择标靶"
+}

@@ -1,5 +1,7 @@
 {
-    "rcutil.command.fail.not_player_entity": "Command must be executed by or as players",
+    "rcutil.command.fail.interface_not_found": "Interface with name \"%s\" cannot be found",
+    "rcutil.command.fail.not_player_entity": "This command must be executed by or as players",
+    "rcutil.command.fail.script_not_found": "Script with name \"%s\" cannot be found",
     "rcutil.command.rcu.fail.inventory_full": "Inventory is full",
     "rcutil.command.rcu.success": "Gave wand item %s",
     "rcutil.command.rcu_lang.fail.already_set": "Display language is already \"%s\"",
@@ -10,11 +12,8 @@
     "rcutil.command.rcu_new.fail.invalid_name": "Invalid name \"%s\"",
     "rcutil.command.rcu_new.fail.invalid_option": "Invalid option \"%s\"",
     "rcutil.command.rcu_new.fail.invalid_selection": "Interface cannot be inferred from the selection",
-    "rcutil.command.rcu_new.fail.not_selected": "Nothing is selected",
+    "rcutil.command.rcu_new.fail.not_selected": "Selection is incomplete",
     "rcutil.select.lsb": "Least significant bit set to %s, %s",
     "rcutil.select.msb": "Most significant bit set to %s, %s",
-    "rcutil.select.not_target_block": "Each end of the selection must be target block",
-
-    "rcutil.argument.interface.notfound": "Interface with name \"%s\" cannot be found",
-    "rcutil.argument.script.notfound": "Script with name \"%s\" cannot be found"
+    "rcutil.select.not_target_block": "Only target block may be selected"
 }
