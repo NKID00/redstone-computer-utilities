@@ -64,6 +64,10 @@ public class BlockPosHelper {
         return new BlockPos(v.getX() + offset.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ());
     }
 
+    public static TargetBlockPos applyOffset(TargetBlockPos v, Vec3i offset) {
+        return new TargetBlockPos(v.world(), v.getX() + offset.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ());
+    }
+
     public static String toString(BlockPos pos) {
         return "%s, %s, %s".formatted(pos.getX(), pos.getY(), pos.getZ());
     }
