@@ -2,7 +2,7 @@
     "openrpc": "1.2.6",
     "info": {
         "version": "0.2.0",
-        "title": "redstone-computer-utilities Json-RPC API",
+        "title": "redstone-computer-utilities JSON-RPC API",
         "description": "APIs for redstone-computer-utilities scripts."
     },
     "servers": [
