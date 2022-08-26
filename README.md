@@ -38,22 +38,19 @@ All commands provided by the mod require at least permission level 2 (configurab
 `/rcu new <interface name> [option...]` (WIP)
 - Create an interface. Name of an interface MUST be unique among all interfaces and MUST be a string only consists of letters, numbers and underlines.
 
-`/rcu remove <interface name...>` (WIP)
+`/rcu remove <interface name...>`
 - Remove the interface(s).
 
-`/rcu info` (WIP)
-- Display brief information and status.
+`/rcu interface`
+- Display information about interfaces.
 
-`/rcu info interface` (WIP)
-- Display information and status about interfaces.
-
-`/rcu info interface <interface name...>` (WIP)
+`/rcu interface <interface name...>`
 - Display the detail of the interface(s).
 
-`/rcu info script` (WIP)
-- Display information and status about scripts.
+`/rcu script`
+- Display information about scripts.
 
-`/rcu info script <script name...>` (WIP)
+`/rcu script <script name...>`
 - Display the detail of the script(s).
 
 `/rcu run <script name> [argument...]` (WIP)
@@ -62,10 +59,10 @@ All commands provided by the mod require at least permission level 2 (configurab
 `/rcu reload` (WIP)
 - Reload all scripts.
 
-`/rcu lang` (WIP)
+`/rcu lang`
 - Display current display language of the command source player.
 
-`/rcu lang <language>` (WIP)
+`/rcu lang <language>`
 - Set display language of the command source player.
 
 ## Development

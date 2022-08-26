@@ -38,22 +38,19 @@
 `/rcu new <接口名> [选项...]`（待开发）
 - 创建接口。接口名必须在所有接口中唯一且只能由字母、数字和下划线组成。
 
-`/rcu remove <接口名...>`（待开发）
+`/rcu remove <接口名...>`
 - 删除接口。
 
-`/rcu info`（待开发）
-- 显示简略状态信息。
+`/rcu interface`
+- 显示接口信息。
 
-`/rcu info interface`（待开发）
-- 显示接口状态信息。
-
-`/rcu info interface <接口名...>`（待开发）
+`/rcu interface <接口名...>`
 - 显示指定接口详情。
 
-`/rcu info script`（待开发）
-- 显示外部程序状态信息。
+`/rcu script`
+- 显示外部程序信息。
 
-`/rcu info script <外部程序名...>`（待开发）
+`/rcu script <外部程序名...>`
 - 显示指定外部程序详情。
 
 `/rcu run <外部程序名> [参数...]`（待开发）
@@ -62,10 +59,10 @@
 `/rcu reload`（待开发）
 - 重新加载所有外部程序。
 
-`/rcu lang` (WIP)
+`/rcu lang`
 - 显示命令执行者的当前显示语言。
 
-`/rcu lang <语言>`（待开发）
+`/rcu lang <语言>`
 - 设置命令执行者的显示语言。
 
 ## 开发
