@@ -8,7 +8,6 @@ import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.ArgumentHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.I18n;
-import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.SelectionManager;
 import name.nkid00.rcutil.model.Interface;
