@@ -8,6 +8,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
@@ -72,7 +73,8 @@ public class ScriptManager {
         clientAddressScript.removeAll(clientAddress);
     }
 
-    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
+            final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(nameScript, builder::suggest);
         return builder.buildFuture();
     }

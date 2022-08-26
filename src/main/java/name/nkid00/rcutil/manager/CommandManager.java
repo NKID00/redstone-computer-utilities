@@ -11,6 +11,7 @@ import name.nkid00.rcutil.command.Rcu;
 import name.nkid00.rcutil.command.RcuInfo;
 import name.nkid00.rcutil.command.RcuInfoInterface;
 import name.nkid00.rcutil.command.RcuInfoScript;
+import name.nkid00.rcutil.command.RcuLang;
 import name.nkid00.rcutil.command.RcuNew;
 import name.nkid00.rcutil.command.RcuReload;
 import name.nkid00.rcutil.command.RcuRemove;
@@ -77,5 +78,12 @@ public class CommandManager {
         dispatcher.register(literal("rcu")
                 .then(literal("reload")
                         .executes(RcuReload::execute)));
+        // /rcu lang <language>
+        dispatcher.register(literal("rcu")
+                .then(literal("lang")
+                        .executes(RcuLang::execute)
+                        .then(argument("language", StringArgumentType.word())
+                                .suggests(LanguageManager::getSuggestions)
+                                .executes(RcuLang::execute))));
     }
 }

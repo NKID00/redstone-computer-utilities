@@ -11,11 +11,15 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import name.nkid00.rcutil.exception.BlockNotTargetException;
+import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
+import name.nkid00.rcutil.helper.TargetBlockHelper;
 import name.nkid00.rcutil.model.Interface;
 
 public class InterfaceManager {
@@ -29,8 +33,15 @@ public class InterfaceManager {
         return interfaces.containsKey(name);
     }
 
-    public static Interface tryNewinterface(String name, UUID uuid, Collection<String> options) {
-        var interfaze = Interface.resolve(SelectionManager.selection(uuid));
+    public static Interface tryNewinterface(String name, UUID uuid, Collection<String> options)
+            throws BlockNotTargetException {
+        var selection = SelectionManager.selection(uuid);
+        var world = selection.world;
+        var lsb = selection.lsb;
+        var msb = selection.msb;
+        TargetBlockHelper.check(world, lsb, I18n.t(uuid, "rcutil.select.not_target_block"));
+        TargetBlockHelper.check(world, msb, I18n.t(uuid, "rcutil.select.not_target_block"));
+        var interfaze = Interface.resolve(world, lsb, msb);
         if (interfaze == null) {
             return null;
         }
@@ -39,7 +50,7 @@ public class InterfaceManager {
     }
 
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
-            final SuggestionsBuilder builder) {
+            final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(interfaces, builder::suggest);
         return builder.buildFuture();
     }

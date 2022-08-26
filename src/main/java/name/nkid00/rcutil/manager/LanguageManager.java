@@ -1,7 +1,10 @@
 package name.nkid00.rcutil.manager;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
@@ -9,6 +12,10 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import name.nkid00.rcutil.exception.LanguageNotFoundException;
 import name.nkid00.rcutil.helper.Log;
@@ -20,6 +27,7 @@ import net.minecraft.util.crash.CrashReport;
 
 public class LanguageManager {
     private static Language DEFAULT_LANGUAGE = null;
+    public static final List<String> LANGUAGES = Arrays.asList(Language.DEFAULT_LANGUAGE, "zh_cn");
 
     private static ConcurrentHashMap<String, Language> languages = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<UUID, String> playerLanguages = new ConcurrentHashMap<>();
@@ -45,34 +53,62 @@ public class LanguageManager {
         }
         var map = new ConcurrentHashMap<String, String>();
         Language.load(inputStream, map::put);
-        var language = new Language() {
-            @Override
-            public String get(String key) {
-                return map.getOrDefault(key, key);
-            }
-
-            @Override
-            public boolean hasTranslation(String key) {
-                return map.containsKey(key);
-            }
-
-            @Override
-            public boolean isRightToLeft() {
-                return false;
-            }
-
-            @Override
-            public OrderedText reorder(StringVisitable text) {
-                return null;
-            }
-
-        };
+        Language language;
+        if (langCode.equals(Language.DEFAULT_LANGUAGE)) {
+            language = new Language() {
+                @Override
+                public String get(String key) {
+                    return map.getOrDefault(key, key);
+                }
+    
+                @Override
+                public boolean hasTranslation(String key) {
+                    return map.containsKey(key);
+                }
+    
+                @Override
+                public boolean isRightToLeft() {
+                    return false;
+                }
+    
+                @Override
+                public OrderedText reorder(StringVisitable text) {
+                    return null;
+                }
+            };
+        } else {
+            language = new Language() {
+                @Override
+                public String get(String key) {
+                    if (map.containsKey(key)) {
+                        return map.get(key);
+                    } else {
+                        return defaultLanguage().get(key);
+                    }
+                }
+    
+                @Override
+                public boolean hasTranslation(String key) {
+                    return map.containsKey(key) || defaultLanguage().hasTranslation(key);
+                }
+    
+                @Override
+                public boolean isRightToLeft() {
+                    return false;
+                }
+    
+                @Override
+                public OrderedText reorder(StringVisitable text) {
+                    return null;
+                }
+            };
+        }
         languages.put(langCode, language);
         return language;
     }
 
     public static Language language(UUID uuid) throws LanguageNotFoundException {
-        return language(playerLanguages.computeIfAbsent(uuid, _uuid -> Language.DEFAULT_LANGUAGE));
+        return language(langCode(uuid));
     }
 
     public static Language languageOrDefault(UUID uuid) {
@@ -83,9 +119,25 @@ public class LanguageManager {
         }
     }
 
-    public static void setLanguage(UUID uuid, String langCode) throws LanguageNotFoundException {
+    public static String langCode(UUID uuid) {
+        return playerLanguages.computeIfAbsent(uuid, _uuid -> Language.DEFAULT_LANGUAGE);
+    }
+
+    public static void setLangCode(UUID uuid, String langCode) throws LanguageNotFoundException {
         language(langCode);
         playerLanguages.put(uuid, langCode);
+    }
+
+    public static String languages() {
+        return String.join(", ", LanguageManager.LANGUAGES.toArray(new String[0]));
+    }
+
+    public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
+            final SuggestionsBuilder builder) throws CommandSyntaxException {
+        for (String langCode : LANGUAGES) {
+            builder.suggest(langCode);
+        }
+        return builder.buildFuture();
     }
 
     public static void load(JsonReader reader, Gson gson) {

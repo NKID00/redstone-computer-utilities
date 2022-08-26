@@ -107,7 +107,9 @@ task extract() {
         exec {
             workingDir "${buildDir}"
             executable 'bash'
-            args '-c', "find ${projectDir}/src/main/java/ -iname \"*.java\" | xargs xgettext -kI18n.t"
+            args '-c', """find ${projectDir}/src/main/java/ -iname \"*.java\" | \
+            xargs xgettext -kI18n.t:1 -kI18n.t:2 -kI18n.overlay:2 -kI18n.overlayError:2 \
+            -kI18n.send:2 -kI18n.sendError:2"""
         }
     }
 }

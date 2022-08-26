@@ -1,13 +1,20 @@
 {
-    "rcutil.select.msb": "Most significant bit set to %s, %s",
+    "rcutil.command.fail.not_player_entity": "Command must be executed by or as players",
+    "rcutil.command.rcu.fail.inventory_full": "Inventory is full",
+    "rcutil.command.rcu.success": "Gave wand item %s",
+    "rcutil.command.rcu_lang.fail.already_set": "Display language is already \"%s\"",
+    "rcutil.command.rcu_lang.fail.invalid_language": "Invalid language \"%s\", available languages are: %s",
+    "rcutil.command.rcu_lang.success.display": "Current display language is \"%s\"",
+    "rcutil.command.rcu_lang.success.set": "Display language set to \"%s\"",
+    "rcutil.command.rcu_new.fail.exists": "Interface with name \"%s\" already exists",
+    "rcutil.command.rcu_new.fail.invalid_name": "Invalid name \"%s\"",
+    "rcutil.command.rcu_new.fail.invalid_option": "Invalid option \"%s\"",
+    "rcutil.command.rcu_new.fail.invalid_selection": "Interface cannot be inferred from the selection",
+    "rcutil.command.rcu_new.fail.not_selected": "Nothing is selected",
     "rcutil.select.lsb": "Least significant bit set to %s, %s",
-    "rcutil.command.rcu.new.failed.notplayerentity": "\"/rcu new\" must be executed by or as players",
-    "rcutil.command.rcu.new.failed.notselected": "Nothing is selected",
-    "rcutil.command.rcu.new.failed.exists": "Interface with name \"%s\" already exists",
-    "rcutil.command.rcu.new.failed.unknown": "Interface cannot be inferred from the selection",
+    "rcutil.select.msb": "Most significant bit set to %s, %s",
+    "rcutil.select.not_target_block": "Each end of the selection must be target block",
+
     "rcutil.argument.interface.notfound": "Interface with name \"%s\" cannot be found",
-    "rcutil.argument.script.notfound": "Script with name \"%s\" cannot be found",
-    "rcutil.command.rcu.fail.notplayerentity": "\"/rcu\" must be executed by or as players",
-    "rcutil.command.rcu.success.item": "Gave wand item %s",
-    "rcutil.command.rcu.fail.item": "Inventory is full"
+    "rcutil.argument.script.notfound": "Script with name \"%s\" cannot be found"
 }

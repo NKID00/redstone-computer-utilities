@@ -15,9 +15,6 @@ import net.minecraft.util.math.Vec3i;
 public record Interface(ServerWorld world, BlockPos base, Vec3i gap, int size)
         implements Iterable<BlockPos> {
 
-    public static Interface resolve(Selection selection) {
-        return resolve(selection.world, selection.lsb, selection.msb);
-    }
     public static Interface resolve(ServerWorld world, BlockPos lsb, BlockPos msb) {
         return resolve(world, lsb, null, msb);
     }
