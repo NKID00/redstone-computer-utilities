@@ -8,9 +8,9 @@
 
 ## Features
 
-- Empower programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
+- Empowers programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
   - Specially, a Python library is provided to simplify development
-- Support redstone wires in any size and shape from horizontal, vertical to even diagonal ones
+- Supports redstone wires in any sizes and shapes from horizontal, vertical to even diagonal ones
 - Built-in English and Simplified Chinese translations
 - Server-side-only implementation, fully compatible with vanilla clients
 <!-- - Support gametick speed controls, step and pause implemented by any other mods -->
@@ -19,7 +19,7 @@
 
 This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fabric API.
 
-This mod is server-side-only for multiplayer and needs to be installed on client-side for singleplayer.
+Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
 
 Python 3.6 or newer is required to use the provided Python library.
 
