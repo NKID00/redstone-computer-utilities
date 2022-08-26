@@ -8,19 +8,24 @@
 
 ## Features
 
-(WIP)
+- Empower programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
+  - Specially, a Python library is provided to simplify development
+- Support redstone wires in any size and shape from horizontal, vertical to even diagonal ones
+- Built-in English and Simplified Chinese translations
+- Server-side-only implementation, fully compatible with vanilla clients
+<!-- - Support gametick speed controls, step and pause implemented by any other mods -->
 
 ## Installation
 
-This mod supports Minecraft 1.19.1 and requires the latest Fabric Loader and Fabric API.
+This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fabric API.
 
-This mod is mostly server-side but has to be installed both on server-side and client-side in order to display translatable information correctly.
+This mod is server-side-only for multiplayer and needs to be installed on client-side for singleplayer.
 
-Python 3.6 or newer is required to use Python-related features.
+Python 3.6 or newer is required to use the provided Python library.
 
 ## Usage
 
-### Interfaces (not fully implemented yet)
+### Interfaces
 
 Before any further operation with redstone signals, it is essential to abstract the input and output of your redstone mechanics into the form of interfaces. An interface is basically a row of special target blocks (or a sole target block if you want), which can be created either with the wand item and a command in the game or with a few lines of codes in scripts outside the game. By using the interfaces, redstone power can be received and emitted through these special target blocks, with the carried data being forwarded to scripts outside the game through the mod.
 
@@ -35,7 +40,7 @@ All commands provided by the mod require at least permission level 2 (configurab
 `/rcu`
 - Give the command source player a wand item (configurable, pink dye as default).
 
-`/rcu new <interface name> [option...]` (WIP)
+`/rcu new <interface name> [option...]`
 - Create an interface. Name of an interface MUST be unique among all interfaces and MUST be a string only consists of letters, numbers and underlines.
 
 `/rcu remove <interface name...>`
@@ -57,7 +62,7 @@ All commands provided by the mod require at least permission level 2 (configurab
 - Display the detail of the script(s).
 
 `/rcu run <script name> [argument...]` (WIP)
-- Run the script with the arguments. Arguments may be interface names, script names or strings. Strings as arguments may be quoted to avoid ambiguity.
+- Run the script with the arguments. Arguments may be interface names, script names or any other strings.
 
 `/rcu reload` (WIP)
 - Reload all scripts.
