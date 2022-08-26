@@ -4,6 +4,8 @@ import name.nkid00.rcutil.Options;
 import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
+import name.nkid00.rcutil.helper.WorldHelper;
+import name.nkid00.rcutil.util.TargetBlockPos;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -22,10 +24,10 @@ public class WandManager {
             return ActionResult.PASS;
         }
         var uuid = player.getUuid();
-        if (TargetBlockHelper.is((ServerWorld) world, pos)) {
-            SelectionManager.selectMsb(uuid, pos, (ServerWorld) world);
-            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.msb", BlockPosHelper.toString(pos),
-                    world.getRegistryKey().getValue().toString());
+        var serverWorld = (ServerWorld) world;
+        if (TargetBlockHelper.is(serverWorld, pos)) {
+            SelectionManager.selectMsb(uuid, pos, serverWorld);
+            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.msb", new TargetBlockPos(serverWorld, pos));
         } else {
             I18n.overlayError((ServerPlayerEntity) player, "rcutil.select.not_target_block");
         }
@@ -39,10 +41,10 @@ public class WandManager {
         }
         var pos = hitResult.getBlockPos();
         var uuid = player.getUuid();
-        if (TargetBlockHelper.is((ServerWorld) world, pos)) {
-            SelectionManager.selectLsb(uuid, pos, (ServerWorld) world);
-            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.lsb", BlockPosHelper.toString(pos),
-                    world.getRegistryKey().getValue().toString());
+        var serverWorld = (ServerWorld) world;
+        if (TargetBlockHelper.is(serverWorld, pos)) {
+            SelectionManager.selectLsb(uuid, pos, serverWorld);
+            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.lsb", new TargetBlockPos(serverWorld, pos));
         } else {
             I18n.overlayError((ServerPlayerEntity) player, "rcutil.select.not_target_block");
         }

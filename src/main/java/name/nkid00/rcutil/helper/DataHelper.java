@@ -141,4 +141,30 @@ public class DataHelper {
         return String.format("\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits >> 3)),
                 bits + (bits >> 3));
     }
+
+    public static int gcd(int a, int b) {
+        return b == 0 ? a : gcd(b, a % b);
+    }
+
+    public static int gcd(int a, int b, int c) {
+        return gcd(gcd(a, b), c);
+    }
+
+    public static int gcd(int... numbers) {
+        if (numbers.length == 0) {
+            return 1;
+        } else if (numbers.length == 1) {
+            return numbers[0];
+        } else if (numbers.length == 2) {
+            return gcd(numbers[0], numbers[1]);
+        } else if (numbers.length == 3) {
+            return gcd(numbers[0], numbers[1], numbers[2]);
+        } else {
+            var result = numbers[0];
+            for (int i = 1; i < numbers.length; i++) {
+                result = gcd(result, numbers[i]);
+            }
+            return result;
+        }
+    }
 }

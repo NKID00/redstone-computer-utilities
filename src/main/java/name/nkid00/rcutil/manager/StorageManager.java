@@ -1,4 +1,4 @@
-package name.nkid00.rcutil;
+package name.nkid00.rcutil.manager;
 
 import java.io.File;
 import java.io.FileReader;
@@ -11,13 +11,10 @@ import com.google.gson.JsonParseException;
 
 import name.nkid00.rcutil.helper.GsonHelper;
 import name.nkid00.rcutil.helper.Log;
-import name.nkid00.rcutil.manager.InterfaceManager;
-import name.nkid00.rcutil.manager.LanguageManager;
-import name.nkid00.rcutil.manager.SelectionManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
-public class Storage {
+public class StorageManager {
     private static Gson gson;
     private static File file;
 

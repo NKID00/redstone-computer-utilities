@@ -2,6 +2,7 @@ package name.nkid00.rcutil;
 
 import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.CommandManager;
+import name.nkid00.rcutil.manager.StorageManager;
 import name.nkid00.rcutil.manager.TickManager;
 import name.nkid00.rcutil.manager.WandManager;
 import net.fabricmc.api.EnvType;
@@ -21,22 +22,19 @@ public class RCUtil implements ModInitializer {
         var loader = FabricLoader.getInstance();
         isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
 
-        // storage handler
         ServerLifecycleEvents.SERVER_STARTING.register(Options::init);
-        ServerLifecycleEvents.SERVER_STARTING.register(Storage::init);
 
-        // tick handler
+        // worlds is required to load selections
+        ServerLifecycleEvents.SERVER_STARTED.register(StorageManager::init);
+
         ServerTickEvents.START_SERVER_TICK.register(TickManager::onTickStart);
         ServerTickEvents.END_SERVER_TICK.register(TickManager::onTickEnd);
 
-        // wand handler
         AttackBlockCallback.EVENT.register(WandManager::onAttack);
         UseBlockCallback.EVENT.register(WandManager::onUse);
 
-        // command handler
         CommandRegistrationCallback.EVENT.register(CommandManager::init);
 
-        // script server handler
         ServerLifecycleEvents.SERVER_STARTING.register(server -> ScriptServerIO.init());
         ServerLifecycleEvents.SERVER_STARTED.register(server -> ScriptServerIO.start());
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> ScriptServerIO.stop());

@@ -8,6 +8,7 @@ import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.ArgumentHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.I18n;
+import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.SelectionManager;
 import name.nkid00.rcutil.model.Interface;
@@ -24,11 +25,11 @@ public class RcuNew {
         }
         var name = StringArgumentType.getString(c, "interface name");
         if (!CommandHelper.isLetterDigitUnderline(name)) {
-            s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.invalid_name"));
+            s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.invalid_name", name));
             return 0;
         }
         if (InterfaceManager.hasInterface(name)) {
-            s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.exists"));
+            s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.exists", name));
             return 0;
         }
         var options = ArgumentHelper.getMulti(c, "option...");

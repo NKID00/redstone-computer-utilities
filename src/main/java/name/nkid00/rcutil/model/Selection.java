@@ -11,9 +11,9 @@ public class Selection {
 
     public void selectMsb(BlockPos pos, ServerWorld world) {
         this.msb = pos;
-        if (this.lsb != null) {
+        if (this.msb != null) {
             if (world != this.world) {
-                this.lsb = null;
+                this.msb = null;
                 this.world = world;
                 this.selected = false;
             } else {
@@ -24,9 +24,9 @@ public class Selection {
 
     public void selectLsb(BlockPos pos, ServerWorld world) {
         this.lsb = pos;
-        if (this.msb != null) {
+        if (this.lsb != null) {
             if (world != this.world) {
-                this.msb = null;
+                this.lsb = null;
                 this.world = world;
                 this.selected = false;
             } else {

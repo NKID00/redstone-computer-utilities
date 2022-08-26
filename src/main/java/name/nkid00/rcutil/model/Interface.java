@@ -1,151 +1,146 @@
 package name.nkid00.rcutil.model;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.BlockPosHelper;
-import name.nkid00.rcutil.helper.DataHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
+import name.nkid00.rcutil.helper.WorldHelper;
+import name.nkid00.rcutil.util.Blocks;
 import name.nkid00.rcutil.util.Enumerate;
+import name.nkid00.rcutil.util.TargetBlockPos;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-public class Interface implements Iterable<BlockPos> {
+public class Interface implements Iterable<TargetBlockPos> {
     public final String name;
     private final ServerWorld world;
-    private final BlockPos base;
-    private final Vec3i gap;
-    private final int size;
+    private final Blocks blocks;
 
-    public Interface(String name, ServerWorld world, BlockPos base, Vec3i gap, int size) {
+    public Interface(String name, ServerWorld world, BlockPos lsb, Vec3i increment, int size) {
         this.name = name;
         this.world = world;
-        this.base = base;
-        this.gap = gap;
-        this.size = size;
+        blocks = new Blocks(lsb, increment, size);
+    }
+
+    public Interface(String name, ServerWorld world, Blocks blocks) {
+        this.name = name;
+        this.world = world;
+        this.blocks = BlockPosHelper.copy(blocks);
+    }
+
+    public static Interface singleBit(String name, ServerWorld world, BlockPos pos) {
+        var result = new Interface(name, world, Blocks.singleBlock(pos));
+        if (result.valid()) {
+            return result;
+        } else {
+            return null;
+        }
     }
 
     public static Interface resolve(String name, ServerWorld world, BlockPos lsb, BlockPos msb) {
-        return resolve(name, world, lsb, null, msb);
+        if (lsb.equals(msb)) {
+            return Interface.singleBit(name, world, lsb);
+        }
+        var blocks = new Blocks(lsb, msb);
+        var targetBlockCount = 0;
+        for (var pos : blocks) {
+            if (TargetBlockHelper.is(world, pos)) {
+                targetBlockCount++;
+            }
+        }
+        var second = msb;
+        for (var pos : new Blocks(BlockPosHelper.applyOffset(blocks.first(), blocks.increment()),
+                blocks.increment(), blocks.size() - 1)) {
+            if (TargetBlockHelper.is(world, pos)) {
+                second = pos;
+                break;
+            }
+        }
+        var result = new Interface(name, world, new Blocks(lsb, second, msb));
+        if (result.valid() && result.size() == targetBlockCount) {
+            return result;
+        } else {
+            return null;
+        }
     }
 
-    public static Interface resolve(String name, ServerWorld world, BlockPos lsb, BlockPos secondLsb, BlockPos msb) {
-        if (lsb.equals(secondLsb)) {
-            // lsb == secondLsb == msb -> size = 1
-            // lsb == secondLsb != msb -> null
-            return lsb.equals(msb) ? new Interface(name, world, lsb, null, 1) : null;
-        }
-        // lsb != secondLsb && lsb == msb
-        if (msb.equals(lsb)) {
-            return null;
-        }
-        var gap = BlockPosHelper.getOffset(lsb, secondLsb);
-        // lsb != secondLsb && lsb != msb && secondLsb == msb -> size = 2
-        if (secondLsb.equals(lsb)) {
-            return new Interface(name, world, lsb, gap, 2);
-        }
-        // lsb != secondLsb && secondLsb != msb && lsb != msb
-        var offset = BlockPosHelper.getOffset(lsb, msb);
-        var gx = gap.getX();
-        var gy = gap.getY();
-        var gz = gap.getZ();
-        var ox = offset.getX();
-        var oy = offset.getY();
-        var oz = offset.getZ();
-        Integer size = null;
-        // for each axis: size = offset / gap
-        // - size is not integral -> null
-        // - size is not equal to the sizes of other axises -> null
-        // - gap and offset: one is zero, another is non-zero -> null
-        if (gx != 0 && ox != 0) {
-            var t = ((float) ox) / gx;
-            if (DataHelper.isFloatIntegral(t)) {
-                size = (int) t;
-            } else {
-                return null;
+    public boolean valid() {
+        for (var pos : this) {
+            if (!pos.valid()) {
+                return false;
             }
-        } else if (gx != 0 || ox != 0) {
-            return null;
         }
-        if (gy != 0 && oy != 0) {
-            var t = ((float) oy) / gy;
-            if (DataHelper.isFloatIntegral(t)) {
-                if (size == null) {
-                    size = (int) t;
-                } else if (!size.equals((int) t)) {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } else if (gy != 0 || oy != 0) {
-            return null;
-        }
-        if (gz != 0 && oz != 0) {
-            var t = ((float) oz) / gz;
-            if (DataHelper.isFloatIntegral(t)) {
-                if (size == null) {
-                    size = (int) t;
-                } else if (!size.equals((int) t)) {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        } else if (gz != 0 || oz != 0) {
-            return null;
-        }
-        return size == null ? null : new Interface(name, world, lsb, gap, size);
+        return true;
     }
 
     public BitSet readData() throws BlockNotTargetException {
-        var bits = new BitSet(size);
-        for (var pos : new Enumerate<>(this)) {
-            bits.set(pos.index(), TargetBlockHelper.readDigital(world, pos.item()));
+        var bits = new BitSet(size());
+        for (var ipos : new Enumerate<>(this)) {
+            bits.set(ipos.index(), ipos.item().readDigital());
         }
         return bits;
     }
 
     public void writeData(BitSet bits) throws BlockNotTargetException {
-        for (var pos : new Enumerate<>(this)) {
-            TargetBlockHelper.writeDigital(world, pos.item(), bits.get(pos.index()));
+        for (var ipos : new Enumerate<>(this)) {
+            ipos.item().writeDigital(bits.get(ipos.index()));
         }
     }
 
     public Text info(UUID uuid) {
-        return I18n.t(uuid, "rcutil.info.interface.detail", name, base, world, size);
+        return I18n.t(uuid, "rcutil.info.interface.detail", name, first(), size());
+    }
+
+    public TargetBlockPos get(int index) {
+        return new TargetBlockPos(world, blocks.get(index));
+    }
+
+    public TargetBlockPos first() {
+        return new TargetBlockPos(world, blocks.first());
+    }
+
+    public Vec3i increment() {
+        return blocks.increment();
+    }
+
+    public int size() {
+        return blocks.size();
+    }
+
+    public List<TargetBlockPos> toList() {
+        var result = new ArrayList<TargetBlockPos>(size());
+        forEach(result::add);
+        return result;
+    }
+
+    public TargetBlockPos[] toArray() {
+        return toList().toArray(new TargetBlockPos[0]);
     }
 
     @Override
-    public InterfaceIterator iterator() {
+    public Iterator<TargetBlockPos> iterator() {
         return new InterfaceIterator();
     }
 
-    private class InterfaceIterator implements Iterator<BlockPos> {
-        private BlockPos pos = base;
-        private int index = 0;
+    class InterfaceIterator implements Iterator<TargetBlockPos> {
+        Iterator<BlockPos> iterator = blocks.iterator();
 
         @Override
         public boolean hasNext() {
-            return index < size;
+            return iterator.hasNext();
         }
 
         @Override
-        public BlockPos next() {
-            if (!hasNext()) {
-                return null;
-            }
-            var result = pos;
-            index++;
-            if (hasNext()) {
-                pos = BlockPosHelper.applyOffset(pos, gap);
-            }
-            return result;
+        public TargetBlockPos next() {
+            return new TargetBlockPos(world, iterator.next());
         }
     }
 }

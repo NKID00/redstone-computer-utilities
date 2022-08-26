@@ -40,8 +40,8 @@ public class InterfaceManager {
         var world = selection.world;
         var lsb = selection.lsb;
         var msb = selection.msb;
-        TargetBlockHelper.check(world, lsb, I18n.t(uuid, "rcutil.select.not_target_block"));
-        TargetBlockHelper.check(world, msb, I18n.t(uuid, "rcutil.select.not_target_block"));
+        TargetBlockHelper.check(world, lsb, I18n.t(uuid, "rcutil.select.not_selected"));
+        TargetBlockHelper.check(world, msb, I18n.t(uuid, "rcutil.select.not_selected"));
         var interfaze = Interface.resolve(name, world, lsb, msb);
         if (interfaze == null) {
             return null;
