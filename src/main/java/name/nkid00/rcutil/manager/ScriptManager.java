@@ -12,10 +12,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.model.Script;
 import name.nkid00.rcutil.script.ScriptEventCallback;
+import net.minecraft.text.Text;
 
 public class ScriptManager {
     private static ConcurrentHashMap<String, Script> nameScript = new ConcurrentHashMap<>();
@@ -39,14 +41,12 @@ public class ScriptManager {
         return authKeyScript.containsKey(authKey);
     }
 
-    public static String registerScript(Script script, String clientAddress) {
-        var name = script.name;
+    public static String createScript(String name, String description, int permissionLevel, String clientAddress) {
         String authKey;
         do {
             authKey = UUID.randomUUID().toString();
         } while (authKeyValid(authKey)); // avoid auth key collision
-        script.authKey = authKey;
-        script.clientAddress = clientAddress;
+        var script = new Script(name, description, permissionLevel, authKey, clientAddress);
         nameScript.put(name, script);
         authKeyScript.put(authKey, script);
         clientAddressScript.get(clientAddress).add(script);
@@ -77,5 +77,19 @@ public class ScriptManager {
             final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(nameScript, builder::suggest);
         return builder.buildFuture();
+    }
+
+    public static int size() {
+        return nameScript.size();
+    }
+
+    public static Text info(UUID uuid) {
+        if (size() == 0) {
+            return I18n.t(uuid, "rcutil.info.script.empty");
+        } else {
+
+            return I18n.t(uuid, "rcutil.info.script", size(),
+                    String.join(", ", nameScript.keySet().toArray(new String[0])));
+        }
     }
 }

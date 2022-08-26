@@ -34,7 +34,7 @@ public class RcuNew {
         var options = ArgumentHelper.getMulti(c, "option...");
         Interface interfaze;
         try {
-            interfaze = InterfaceManager.tryNewinterface(name, uuid, options);
+            interfaze = InterfaceManager.tryCreate(name, uuid, options);
         } catch (BlockNotTargetException e) {
             s.sendError(e.text());
             return 0;
@@ -46,6 +46,7 @@ public class RcuNew {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.invalid_selection"));
             return 0;
         } else {
+            s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_new.success", interfaze.info(uuid)), true);
             return 1;
         }
     }

@@ -11,20 +11,21 @@ import name.nkid00.rcutil.manager.LanguageManager;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuLang {
-    public static int execute(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
+    public static int executeGet(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
+        var s = c.getSource();
+        var player = CommandHelper.requirePlayer(s);
+        var uuid = player.getUuid();
+        s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_lang.success.display",
+                LanguageManager.langCode(player.getUuid())), false);
+        return 1;
+    }
+
+    public static int executeSet(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
         var player = CommandHelper.requirePlayer(s);
         var uuid = player.getUuid();
         var currentLangCode = LanguageManager.langCode(uuid);
-        String langCode;
-        try {
-            langCode = StringArgumentType.getString(c, "language");
-        } catch (IllegalArgumentException e) {
-            // /rcu lang - display current language
-            s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_lang.success.display", currentLangCode), false);
-            return 1;
-        }
-        // /rcu lang <language> - set language
+        var langCode = StringArgumentType.getString(c, "language");
         if (langCode.equals(currentLangCode)) {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_lang.fail.already_set", currentLangCode));
             return 0;
@@ -39,5 +40,4 @@ public class RcuLang {
         s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_lang.success.set", langCode), false);
         return 1;
     }
-
 }

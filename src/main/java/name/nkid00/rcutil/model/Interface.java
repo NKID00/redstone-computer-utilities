@@ -2,12 +2,13 @@ package name.nkid00.rcutil.model;
 
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.UUID;
 
 import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.DataHelper;
+import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
-import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.util.Enumerate;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -15,27 +16,29 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
 public class Interface implements Iterable<BlockPos> {
-    private ServerWorld world;
-    private BlockPos base;
-    private Vec3i gap;
-    private int size;
+    public final String name;
+    private final ServerWorld world;
+    private final BlockPos base;
+    private final Vec3i gap;
+    private final int size;
 
-    public Interface(ServerWorld world, BlockPos base, Vec3i gap, int size) {
+    public Interface(String name, ServerWorld world, BlockPos base, Vec3i gap, int size) {
+        this.name = name;
         this.world = world;
         this.base = base;
         this.gap = gap;
         this.size = size;
     }
 
-    public static Interface resolve(ServerWorld world, BlockPos lsb, BlockPos msb) {
-        return resolve(world, lsb, null, msb);
+    public static Interface resolve(String name, ServerWorld world, BlockPos lsb, BlockPos msb) {
+        return resolve(name, world, lsb, null, msb);
     }
 
-    public static Interface resolve(ServerWorld world, BlockPos lsb, BlockPos secondLsb, BlockPos msb) {
+    public static Interface resolve(String name, ServerWorld world, BlockPos lsb, BlockPos secondLsb, BlockPos msb) {
         if (lsb.equals(secondLsb)) {
             // lsb == secondLsb == msb -> size = 1
             // lsb == secondLsb != msb -> null
-            return lsb.equals(msb) ? new Interface(world, lsb, null, 1) : null;
+            return lsb.equals(msb) ? new Interface(name, world, lsb, null, 1) : null;
         }
         // lsb != secondLsb && lsb == msb
         if (msb.equals(lsb)) {
@@ -44,7 +47,7 @@ public class Interface implements Iterable<BlockPos> {
         var gap = BlockPosHelper.getOffset(lsb, secondLsb);
         // lsb != secondLsb && lsb != msb && secondLsb == msb -> size = 2
         if (secondLsb.equals(lsb)) {
-            return new Interface(world, lsb, gap, 2);
+            return new Interface(name, world, lsb, gap, 2);
         }
         // lsb != secondLsb && secondLsb != msb && lsb != msb
         var offset = BlockPosHelper.getOffset(lsb, msb);
@@ -97,7 +100,7 @@ public class Interface implements Iterable<BlockPos> {
         } else if (gz != 0 || oz != 0) {
             return null;
         }
-        return size == null ? null : new Interface(world, lsb, gap, size);
+        return size == null ? null : new Interface(name, world, lsb, gap, size);
     }
 
     public BitSet readData() throws BlockNotTargetException {
@@ -114,8 +117,8 @@ public class Interface implements Iterable<BlockPos> {
         }
     }
 
-    public Text text() {
-        return TextHelper.empty();
+    public Text info(UUID uuid) {
+        return I18n.t(uuid, "rcutil.info.interface.detail", name, base, world, size);
     }
 
     @Override

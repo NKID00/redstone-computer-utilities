@@ -84,7 +84,7 @@ public class ScriptApi {
         if (ScriptManager.nameExists(script)) {
             throw ResponseException.NAME_EXISTS;
         }
-        return ScriptManager.registerScript(new Script(script, description, permissionLevel), clientAddress);
+        return ScriptManager.createScript(script, description, permissionLevel, clientAddress);
     }
 
     public static void deregisterScript(String authKey) throws ResponseException {

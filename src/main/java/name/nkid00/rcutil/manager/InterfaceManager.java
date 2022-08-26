@@ -21,6 +21,7 @@ import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
 import name.nkid00.rcutil.model.Interface;
+import net.minecraft.text.Text;
 
 public class InterfaceManager {
     private static ConcurrentHashMap<String, Interface> interfaces = new ConcurrentHashMap<>();
@@ -33,7 +34,7 @@ public class InterfaceManager {
         return interfaces.containsKey(name);
     }
 
-    public static Interface tryNewinterface(String name, UUID uuid, Collection<String> options)
+    public static Interface tryCreate(String name, UUID uuid, Collection<String> options)
             throws BlockNotTargetException {
         var selection = SelectionManager.selection(uuid);
         var world = selection.world;
@@ -41,7 +42,7 @@ public class InterfaceManager {
         var msb = selection.msb;
         TargetBlockHelper.check(world, lsb, I18n.t(uuid, "rcutil.select.not_target_block"));
         TargetBlockHelper.check(world, msb, I18n.t(uuid, "rcutil.select.not_target_block"));
-        var interfaze = Interface.resolve(world, lsb, msb);
+        var interfaze = Interface.resolve(name, world, lsb, msb);
         if (interfaze == null) {
             return null;
         }
@@ -49,10 +50,27 @@ public class InterfaceManager {
         return interfaze;
     }
 
+    public static Interface remove(String name) {
+        return interfaces.remove(name);
+    }
+
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
             final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(interfaces, builder::suggest);
         return builder.buildFuture();
+    }
+
+    public static int size() {
+        return interfaces.size();
+    }
+
+    public static Text info(UUID uuid) {
+        if (size() == 0) {
+            return I18n.t(uuid, "rcutil.info.interface.empty");
+        } else {
+            return I18n.t(uuid, "rcutil.info.interface", size(),
+                    String.join(", ", interfaces.keySet().toArray(new String[0])));
+        }
     }
 
     public static void load(JsonReader reader, Gson gson) {

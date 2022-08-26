@@ -9,8 +9,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import name.nkid00.rcutil.Options;
 import name.nkid00.rcutil.command.Rcu;
 import name.nkid00.rcutil.command.RcuInfo;
-import name.nkid00.rcutil.command.RcuInfoInterface;
-import name.nkid00.rcutil.command.RcuInfoScript;
 import name.nkid00.rcutil.command.RcuLang;
 import name.nkid00.rcutil.command.RcuNew;
 import name.nkid00.rcutil.command.RcuReload;
@@ -43,26 +41,22 @@ public class CommandManager {
                         .then(argument("interface name...", StringArgumentType.greedyString())
                                 .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
                                 .executes(RcuRemove::execute))));
-        // /rcu info
-        dispatcher.register(literal("rcu")
-                .then(literal("info")
-                        .executes(RcuInfo::execute)));
         // /rcu info interface [interface name...]
         dispatcher.register(literal("rcu")
                 .then(literal("info")
                         .then(literal("interface")
-                                .executes(RcuInfoInterface::execute)
+                                .executes(RcuInfo::executeInterface)
                                 .then(argument("interface name...", StringArgumentType.greedyString())
                                         .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
-                                        .executes(RcuInfoInterface::execute)))));
+                                        .executes(RcuInfo::executeInterfaceDetail)))));
         // /rcu info script [script name...]
         dispatcher.register(literal("rcu")
                 .then(literal("info")
                         .then(literal("script")
-                                .executes(RcuInfoScript::execute)
+                                .executes(RcuInfo::executeScript)
                                 .then(argument("script name...", StringArgumentType.greedyString())
                                         .suggests(ArgumentHelper.uniqueMulti(ScriptManager::getSuggestions))
-                                        .executes(RcuInfoScript::execute)))));
+                                        .executes(RcuInfo::executeScriptDetail)))));
         // /rcu run <script name> [argument...]
         dispatcher.register(literal("rcu")
                 .then(literal("run")
@@ -81,9 +75,9 @@ public class CommandManager {
         // /rcu lang <language>
         dispatcher.register(literal("rcu")
                 .then(literal("lang")
-                        .executes(RcuLang::execute)
+                        .executes(RcuLang::executeGet)
                         .then(argument("language", StringArgumentType.word())
                                 .suggests(LanguageManager::getSuggestions)
-                                .executes(RcuLang::execute))));
+                                .executes(RcuLang::executeSet))));
     }
 }

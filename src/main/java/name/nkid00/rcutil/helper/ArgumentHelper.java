@@ -30,7 +30,14 @@ public class ArgumentHelper {
     private static LinkedList<String> parseMulti(String greedyString) throws CommandSyntaxException {
         var reader = anyUnquotedStringReader(greedyString);
         var result = new LinkedList<String>();
+        var watchdogCursor = -1;
         while (reader.canRead()) {
+            if (reader.getCursor() == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
+                break;
+            } else {
+                watchdogCursor = reader.getCursor();
+            }
             reader.skipWhitespace();
             if (!reader.canRead()) {
                 break;
@@ -52,7 +59,14 @@ public class ArgumentHelper {
     private static LinkedList<String> parseMultiInternal(String greedyString) throws CommandSyntaxException {
         var reader = anyUnquotedStringReader(greedyString);
         var result = new LinkedList<String>();
+        var watchdogCursor = -1;
         while (reader.canRead()) {
+            if (reader.getCursor() == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
+                break;
+            } else {
+                watchdogCursor = reader.getCursor();
+            }
             reader.skipWhitespace();
             if (!reader.canRead()) {
                 result.add("");
@@ -66,7 +80,14 @@ public class ArgumentHelper {
     private static LinkedList<String> parseMultiInternalSuppress(String greedyString) {
         var reader = anyUnquotedStringReader(greedyString);
         var result = new LinkedList<String>();
+        var watchdogCursor = -1;
         while (reader.canRead()) {
+            if (reader.getCursor() == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
+                break;
+            } else {
+                watchdogCursor = reader.getCursor();
+            }
             reader.skipWhitespace();
             if (!reader.canRead()) {
                 result.add("");
@@ -84,9 +105,16 @@ public class ArgumentHelper {
     }
 
     private static int splitLast(String greedyString) {
-        var reader = new StringReader(greedyString);
-        int cursor = 0;
+        var reader = anyUnquotedStringReader(greedyString);
+        var cursor = 0;
+        var watchdogCursor = -1;
         while (reader.canRead()) {
+            if (reader.getCursor() == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
+                break;
+            } else {
+                watchdogCursor = reader.getCursor();
+            }
             cursor = reader.getCursor() + 1;
             reader.skipWhitespace();
             if (!reader.canRead()) {
