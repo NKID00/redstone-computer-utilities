@@ -2,6 +2,9 @@ package name.nkid00.rcutil.model;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import name.nkid00.rcutil.helper.TextHelper;
+import net.minecraft.text.Text;
+
 public class Script {
     public String name;
     public String description;
@@ -28,6 +31,10 @@ public class Script {
         } else {
             return script.authKey == null;
         }
+    }
+
+    public Text text() {
+        return TextHelper.empty();
     }
 
     public String callback(String event) {

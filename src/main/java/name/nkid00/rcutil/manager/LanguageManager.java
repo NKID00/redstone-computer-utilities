@@ -120,6 +120,9 @@ public class LanguageManager {
     }
 
     public static String langCode(UUID uuid) {
+        if (uuid == null) {
+            return Language.DEFAULT_LANGUAGE;
+        }
         return playerLanguages.computeIfAbsent(uuid, _uuid -> Language.DEFAULT_LANGUAGE);
     }
 

@@ -3,7 +3,7 @@ package name.nkid00.rcutil.helper;
 import java.util.UUID;
 
 import name.nkid00.rcutil.manager.LanguageManager;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -34,35 +34,35 @@ public class I18n {
         return s(LanguageManager.languageOrDefault(uuid), key, args);
     }
 
-    public static void overlay(PlayerEntity player, Text message) {
+    public static void overlay(ServerPlayerEntity player, Text message) {
         player.sendMessage(message, true);
     }
 
-    public static void overlay(PlayerEntity player, String key, Object... args) {
+    public static void overlay(ServerPlayerEntity player, String key, Object... args) {
         overlay(player, t(player.getUuid(), key, args));
     }
 
-    public static void overlayError(PlayerEntity player, Text message) {
-        overlay(player, Text.empty().append(message).formatted(Formatting.RED));
+    public static void overlayError(ServerPlayerEntity player, Text message) {
+        overlay(player, TextHelper.formatted(message, Formatting.RED));
     }
 
-    public static void overlayError(PlayerEntity player, String key, Object... args) {
+    public static void overlayError(ServerPlayerEntity player, String key, Object... args) {
         overlayError(player, t(player.getUuid(), key, args));
     }
 
-    public static void send(PlayerEntity player, Text message) {
+    public static void send(ServerPlayerEntity player, Text message) {
         player.sendMessage(message);
     }
 
-    public static void send(PlayerEntity player, String key, Object... args) {
+    public static void send(ServerPlayerEntity player, String key, Object... args) {
         send(player, t(player.getUuid(), key, args));
     }
 
-    public static void sendError(PlayerEntity player, Text message) {
-        send(player, Text.empty().append(message).formatted(Formatting.RED));
+    public static void sendError(ServerPlayerEntity player, Text message) {
+        send(player, TextHelper.formatted(message, Formatting.RED));
     }
 
-    public static void sendError(PlayerEntity player, String key, Object... args) {
+    public static void sendError(ServerPlayerEntity player, String key, Object... args) {
         sendError(player, t(player.getUuid(), key, args));
     }
 }

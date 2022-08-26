@@ -7,13 +7,25 @@ import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.DataHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
+import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.util.Enumerate;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-public record Interface(ServerWorld world, BlockPos base, Vec3i gap, int size)
-        implements Iterable<BlockPos> {
+public class Interface implements Iterable<BlockPos> {
+    private ServerWorld world;
+    private BlockPos base;
+    private Vec3i gap;
+    private int size;
+
+    public Interface(ServerWorld world, BlockPos base, Vec3i gap, int size) {
+        this.world = world;
+        this.base = base;
+        this.gap = gap;
+        this.size = size;
+    }
 
     public static Interface resolve(ServerWorld world, BlockPos lsb, BlockPos msb) {
         return resolve(world, lsb, null, msb);
@@ -100,6 +112,10 @@ public record Interface(ServerWorld world, BlockPos base, Vec3i gap, int size)
         for (var pos : new Enumerate<>(this)) {
             TargetBlockHelper.writeDigital(world, pos.item(), bits.get(pos.index()));
         }
+    }
+
+    public Text text() {
+        return TextHelper.empty();
     }
 
     @Override

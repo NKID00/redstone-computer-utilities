@@ -5,6 +5,7 @@ import name.nkid00.rcutil.helper.BlockPosHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -23,10 +24,10 @@ public class WandManager {
         var uuid = player.getUuid();
         if (TargetBlockHelper.is((ServerWorld) world, pos)) {
             SelectionManager.selectMsb(uuid, pos, (ServerWorld) world);
-            I18n.overlay(player, "rcutil.select.msb", BlockPosHelper.toString(pos),
+            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.msb", BlockPosHelper.toString(pos),
                     world.getRegistryKey().getValue().toString());
         } else {
-            I18n.overlayError(player, "rcutil.select.not_target_block");
+            I18n.overlayError((ServerPlayerEntity) player, "rcutil.select.not_target_block");
         }
         return ActionResult.FAIL;
     }
@@ -40,10 +41,10 @@ public class WandManager {
         var uuid = player.getUuid();
         if (TargetBlockHelper.is((ServerWorld) world, pos)) {
             SelectionManager.selectLsb(uuid, pos, (ServerWorld) world);
-            I18n.overlay(player, "rcutil.select.lsb", BlockPosHelper.toString(pos),
+            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.lsb", BlockPosHelper.toString(pos),
                     world.getRegistryKey().getValue().toString());
         } else {
-            I18n.overlayError(player, "rcutil.select.not_target_block");
+            I18n.overlayError((ServerPlayerEntity) player, "rcutil.select.not_target_block");
         }
         return ActionResult.FAIL;
     }

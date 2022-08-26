@@ -1,11 +1,19 @@
 package name.nkid00.rcutil.helper;
 
+import java.util.UUID;
+
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.rcon.RconCommandOutput;
 
 public class CommandHelper {
+    private static final SimpleCommandExceptionType NOT_PLAYER_ENTITY_EXCEPTION = new SimpleCommandExceptionType(
+            I18n.t("rcutil.command.fail.not_player_entity"));
+
     public static boolean isLetterDigitUnderline(char c) {
         return Character.isLetterOrDigit(c) || c == '_';
     }
@@ -30,5 +38,21 @@ public class CommandHelper {
 
     public static boolean isConsole(ServerCommandSource s) {
         return s.output == s.server || s.output instanceof RconCommandOutput;
+    }
+
+    public static UUID uuidOrNull(ServerCommandSource s) {
+        var player = s.getPlayer();
+        if (player == null) {
+            return null;
+        }
+        return player.getUuid();
+    }
+
+    public static ServerPlayerEntity requirePlayer(ServerCommandSource s) throws CommandSyntaxException {
+        var player = s.getPlayer();
+        if (player == null) {
+            throw NOT_PLAYER_ENTITY_EXCEPTION.create();
+        }
+        return player;
     }
 }

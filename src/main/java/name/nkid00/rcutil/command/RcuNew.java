@@ -16,11 +16,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class RcuNew {
     public static int execute(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
-        var player = s.getPlayer();
-        if (player == null) {
-            s.sendError(I18n.t("rcutil.command.fail.not_player_entity"));
-            return 0;
-        }
+        var player = CommandHelper.requirePlayer(s);
         var uuid = player.getUuid();
         if (!SelectionManager.selected(uuid)) {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.not_selected"));
