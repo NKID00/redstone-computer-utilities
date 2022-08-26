@@ -41,16 +41,19 @@
 `/rcu remove <接口名...>`
 - 删除接口。
 
-`/rcu interface`
+`/rcu info`
+- 显示接口和外部程序信息。
+
+`/rcu info interface`
 - 显示接口信息。
 
-`/rcu interface <接口名...>`
+`/rcu info interface <接口名...>`
 - 显示指定接口详情。
 
-`/rcu script`
+`/rcu info script`
 - 显示外部程序信息。
 
-`/rcu script <外部程序名...>`
+`/rcu info script <外部程序名...>`
 - 显示指定外部程序详情。
 
 `/rcu run <外部程序名> [参数...]`（待开发）

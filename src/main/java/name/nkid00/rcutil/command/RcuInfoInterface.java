@@ -9,7 +9,7 @@ import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import net.minecraft.server.command.ServerCommandSource;
 
-public class RcuInterface {
+public class RcuInfoInterface {
     public static int execute(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
         var uuid = CommandHelper.uuidOrNull(s);

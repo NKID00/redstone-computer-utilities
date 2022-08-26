@@ -8,13 +8,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 
 import name.nkid00.rcutil.Options;
 import name.nkid00.rcutil.command.Rcu;
-import name.nkid00.rcutil.command.RcuInterface;
+import name.nkid00.rcutil.command.RcuInfo;
+import name.nkid00.rcutil.command.RcuInfoInterface;
 import name.nkid00.rcutil.command.RcuLang;
 import name.nkid00.rcutil.command.RcuNew;
 import name.nkid00.rcutil.command.RcuReload;
 import name.nkid00.rcutil.command.RcuRemove;
 import name.nkid00.rcutil.command.RcuRun;
-import name.nkid00.rcutil.command.RcuScript;
+import name.nkid00.rcutil.command.RcuInfoScript;
 import name.nkid00.rcutil.helper.ArgumentHelper;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
@@ -42,20 +43,26 @@ public class CommandManager {
                         .then(argument("interface name...", StringArgumentType.greedyString())
                                 .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
                                 .executes(RcuRemove::execute))));
-        // /rcu interface [interface name...]
+        // /rcu info
         dispatcher.register(literal("rcu")
-                .then(literal("interface")
-                        .executes(RcuInterface::execute)
-                        .then(argument("interface name...", StringArgumentType.greedyString())
-                                .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
-                                .executes(RcuInterface::executeDetail))));
-        // /rcu script [script name...]
+                .then(literal("info")
+                        .executes(RcuInfo::execute)));
+        // /rcu info interface [interface name...]
         dispatcher.register(literal("rcu")
-                .then(literal("script")
-                        .executes(RcuScript::execute)
-                        .then(argument("script name...", StringArgumentType.greedyString())
-                                .suggests(ArgumentHelper.uniqueMulti(ScriptManager::getSuggestions))
-                                .executes(RcuScript::executeDetail))));
+                .then(literal("info")
+                        .then(literal("interface")
+                                .executes(RcuInfoInterface::execute)
+                                .then(argument("interface name...", StringArgumentType.greedyString())
+                                        .suggests(ArgumentHelper.uniqueMulti(InterfaceManager::getSuggestions))
+                                        .executes(RcuInfoInterface::executeDetail)))));
+        // /rcu info script [script name...]
+        dispatcher.register(literal("rcu")
+                .then(literal("info")
+                        .then(literal("script")
+                                .executes(RcuInfoScript::execute)
+                                .then(argument("script name...", StringArgumentType.greedyString())
+                                        .suggests(ArgumentHelper.uniqueMulti(ScriptManager::getSuggestions))
+                                        .executes(RcuInfoScript::executeDetail)))));
         // /rcu run <script name> [argument...]
         dispatcher.register(literal("rcu")
                 .then(literal("run")

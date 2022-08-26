@@ -41,16 +41,19 @@ All commands provided by the mod require at least permission level 2 (configurab
 `/rcu remove <interface name...>`
 - Remove the interface(s).
 
-`/rcu interface`
+`/rcu info`
+- Display information about interfaces and scripts.
+
+`/rcu info interface`
 - Display information about interfaces.
 
-`/rcu interface <interface name...>`
+`/rcu info interface <interface name...>`
 - Display the detail of the interface(s).
 
-`/rcu script`
+`/rcu info script`
 - Display information about scripts.
 
-`/rcu script <script name...>`
+`/rcu info script <script name...>`
 - Display the detail of the script(s).
 
 `/rcu run <script name> [argument...]` (WIP)
