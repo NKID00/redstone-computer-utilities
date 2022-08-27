@@ -60,8 +60,6 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
-
-    exclude "assets/rcutil/icon.kra"
 }
 
 tasks.withType(JavaCompile).configureEach {
