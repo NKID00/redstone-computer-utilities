@@ -13,7 +13,7 @@
 - Supports redstone wires in any sizes and shapes from horizontal, vertical to even diagonal ones
 - Built-in English and Simplified Chinese translations
 - Server-side-only implementation, fully compatible with vanilla clients
-<!-- - Support gametick speed controls, step and pause implemented by any other mods -->
+- Compatible with tick speed controlling, stepping and pausing implemented by other mods
 
 ## Installation
 
@@ -23,7 +23,18 @@ Only server-side installation is required for multiplayer and client-side instal
 
 Python 3.6 or newer is required to use the provided Python library.
 
-## Usage
+## Basic Usage
+
+1. Execute `/rcu` to receive a wand item (or get a pink dye by yourself).
+2. Attach target blocks to redstone wires of your redstone mechanics to be debugged.
+3. Left click with the wand item to select the most significant bit, right click to select the least significant bit.
+4. Execute `/rcu new <interface name>` to create a interface.
+5. Write debugging program and wrap it as a script.
+6. Execute `/rcu run <script name> <interface name>` to run the script.
+
+You may also accelerate tick speed if it takes too long.
+
+## Details
 
 ### Interfaces
 
@@ -53,13 +64,13 @@ All commands provided by the mod require at least permission level 2 (configurab
 - Display information about interfaces.
 
 `/rcu info interface <interface name...>`
-- Display the detail of the interface(s).
+- Display detailed information of the interface(s).
 
 `/rcu info script`
 - Display information about scripts.
 
 `/rcu info script <script name...>`
-- Display the detail of the script(s).
+- Display detailed information of the script(s).
 
 `/rcu run <script name> [argument...]` (WIP)
 - Run the script with the arguments. Arguments may be interface names, script names or any other strings.
@@ -91,12 +102,13 @@ To extract translation keys, Java and GNU gettext are required. Run the followin
 $ ./gradlew extract
 ```
 
-Extracted translation keys are located in `build/messages.json`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities).
+Extracted translation keys are located in `build/messages.po`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities).
 
-To convert translations into Minecraft-compatible json format, run the following command:
+To convert translations to or from Minecraft-compatible json format, run the following command:
 
 ```sh
 $ python po2minecraft.py path/to/messages.po path/to/messages.json
+$ python minecraft2po.py path/to/messages.json path/to/messages.po
 ```
 
 ## Credits
