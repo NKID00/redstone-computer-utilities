@@ -1,5 +1,7 @@
 ## ❗ `dev` branch is under heavy development and is far from stable yet. Switch to `master` branch to receive a more stable (and with less capabilities) version of the mod.
 
+<img src="./src/main/resources/assets/rcutil/icon.png" alt="icon" align="right" height="175">
+
 # Redstone Computer Utilities
 
 >  Lightweight and Modular Redstone Computer Debugging Tools. 

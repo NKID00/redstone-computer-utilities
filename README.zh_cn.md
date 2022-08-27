@@ -1,5 +1,7 @@
 ## ❗ `dev` 分支正在开发中，极不稳定。`master` 分支是更稳定（但功能更少）的版本。
 
+<img src="./src/main/resources/assets/rcutil/icon.png" alt="icon" align="right" height="175">
+
 # Redstone Computer Utilities
 
 >  轻量级模块化红石计算机调试工具。
