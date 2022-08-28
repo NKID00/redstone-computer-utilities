@@ -3,6 +3,7 @@ package name.nkid00.rcutil.io;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,12 +25,15 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
     private static final ByteBuf INVALID_REQUEST_RESPONSE = Unpooled.wrappedBuffer("""
             {"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}"""
             .getBytes(StandardCharsets.UTF_8));
-    public ConcurrentHashMap<String, Promise<JsonObject>> responsePromises = new ConcurrentHashMap<>();
+    public ConcurrentLinkedDeque<String> callbackRequestIds = new ConcurrentLinkedDeque<>();
+    public ConcurrentHashMap<String, Promise<UnblockResult>> unblockPromises = new ConcurrentHashMap<>();
+    public Promise<UnblockResult> fallbackUnblockPromise;
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         addr = ctx.channel().remoteAddress().toString();
         ScriptServerIO.connections.put(addr, ctx);
+        fallbackUnblockPromise = ctx.executor().newPromise();
         Log.info("{} connected", addr);
     }
 
@@ -47,7 +51,7 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ScriptServerIO.connections.remove(addr);
-        for (var promise : responsePromises.values()) {
+        for (var promise : unblockPromises.values()) {
             promise.trySuccess(null);
         }
         Log.info("{} disconnected", addr);
@@ -73,11 +77,20 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
                 INVALID_REQUEST_RESPONSE.retain();
                 ctx.writeAndFlush(INVALID_REQUEST_RESPONSE);
             } else if (msg.has("method")) {
-                ctx.writeAndFlush(ScriptServerIO.handleRequest(msg, addr));
+                if (callbackRequestIds.isEmpty()) {
+                    fallbackUnblockPromise.trySuccess(UnblockResult.Request(
+                            msg, addr, ctx.executor().newPromise()));
+                } else {
+                    var id = callbackRequestIds.getFirst();
+                    if (unblockPromises.containsKey(id)) {
+                        unblockPromises.get(id).trySuccess(UnblockResult.Request(
+                                msg, addr, ctx.executor().newPromise()));
+                    }
+                }
             } else if (msg.has("result") || msg.has("error")) {
                 var id = msg.get("id").getAsString();
-                if (responsePromises.containsKey(id)) {
-                    responsePromises.get(id).trySuccess(msg);
+                if (unblockPromises.containsKey(id)) {
+                    unblockPromises.get(id).trySuccess(UnblockResult.Response(msg));
                 }
             } else {
                 INVALID_REQUEST_RESPONSE.retain();

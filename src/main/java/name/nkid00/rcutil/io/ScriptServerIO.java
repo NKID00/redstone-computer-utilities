@@ -28,7 +28,9 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.util.concurrent.Promise;
 import name.nkid00.rcutil.Options;
 import name.nkid00.rcutil.helper.Log;
+import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.script.ScriptApi;
+import net.minecraft.server.MinecraftServer;
 
 public class ScriptServerIO {
     private static MultithreadEventLoopGroup group;
@@ -38,13 +40,14 @@ public class ScriptServerIO {
     private static Channel serverChannel;
     private static AtomicLong id = new AtomicLong(0);
     public static ConcurrentHashMap<String, ChannelHandlerContext> connections = new ConcurrentHashMap<>();
+    public static MinecraftServer server;
 
-    public static void init() {
+    public static void init(MinecraftServer server) {
         address = null;
         port = Options.port();
         if (Options.localhostOnly()) {
             address = InetAddress.getLoopbackAddress();
-            Log.info("Strarting script server on localhost:{}", port);
+            Log.info("Starting script server on localhost:{}", port);
         } else {
             if (!Options.host().isEmpty()) {
                 try {
@@ -52,7 +55,7 @@ public class ScriptServerIO {
                 } catch (UnknownHostException e) {
                 }
             }
-            Log.info("Strarting script server on {}:{}", address == null ? "*" : address.getHostAddress(), port);
+            Log.info("Starting script server on {}:{}", address == null ? "*" : address.getHostAddress(), port);
         }
         bootstrap = new ServerBootstrap();
         var threadFactory = new ThreadFactoryBuilder()
@@ -79,13 +82,14 @@ public class ScriptServerIO {
         });
         bootstrap.childOption(ChannelOption.TCP_NODELAY, true);
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
+        ScriptServerIO.server = server;
     }
 
-    public static void start() {
+    public static void start(MinecraftServer server) {
         serverChannel = bootstrap.bind(address, port).syncUninterruptibly().channel();
     }
 
-    public static void stop() {
+    public static void stop(MinecraftServer server) {
         Log.info("Stopping script server");
         serverChannel.close().syncUninterruptibly();
         group.shutdownGracefully().syncUninterruptibly();
@@ -102,7 +106,7 @@ public class ScriptServerIO {
             response.add("result", ScriptApi.dispatch(
                     request.get("method").getAsString(),
                     request.get("params").getAsJsonObject(),
-                    clientAddress));
+                    clientAddress, server));
         } catch (ResponseException e) {
             return e.toResponse(id);
         } catch (IllegalStateException | ClassCastException | NullPointerException e) {
@@ -116,17 +120,33 @@ public class ScriptServerIO {
     private static JsonElement send(JsonObject request, String clientAddress) throws ResponseException, IOException {
         var id = request.get("id").getAsString();
         var ctx = connections.get(clientAddress);
-        Promise<JsonObject> promise = ctx.executor().newPromise();
+        Promise<UnblockResult> promise = ctx.executor().newPromise();
         var handler = (ScriptServerIOHandler) ctx.handler();
-        handler.responsePromises.put(id, promise);
+        handler.unblockPromises.put(id, promise);
+        handler.callbackRequestIds.addFirst(id);
         ctx.writeAndFlush(request).syncUninterruptibly();
-        // Log.info("send1"); // TODO: remove
-        var response = promise.syncUninterruptibly().getNow();
-        // Log.info("send2"); // TODO: remove
-        handler.responsePromises.remove(id);
-        if (response == null) {
-            return null;
-        } else if (response.has("error")) {
+        UnblockResult result;
+        while (true) {
+            if (!promise.awaitUninterruptibly(Options.timeoutMillis())) {
+                Log.error("Communication timed out, disconnected");
+                ctx.close();
+                return null;
+            }
+            result = promise.getNow();
+            if (result == null) {
+                return null;
+            } else if (result.isRequest()) {
+                promise = result.nextPromise();
+                handler.unblockPromises.put(id, promise);
+                ctx.writeAndFlush(handleRequest(result.msg(), result.addr()));
+                continue;
+            }
+            break;
+        }
+        handler.unblockPromises.remove(id);
+        handler.callbackRequestIds.removeFirst();
+        JsonObject response = result.msg();
+        if (response.has("error")) {
             throw ResponseException.fromResponse(response);
         } else {
             return response.get("result");
@@ -145,5 +165,17 @@ public class ScriptServerIO {
             Log.error("IOException caught");
             return null;
         }
+    }
+
+    public static void sync() {
+        MapHelper.forEachValueSynchronized(connections, ctx -> {
+            var handler = (ScriptServerIOHandler) ctx.handler();
+            var promise = handler.fallbackUnblockPromise;
+            if (promise.isDone()) {
+                var result = promise.getNow();
+                handler.fallbackUnblockPromise = result.nextPromise();
+                ctx.writeAndFlush(handleRequest(result.msg(), result.addr()));
+            }
+        });
     }
 }

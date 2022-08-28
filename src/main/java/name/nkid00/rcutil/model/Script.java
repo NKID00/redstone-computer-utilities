@@ -12,7 +12,7 @@ public class Script {
     public final int permissionLevel;
     public final String authKey;
     public final String clientAddress;
-    public final ConcurrentHashMap<String, String> callbacks = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Event, String> callbacks = new ConcurrentHashMap<>();
 
     public Script(String name, String description, int permissionLevel, String authKey, String clientAddress) {
         this.name = name;
@@ -22,18 +22,25 @@ public class Script {
         this.clientAddress = clientAddress;
     }
 
-    public boolean equals(Script script) {
-        if (this == script) {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (!name.equals(script.name)) {
+        if (obj == null) {
             return false;
         }
-        if (authKey != null) {
-            return authKey.equals(script.authKey);
-        } else {
-            return script.authKey == null;
+        if (obj instanceof Script) {
+            var other = (Script) obj;
+            if (name == null ? other.name != null : !name.equals(other.name)) {
+                return false;
+            }
+            if (authKey == null ? other.authKey != null : !authKey.equals(other.authKey)) {
+                return false;
+            }
+            return true;
         }
+        return false;
     }
 
     public Text info(UUID uuid) {
@@ -47,19 +54,19 @@ public class Script {
         }
     }
 
-    public String callback(String event) {
+    public String callback(Event event) {
         return callbacks.get(event);
     }
 
-    public boolean callbackExists(String event) {
+    public boolean callbackExists(Event event) {
         return callbacks.containsKey(event);
     }
 
-    public void registerCallback(String event, String callback) {
+    public void registerCallback(Event event, String callback) {
         callbacks.put(event, callback);
     }
 
-    public void deregisterCallback(String event) {
+    public void deregisterCallback(Event event) {
         callbacks.remove(event);
     }
 }

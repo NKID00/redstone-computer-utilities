@@ -4,14 +4,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import name.nkid00.rcutil.helper.BitSetHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.GametimeHelper;
+import name.nkid00.rcutil.helper.Log;
+import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.io.ResponseException;
+import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.ScriptManager;
+import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Script;
+import net.minecraft.server.MinecraftServer;
 
 public class ScriptApi {
-    public static JsonElement dispatch(String method, JsonObject params, String clientAddress)
+    public static JsonElement dispatch(String method, JsonObject params, String clientAddress, MinecraftServer server)
             throws ResponseException {
         if (method.equals("registerScript")) {
             return new JsonPrimitive(registerScript(
@@ -37,14 +43,24 @@ public class ScriptApi {
             case "invokeScript":
                 break;
             case "registerCallback":
-                registerCallback(script,
-                        params.get("event").getAsString(),
-                        params.get("callback").getAsString());
-                return null;
-            case "deregisterCallback":
-                deregisterCallback(script,
-                        params.get("event").getAsString());
-                return null;
+            case "deregisterCallback": {
+                var eventJsonObject = params.get("event").getAsJsonObject();
+                var name = eventJsonObject.get("name").getAsString();
+                var param = eventJsonObject.get("param");
+                var callback = params.get("callback").getAsString();
+                var event = Event.fromRequest(name, param);
+                if (event == null) {
+                    throw ResponseException.EVENT_NOT_FOUND;
+                }
+                switch (method) {
+                    case "registerCallback":
+                        registerCallback(script, event, callback);
+                        return null;
+                    case "deregisterCallback":
+                        deregisterCallback(script, event);
+                        return null;
+                }
+            }
             case "listCallback":
                 break;
             case "invokeCallback":
@@ -52,23 +68,51 @@ public class ScriptApi {
             case "newInterface":
                 break;
             case "removeInterface":
-                break;
             case "listInterface":
-                break;
             case "infoInterface":
-                break;
             case "readInterface":
-                break;
-            case "writeInterface":
+            case "writeInterface": {
+                var interfaze = InterfaceManager.interfaze(params.get("interface").getAsString());
+                if (interfaze == null) {
+                    throw ResponseException.INTERFACE_NOT_FOUND;
+                }
+                switch (method) {
+                    case "removeInterface":
+                        break;
+                    case "listInterface":
+                        break;
+                    case "infoInterface":
+                        break;
+                    case "readInterface":
+                        return new JsonPrimitive(BitSetHelper.toBase64(interfaze.readSuppress()));
+                    case "writeInterface":
+                        interfaze.writeSuppress(BitSetHelper.fromBase64(params.get("data").getAsString()));
+                        return null;
+                }
+            }
                 break;
             case "gametime":
                 return new JsonPrimitive(gametime());
-            case "info":
-                break;
-            case "warn":
-                break;
-            case "error":
-                break;
+            case "info": {
+                var message = params.get("message").getAsString();
+                Log.info("({}) {}", script.name, message);
+                Log.broadcastToOps(server, "(%s/INFO) %s".formatted(script.name, message));
+                return null;
+            }
+            case "warn": {
+                var message = params.get("message").getAsString();
+                Log.warn("({}) {}", script.name, message);
+                Log.broadcastToOps(server, TextHelper.warn(TextHelper.literal(
+                        "(%s/WARN) %s".formatted(script.name, message))));
+                return null;
+            }
+            case "error": {
+                var message = params.get("message").getAsString();
+                Log.error("({}) {}", script.name, message);
+                Log.broadcastToOps(server, TextHelper.error(TextHelper.literal(
+                        "(%s/ERROR) %s".formatted(script.name, message))));
+                return null;
+            }
         }
         throw ResponseException.METHOD_NOT_FOUND;
     }
@@ -91,20 +135,15 @@ public class ScriptApi {
         ScriptManager.deregisterScript(authKey);
     }
 
-    public static void registerCallback(Script script, String event, String callback) throws ResponseException {
-        if (!ScriptEventCallback.eventValid(event)) {
-            throw ResponseException.EVENT_NOT_FOUND;
-        }
+    public static void registerCallback(Script script, Event event, String callback)
+            throws ResponseException {
         if (script.callbackExists(event)) {
             throw ResponseException.EVENT_CALLBACK_ALREADY_REGISTERED;
         }
         ScriptEventCallback.registerCallback(script, event, callback);
     }
 
-    public static void deregisterCallback(Script script, String event) throws ResponseException {
-        if (!ScriptEventCallback.eventValid(event)) {
-            throw ResponseException.EVENT_NOT_FOUND;
-        }
+    public static void deregisterCallback(Script script, Event event) throws ResponseException {
         if (!script.callbackExists(event)) {
             throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
         }

@@ -24,4 +24,16 @@ public class TextHelper {
     public static MutableText formatted(Text text, Formatting formatting) {
         return empty().append(text).formatted(formatting);
     }
+
+    public static MutableText info(Text text) {
+        return text.copy();
+    }
+
+    public static MutableText warn(Text text) {
+        return formatted(text, Formatting.YELLOW);
+    }
+
+    public static MutableText error(Text text) {
+        return formatted(text, Formatting.RED);
+    }
 }

@@ -157,7 +157,7 @@
         {
             "name": "registerCallback",
             "summary": "Register the event callback.",
-            "description": "Only one callback can be registered for the same event within the script.",
+            "description": "Only one callback can be registered for the same event with the same param within the script.",
             "tags": [
                 {
                     "name": "EventCallback"
@@ -637,10 +637,19 @@
             },
             "event": {
                 "name": "event",
-                "summary": "Name of the event.",
+                "summary": "Name and additional parameter of the event.",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "type": "object",
+                    "properties": {
+                        "name" : {
+                            "type": "string"
+                        },
+                        "param" : {
+                            "type": "any"
+                        }
+                    },
+                    "additionalProperties": false
                 }
             },
             "callback": {
@@ -679,13 +688,10 @@
             "data": {
                 "name": "data",
                 "summary": "Data to be read or written.",
-                "description": "Represented in a little-endian array of 32 bit integers.",
+                "description": "In little-endian bytes encoded with base64.",
                 "required": true,
                 "schema": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 }
             },
             "message": {

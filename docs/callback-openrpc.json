@@ -372,13 +372,10 @@
             "data": {
                 "name": "data",
                 "summary": "Data to be read or written.",
-                "description": "Represented in a little-endian array of 32 bit integers.",
+                "description": "In little-endian bytes encoded with base64.",
                 "required": true,
                 "schema": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 }
             },
             "message": {

@@ -85,14 +85,19 @@ public class ResponseException extends Exception {
         return id;
     }
 
-    public boolean equals(ResponseException e) {
-        if (this == e) {
-                return true;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return e.code == code;
-    }
-
-    public boolean equals(JsonObject response) {
-        return equals(ResponseException.fromResponse(response));
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof ResponseException) {
+            return ((ResponseException) obj).code == code;
+        } else if (obj instanceof JsonObject) {
+            return ResponseException.fromResponse((JsonObject) obj).code == code;
+        }
+        return false;
     }
 }

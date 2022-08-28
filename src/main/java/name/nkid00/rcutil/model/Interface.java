@@ -80,7 +80,7 @@ public class Interface implements Iterable<TargetBlockPos> {
         return true;
     }
 
-    public BitSet readData() throws BlockNotTargetException {
+    public BitSet read() throws BlockNotTargetException {
         var bits = new BitSet(size());
         for (var ipos : new Enumerate<>(this)) {
             bits.set(ipos.index(), ipos.item().readDigital());
@@ -88,9 +88,30 @@ public class Interface implements Iterable<TargetBlockPos> {
         return bits;
     }
 
-    public void writeData(BitSet bits) throws BlockNotTargetException {
+    public BitSet readSuppress() {
+        var bits = new BitSet(size());
         for (var ipos : new Enumerate<>(this)) {
-            ipos.item().writeDigital(bits.get(ipos.index()));
+            try {
+                bits.set(ipos.index(), ipos.item().readDigital());
+            } catch (BlockNotTargetException e) {
+                bits.set(ipos.index(), false);
+            }
+        }
+        return bits;
+    }
+
+    public void write(BitSet value) throws BlockNotTargetException {
+        for (var ipos : new Enumerate<>(this)) {
+            ipos.item().writeDigital(value.get(ipos.index()));
+        }
+    }
+
+    public void writeSuppress(BitSet value) {
+        for (var ipos : new Enumerate<>(this)) {
+            try {
+                ipos.item().writeDigital(value.get(ipos.index()));
+            } catch (BlockNotTargetException e) {
+            }
         }
     }
 
@@ -122,6 +143,30 @@ public class Interface implements Iterable<TargetBlockPos> {
 
     public TargetBlockPos[] toArray() {
         return toList().toArray(new TargetBlockPos[0]);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Interface) {
+            var other = (Interface) obj;
+            if (name == null ? other.name != null : !name.equals(other.name)) {
+                return false;
+            }
+            if (world == null ? other.world != null : !world.equals(other.world)) {
+                return false;
+            }
+            if (blocks == null ? other.blocks != null : !blocks.equals(other.blocks)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override

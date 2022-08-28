@@ -35,8 +35,8 @@ public class RCUtil implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register(CommandManager::init);
 
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> ScriptServerIO.init());
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> ScriptServerIO.start());
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> ScriptServerIO.stop());
+        ServerLifecycleEvents.SERVER_STARTING.register(ScriptServerIO::init);
+        ServerLifecycleEvents.SERVER_STARTED.register(ScriptServerIO::start);
+        ServerLifecycleEvents.SERVER_STOPPING.register(ScriptServerIO::stop);
     }
 }

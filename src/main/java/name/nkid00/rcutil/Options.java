@@ -38,6 +38,8 @@ public class Options {
     private Text wandItemHoverableText;
     @Expose
     private boolean localhostOnly = true;
+    @Expose
+    private long timeoutMillis = 3000;
 
     public static String host() {
         return instance.host;
@@ -61,6 +63,10 @@ public class Options {
 
     public static boolean localhostOnly() {
         return instance.localhostOnly;
+    }
+
+    public static long timeoutMillis() {
+        return instance.timeoutMillis;
     }
 
     public static void init(MinecraftServer server) {

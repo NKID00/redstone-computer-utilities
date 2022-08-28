@@ -99,6 +99,30 @@ public class Blocks implements Iterable<BlockPos> {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Blocks) {
+            var other = (Blocks) obj;
+            if (first == null ? other.first != null : !first.equals(other.first)) {
+                return false;
+            }
+            if (increment == null ? other.increment != null : !increment.equals(other.increment)) {
+                return false;
+            }
+            if (size != other.size) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public Iterator<BlockPos> iterator() {
         return new BlocksIterator();
     }
