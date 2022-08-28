@@ -1,15 +1,16 @@
 from collections import deque
 from importlib.metadata import version as _version
-from typing import Any, Deque, Dict, List, NoReturn
+from traceback import format_exc
+from typing import Any, NoReturn
 import asyncio
 
 from .script import Script
-from .io import MethodNotFoundError, _JsonRpcIO, ResponseError
+from .io import MethodNotFoundError, _JsonRpcIO
 from .cli import _cli_init, _wait, _info, _warn, _error
 
 __version__ = _version(__package__)
 
-_registered_scripts: List[Script] = []
+_registered_scripts: list[Script] = []
 
 
 def register_script(script: Script) -> None:
@@ -52,7 +53,7 @@ class EventTriggeredError(Exception):
 
 
 async def _run_async(host: str, port: int) -> None:
-    async def dispatch_request(method: str, params: Dict[str, Any]
+    async def dispatch_request(method: str, params: dict[str, Any]
                                ) -> Any:
         for script in _registered_scripts:
             try:
@@ -62,7 +63,7 @@ async def _run_async(host: str, port: int) -> None:
                 continue
         raise MethodNotFoundError()
 
-    tasks: Deque[asyncio.Task] = deque()
+    tasks: deque[asyncio.Task] = deque()
     task_added_event = asyncio.Event()
 
     async with _wait(f'Connecting to script server {host}:{port}'):
@@ -86,7 +87,7 @@ async def _run_async(host: str, port: int) -> None:
         while True:
             _done, _pending = await asyncio.wait(
                 tasks.copy(), return_when=asyncio.FIRST_EXCEPTION)
-            tasks_new: Deque[asyncio.Task] = deque()
+            tasks_new: deque[asyncio.Task] = deque()
             for task in tasks:
                 try:
                     task.result()
@@ -99,7 +100,7 @@ async def _run_async(host: str, port: int) -> None:
                         task_added_event_listener()))
                     continue
                 except asyncio.IncompleteReadError:
-                    _info('Disconnected')
+                    _warn('Disconnected')
                     raise
             tasks.clear()
             tasks.extend(tasks_new)
@@ -116,9 +117,10 @@ async def _run_async(host: str, port: int) -> None:
             script._set_io(io)  # pylint: disable=protected-access
             try:
                 await script._register()  # pylint: disable=protected-access
-            except ResponseError as exc:
+            except Exception:
                 _error(f'Error occurred while registering script '
-                       f'"{script.name}": {exc}')
+                       f'{script.name}')
+                _error(format_exc())
             else:
                 success_count += 1
                 _info(f'Script "{script.name}" is registered')

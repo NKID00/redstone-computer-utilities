@@ -1,13 +1,12 @@
 import json
 import sys
 import shlex
-from typing import Dict
 
 
 def main():
     source = sys.argv[1]
     target = sys.argv[2]
-    data: Dict[str, str] = {}
+    data: dict[str, str] = {}
     with open(source, 'r', encoding='utf-8') as f:
         msgid = ''
         for line in f.readlines():

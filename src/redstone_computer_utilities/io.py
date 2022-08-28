@@ -1,7 +1,8 @@
 from __future__ import annotations
 import asyncio
+from collections import deque
 import json
-from typing import Any, Awaitable, Callable, Deque, Dict, NoReturn, Optional
+from typing import Any, Awaitable, Callable, NoReturn, Optional
 
 
 class ResponseError(Exception):
@@ -13,13 +14,13 @@ class ResponseError(Exception):
         self._id = id_
 
     @classmethod
-    def from_response(cls, response: Dict[str, Any]) -> ResponseError:
+    def from_response(cls, response: dict[str, Any]) -> ResponseError:
         '''Convert json-rpc response dict to exception.'''
         error = response['error']
         return ResponseError(error['code'], error['message'],
                              response['id'])
 
-    def to_response(self, id_: Optional[str] = None) -> Dict[str, Any]:
+    def to_response(self, id_: Optional[str] = None) -> dict[str, Any]:
         '''Convert exception to json-rpc response dict.'''
         if id_ is None:
             id_ = self._id
@@ -59,19 +60,19 @@ class _JsonRpcIO:
 
     def __init__(self, reader: asyncio.StreamReader,
                  writer: asyncio.StreamWriter,
-                 request_handler: Callable[[str, Dict[str, Any]],
+                 request_handler: Callable[[str, dict[str, Any]],
                                            Awaitable[Optional[Any]]],
-                 tasks: Deque[asyncio.Task],
+                 tasks: deque[asyncio.Task],
                  task_added_event: asyncio.Event) -> None:
         self._reader = reader
         self._writer = writer
-        self._responses: Dict[str, Dict[str, Any]] = {}
+        self._responses: dict[str, dict[str, Any]] = {}
         self._request_handler = request_handler
-        self._response_events: Dict[str, asyncio.Event] = {}
+        self._response_events: dict[str, asyncio.Event] = {}
         self._tasks = tasks
         self._task_added_event = task_added_event
 
-    async def _write(self, data: Dict[str, Any]) -> None:
+    async def _write(self, data: dict[str, Any]) -> None:
         data_bytes = json.dumps(data, ensure_ascii=False, indent=None,
                                 separators=(',', ':')).encode('utf-8')
         await self._write_bytes(data_bytes)
@@ -82,7 +83,7 @@ class _JsonRpcIO:
         self._writer.write(frame)
         await self._writer.drain()
 
-    async def _dispatch_request(self, request: Dict[str, Any]
+    async def _dispatch_request(self, request: dict[str, Any]
                                 ) -> None:
         try:
             result = await self._request_handler(request['method'],
@@ -100,14 +101,14 @@ class _JsonRpcIO:
                         'id': request['id']}
         await self._write(response)
 
-    async def _dispatch_response(self, response: Dict[str, Any]
+    async def _dispatch_response(self, response: dict[str, Any]
                                  ) -> None:
         id_ = response.get('id')  # default is None
         if id_ is not None and id_ in self._response_events:
             self._responses[response['id']] = response
             self._response_events[id_].set()
 
-    async def _dispatch(self, data: Dict[str, Any]) -> None:
+    async def _dispatch(self, data: dict[str, Any]) -> None:
         if 'jsonrpc' not in data or data['jsonrpc'] != '2.0':
             await self._write_bytes(_JsonRpcIO.INVALID_REQUEST_RESPONSE)
         elif 'method' in data:
@@ -142,7 +143,7 @@ class _JsonRpcIO:
                 else:
                     await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
 
-    async def send(self, method: str, params: Dict[str, Any], id_: str
+    async def send(self, method: str, params: dict[str, Any], id_: str
                    ) -> Any:
         '''Send a request and receive the corresponding response. A
         ResponseError is raised when an error is received. An OverflowError is
