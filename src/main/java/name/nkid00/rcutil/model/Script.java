@@ -47,10 +47,14 @@ public class Script {
         if (description.isBlank()) {
             return I18n.t(uuid, "rcutil.info.script.detail", name,
                     I18n.t(uuid, "rcutil.info.script.no_description"), this.permissionLevel,
-                    String.join(", ", callbacks.keySet().toArray(new String[0])));
+                    String.join(", ", callbacks.keySet().stream()
+                            .map(event -> event.toString())
+                            .toList().toArray(new String[0])));
         } else {
             return I18n.t(uuid, "rcutil.info.script.detail", name, description, permissionLevel,
-                    String.join(", ", callbacks.keySet().toArray(new String[0])));
+                    String.join(", ", callbacks.keySet().stream()
+                            .map(event -> event.toString())
+                            .toList().toArray(new String[0])));
         }
     }
 
@@ -68,5 +72,10 @@ public class Script {
 
     public void deregisterCallback(Event event) {
         callbacks.remove(event);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

@@ -108,4 +108,13 @@ public abstract class Event {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        if (param == null) {
+            return name;
+        } else {
+            return "%s(%s)".formatted(name, param);
+        }
+    }
 }

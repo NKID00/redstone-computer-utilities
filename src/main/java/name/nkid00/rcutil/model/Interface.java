@@ -187,4 +187,9 @@ public class Interface implements Iterable<TargetBlockPos> {
             return new TargetBlockPos(world, iterator.next());
         }
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
