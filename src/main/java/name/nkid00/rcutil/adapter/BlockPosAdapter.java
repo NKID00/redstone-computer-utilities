@@ -7,7 +7,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
-import name.nkid00.rcutil.helper.BlockPosHelper;
+import name.nkid00.rcutil.helper.PosHelper;
 import net.minecraft.util.math.BlockPos;
 
 public class BlockPosAdapter extends TypeAdapter<BlockPos> {
@@ -18,7 +18,7 @@ public class BlockPosAdapter extends TypeAdapter<BlockPos> {
         if (value == null) {
             out.nullValue();
         } else {
-            VEC3I_ADAPTER.write(out, BlockPosHelper.toVec3i(value));
+            VEC3I_ADAPTER.write(out, PosHelper.toVec3i(value));
         }
     }
 
@@ -28,7 +28,7 @@ public class BlockPosAdapter extends TypeAdapter<BlockPos> {
             in.nextNull();
             return null;
         } else {
-            return BlockPosHelper.fromVec3i(VEC3I_ADAPTER.read(in));
+            return PosHelper.toBlockPos(VEC3I_ADAPTER.read(in));
         }
     }
 }

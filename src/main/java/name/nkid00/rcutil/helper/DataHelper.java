@@ -2,6 +2,8 @@ package name.nkid00.rcutil.helper;
 
 import java.util.BitSet;
 
+import net.minecraft.util.math.Vec3f;
+
 public class DataHelper {
     public static boolean isFloatIntegral(float v) {
         int vi = (int) v;
@@ -81,6 +83,17 @@ public class DataHelper {
         } else { // 300F < h && h <= 360F
             return new float[] { c + m, m, x + m };
         }
+    }
+
+    // 0 <= h <= 360, 0 <= s, v, r, g, b <= 1
+    public static Vec3f HSV2RGBVec3f(float h, float s, float v) {
+        var rgb = HSV2RGB(h, s, v);
+        return new Vec3f(rgb[0], rgb[1], rgb[2]);
+    }
+
+    // 0 <= v <= 1
+    public static float linearMap(float begin, float end, float v) {
+        return begin + (end - begin) * v;
     }
 
     public static int gcd(int a, int b) {

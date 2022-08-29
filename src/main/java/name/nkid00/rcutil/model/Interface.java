@@ -7,12 +7,15 @@ import java.util.List;
 import java.util.UUID;
 
 import name.nkid00.rcutil.exception.BlockNotTargetException;
-import name.nkid00.rcutil.helper.BlockPosHelper;
+import name.nkid00.rcutil.helper.PosHelper;
+import name.nkid00.rcutil.helper.DataHelper;
 import name.nkid00.rcutil.helper.I18n;
+import name.nkid00.rcutil.helper.ParticleHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
 import name.nkid00.rcutil.util.Blocks;
 import name.nkid00.rcutil.util.Enumerate;
 import name.nkid00.rcutil.util.TargetBlockPos;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -32,7 +35,7 @@ public class Interface implements Iterable<TargetBlockPos> {
     public Interface(String name, ServerWorld world, Blocks blocks) {
         this.name = name;
         this.world = world;
-        this.blocks = BlockPosHelper.copy(blocks);
+        this.blocks = PosHelper.copy(blocks);
     }
 
     public static Interface singleBit(String name, ServerWorld world, BlockPos pos) {
@@ -56,7 +59,7 @@ public class Interface implements Iterable<TargetBlockPos> {
             }
         }
         var second = msb;
-        for (var pos : new Blocks(BlockPosHelper.applyOffset(blocks.first(), blocks.increment()),
+        for (var pos : new Blocks(PosHelper.applyOffset(blocks.first(), blocks.increment()),
                 blocks.increment(), blocks.size() - 1)) {
             if (TargetBlockHelper.is(world, pos)) {
                 second = pos;
@@ -117,6 +120,21 @@ public class Interface implements Iterable<TargetBlockPos> {
 
     public Text info(UUID uuid) {
         return I18n.t(uuid, "rcutil.info.interface.detail", name, first(), size());
+    }
+
+    public void highlight(ServerPlayerEntity viewer) {
+        if (size() == 1) {
+            ParticleHelper.highlight(world, viewer, DataHelper.HSV2RGBVec3f(
+                304f, 1.0f, 1.0f), blocks.first());
+        } else {
+            for (var ipos : new Enumerate<>(this)) {
+                var v = ((float) ipos.index()) / (size() - 1);
+                ParticleHelper.highlight(world, viewer, DataHelper.HSV2RGBVec3f(
+                        DataHelper.linearMap(225f, 306f, v),
+                        DataHelper.linearMap(0.6f, 1.0f, v),
+                        1.0f), ipos.item());
+            }
+        }
     }
 
     public TargetBlockPos get(int index) {

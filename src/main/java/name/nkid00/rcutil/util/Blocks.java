@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.common.primitives.Ints;
 
-import name.nkid00.rcutil.helper.BlockPosHelper;
+import name.nkid00.rcutil.helper.PosHelper;
 import name.nkid00.rcutil.helper.DataHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -28,14 +28,14 @@ public class Blocks implements Iterable<BlockPos> {
             increment = null;
             size = 1;
         } else {
-            var offset = BlockPosHelper.getOffset(first, last);
+            var offset = PosHelper.getOffset(first, last);
             var nonzeroPositive = List.of(offset.getX(), offset.getY(), offset.getZ()).stream()
                     .filter(v -> v != 0)
                     .map(Math::abs)
                     .toList();
             var gcd = DataHelper.gcd(Ints.toArray(nonzeroPositive));
             this.first = first;
-            increment = BlockPosHelper.divide(offset, gcd);
+            increment = PosHelper.divide(offset, gcd);
             size = gcd + 1;
         }
     }
@@ -47,17 +47,17 @@ public class Blocks implements Iterable<BlockPos> {
             this.size = 1;
         } else if (second.equals(last)) {
             this.first = first;
-            increment = BlockPosHelper.getOffset(first, last);
+            increment = PosHelper.getOffset(first, last);
             this.size = 2;
         } else {
             this.first = first;
-            increment = BlockPosHelper.getOffset(first, second);
+            increment = PosHelper.getOffset(first, second);
             if (increment.getX() != 0) {
-                this.size = (BlockPosHelper.getOffset(first, last).getX() / increment.getX()) + 1;
+                this.size = (PosHelper.getOffset(first, last).getX() / increment.getX()) + 1;
             } else if (increment.getY() != 0) {
-                this.size = (BlockPosHelper.getOffset(first, last).getY() / increment.getY()) + 1;
+                this.size = (PosHelper.getOffset(first, last).getY() / increment.getY()) + 1;
             } else {
-                this.size = (BlockPosHelper.getOffset(first, last).getZ() / increment.getZ()) + 1;
+                this.size = (PosHelper.getOffset(first, last).getZ() / increment.getZ()) + 1;
             }
         }
     }
@@ -72,16 +72,16 @@ public class Blocks implements Iterable<BlockPos> {
         } else if (index == 0) {
             return first;
         } else {
-            return BlockPosHelper.applyOffset(first, BlockPosHelper.scale(increment, index));
+            return PosHelper.applyOffset(first, PosHelper.scale(increment, index));
         }
     }
 
     public BlockPos first() {
-        return BlockPosHelper.copy(first);
+        return PosHelper.copy(first);
     }
 
     public Vec3i increment() {
-        return BlockPosHelper.copy(increment);
+        return PosHelper.copy(increment);
     }
 
     public int size() {
@@ -128,7 +128,7 @@ public class Blocks implements Iterable<BlockPos> {
     }
 
     private class BlocksIterator implements Iterator<BlockPos> {
-        private BlockPos pos = BlockPosHelper.copy(first);
+        private BlockPos pos = PosHelper.copy(first);
         private int index = 0;
 
         @Override
@@ -141,10 +141,10 @@ public class Blocks implements Iterable<BlockPos> {
             if (!hasNext()) {
                 return null;
             }
-            var result = BlockPosHelper.copy(pos);
+            var result = PosHelper.copy(pos);
             index++;
             if (hasNext()) {
-                pos = BlockPosHelper.applyOffset(pos, increment);
+                pos = PosHelper.applyOffset(pos, increment);
             }
             return result;
         }

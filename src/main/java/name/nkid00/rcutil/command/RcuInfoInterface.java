@@ -19,6 +19,7 @@ public class RcuInfoInterface {
 
     public static int executeDetail(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
+        var player = s.getPlayer();
         var uuid = CommandHelper.uuidOrNull(s);
         var args = ArgumentHelper.getMulti(c, "interface name...");
         int result = 0;
@@ -28,6 +29,9 @@ public class RcuInfoInterface {
                 s.sendError(I18n.t(uuid, "rcutil.command.fail.interface_not_found", name));
             } else {
                 s.sendFeedback(interfaze.info(uuid), false);
+                if (player != null) {
+                    interfaze.highlight(player);
+                }
                 result++;
             }
         }

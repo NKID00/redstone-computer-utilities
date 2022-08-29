@@ -47,6 +47,7 @@ public class RcuNew {
             return 0;
         } else {
             s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_new.success", interfaze.info(uuid)), true);
+            interfaze.highlight(player);
             return 1;
         }
     }

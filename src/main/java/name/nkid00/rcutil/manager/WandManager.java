@@ -23,11 +23,12 @@ public class WandManager {
         }
         var uuid = player.getUuid();
         var serverWorld = (ServerWorld) world;
+        var ServerPlayerEntity = (ServerPlayerEntity) player;
         if (TargetBlockHelper.is(serverWorld, pos)) {
             SelectionManager.selectMsb(uuid, pos, serverWorld);
-            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.msb", new TargetBlockPos(serverWorld, pos));
+            I18n.overlay(ServerPlayerEntity, "rcutil.select.msb", new TargetBlockPos(serverWorld, pos));
         } else {
-            I18n.overlayError((ServerPlayerEntity) player, "rcutil.select.not_target_block");
+            I18n.overlayError(ServerPlayerEntity, "rcutil.select.not_target_block");
         }
         return ActionResult.FAIL;
     }
@@ -40,11 +41,12 @@ public class WandManager {
         var pos = hitResult.getBlockPos();
         var uuid = player.getUuid();
         var serverWorld = (ServerWorld) world;
+        var ServerPlayerEntity = (ServerPlayerEntity) player;
         if (TargetBlockHelper.is(serverWorld, pos)) {
             SelectionManager.selectLsb(uuid, pos, serverWorld);
-            I18n.overlay((ServerPlayerEntity) player, "rcutil.select.lsb", new TargetBlockPos(serverWorld, pos));
+            I18n.overlay(ServerPlayerEntity, "rcutil.select.lsb", new TargetBlockPos(serverWorld, pos));
         } else {
-            I18n.overlayError((ServerPlayerEntity) player, "rcutil.select.not_target_block");
+            I18n.overlayError(ServerPlayerEntity, "rcutil.select.not_target_block");
         }
         return ActionResult.FAIL;
     }
