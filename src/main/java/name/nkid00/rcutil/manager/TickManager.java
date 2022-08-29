@@ -7,12 +7,12 @@ import net.minecraft.server.MinecraftServer;
 
 public class TickManager {
     public static void onTickStart(MinecraftServer server) {
-        GametimeHelper.onTickStart(server);
-        ScriptEventCallback.onGametickStart();
-    }
-
-    public static void onTickEnd(MinecraftServer server) {
-        ScriptEventCallback.onGametickEnd();
-        ScriptServerIO.sync();
+        if (!GametimeHelper.isFrozen(server)) {
+            // before next gametick start, equivalent to this gametick end
+            ScriptEventCallback.onGametickEnd();
+            GametimeHelper.updateGametime(server);
+            ScriptServerIO.sync();
+            ScriptEventCallback.onGametickStart();
+        }
     }
 }

@@ -28,7 +28,6 @@ public class RCUtil implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(StorageManager::init);
 
         ServerTickEvents.START_SERVER_TICK.register(TickManager::onTickStart);
-        ServerTickEvents.END_SERVER_TICK.register(TickManager::onTickEnd);
 
         AttackBlockCallback.EVENT.register(WandManager::onAttack);
         UseBlockCallback.EVENT.register(WandManager::onUse);

@@ -161,3 +161,9 @@ class Script:
                                             Callable[[], Awaitable[None]]]:
         '''Called at the start of every gametick.'''
         return self._event_callback_registerer(_Events.ON_GAMETICK_START)
+
+    @property
+    def on_gametick_end(self) -> Callable[[Callable[[], Awaitable[None]]],
+                                          Callable[[], Awaitable[None]]]:
+        '''Called at the end of every gametick.'''
+        return self._event_callback_registerer(_Events.ON_GAMETICK_END)
