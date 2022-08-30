@@ -39,7 +39,7 @@ public class Options {
     @Expose
     private boolean localhostOnly = true;
     @Expose
-    private long timeoutMillis = 3000;
+    private long timeoutMillis = 1000;
 
     public static String host() {
         return instance.host;

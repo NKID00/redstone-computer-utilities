@@ -6,6 +6,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.io.ResponseException;
 import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.model.Event;
@@ -56,14 +57,34 @@ public class ScriptEventCallback {
     }
 
     private static void broadcast(Event event, JsonObject params) throws ResponseException {
-        for (var script : registeredScript.get(event)) {
-            call(script, event, params);
+        try {
+            for (var script : registeredScript.get(event)) {
+                try {
+                    call(script, event, params);
+                } catch (ResponseException e) {
+                    throw e;
+                } catch (Exception e) {
+                    Log.error("Exception encountered while broadcasting event", e);
+                }
+            }
+        } catch (ResponseException e) {
+            throw e;
+        } catch (Exception e) {
+            Log.error("Exception encountered while broadcasting event", e);
         }
     }
 
     private static void broadcastSuppress(Event event, JsonObject params) {
-        for (var script : registeredScript.get(event)) {
-            callSuppress(script, event, params);
+        try {
+            for (var script : registeredScript.get(event)) {
+                try {
+                    callSuppress(script, event, params);
+                } catch (Exception e) {
+                    Log.error("Exception encountered while broadcasting event", e);
+                }
+            }
+        } catch (Exception e) {
+            Log.error("Exception encountered while broadcasting event", e);
         }
     }
 
