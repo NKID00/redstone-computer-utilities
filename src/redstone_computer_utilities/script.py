@@ -2,8 +2,10 @@ from traceback import format_exc
 from typing import Any, Awaitable, Callable, Optional, TypeVar, cast
 import asyncio
 
+from redstone_computer_utilities.interval import Interval
+
 from .io import MethodNotFoundError, _JsonRpcIO
-from .event import _Event, _Events
+from .event import _Event, _SimpleEvent, _Events
 from .interface import Interface
 from .util import (_bytes_to_base64, _base64_to_bytes,
                    _base64_to_int, _int_to_base64)
@@ -72,11 +74,16 @@ class Script:
     async def _dispatch_request(self, method: str, params: dict[str, Any]
                                 ) -> Any:
         if method in self._event_method_names:
+            key_map = {
+                'authKey': 'auth_key'
+            }
+            params = {key_map[k] if k in key_map else k: params[k]
+                      for k in params}
             event = self._event_method_names[method]
             for callback in self._event_callbacks[event]:
                 try:
                     result = await callback(**params)
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     _error(f'Error occurred while running event callback '
                            f'{event} of script {self._name}:')
                     _error(format_exc())
@@ -85,16 +92,28 @@ class Script:
         raise MethodNotFoundError()
 
     async def _register(self) -> None:
-        self._auth_key = await self._call_api(
+        method = f'{self._name}_onScriptRegister'
+        event = _SimpleEvent('onScriptRegister')
+        self._event_callbacks[event] = [self._on_script_register]
+        self._event_method_names[method] = event
+        await self._call_api(
             'registerScript',
             script=self._name,
             description=self._description,
-            permissionLevel=self._permission_level
+            permissionLevel=self._permission_level,
+            callback=method
         )
+
+    async def _on_script_register(self, auth_key: str) -> None:
+        method = f'{self._name}_onScriptRegister'
+        event = self._event_method_names[method]
+        del self._event_callbacks[event]
+        del self._event_method_names[method]
+        self._auth_key = auth_key
         for event in self._event_callbacks:
             await self._call_api(
                 'registerCallback',
-                event={'name': event.name, 'param': event.param},
+                event={'name': event.name, 'param': event.serializable_param},
                 callback=event.to_method_name(self)
             )
 
@@ -167,3 +186,29 @@ class Script:
                                           Callable[[], Awaitable[None]]]:
         '''Called at the end of every gametick.'''
         return self._event_callback_registerer(_Events.ON_GAMETICK_END)
+
+    def on_gametick_start_delay(self, interval: Interval) -> Callable[
+            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+        '''Called only once at the start of the gametick after delay
+        interval.'''
+        return self._event_callback_registerer(
+            _Events.ON_GAMETICK_START_DELAY.with_interval(interval))
+
+    def on_gametick_end_delay(self, interval: Interval) -> Callable[
+            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+        '''Called only once at the end of the gametick after delay
+        interval.'''
+        return self._event_callback_registerer(
+            _Events.ON_GAMETICK_END_DELAY.with_interval(interval))
+
+    def on_gametick_start_clock(self, interval: Interval) -> Callable[
+            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+        '''Called at the start of the gametick for every clock cycle.'''
+        return self._event_callback_registerer(
+            _Events.ON_GAMETICK_START_CLOCK.with_interval(interval))
+
+    def on_gametick_end_clock(self, interval: Interval) -> Callable[
+            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+        '''Called at the end of the gametick for every clock cycle.'''
+        return self._event_callback_registerer(
+            _Events.ON_GAMETICK_END_CLOCK.with_interval(interval))

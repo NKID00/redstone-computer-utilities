@@ -1,6 +1,7 @@
 package name.nkid00.rcutil.script;
 
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.gson.JsonElement;
@@ -9,28 +10,38 @@ import com.google.gson.JsonObject;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.io.ResponseException;
 import name.nkid00.rcutil.io.ScriptServerIO;
+import name.nkid00.rcutil.manager.TimerManager;
+import name.nkid00.rcutil.model.Clock;
 import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Script;
+import name.nkid00.rcutil.model.TimedEvent;
+import name.nkid00.rcutil.model.Timer;
 
 public class ScriptEventCallback {
-    private static SetMultimap<Event, Script> registeredScript = Multimaps
-            .synchronizedSetMultimap(LinkedHashMultimap.create());
+    private static SetMultimap<Event, Script> registeredNonTimedEventScript = Multimaps
+            .synchronizedSetMultimap(HashMultimap.create());
 
     public static void registerCallback(Script script, Event event, String callback) {
         script.registerCallback(event, callback);
-        registeredScript.put(event, script);
+        if (!(event instanceof TimedEvent)) {
+            registeredNonTimedEventScript.put(event, script);
+        }
     }
 
     public static void deregisterCallback(Script script, Event event) {
         script.deregisterCallback(event);
-        registeredScript.remove(event, script);
+        if (!(event instanceof TimedEvent)) {
+            registeredNonTimedEventScript.remove(event, script);
+        }
     }
 
     public static void deregisterAllCallbacks(Script script) {
-        for (var event : script.callbacks.keySet()) {
-            registeredScript.remove(event, script);
+        for (var event : ImmutableSet.copyOf(script.callbacks.keySet())) {
+            script.deregisterCallback(event);
+            if (!(event instanceof TimedEvent)) {
+                registeredNonTimedEventScript.remove(event, script);
+            }
         }
-        script.callbacks.clear();
     }
 
     private static JsonElement call(Script script, Event event, JsonObject params) throws ResponseException {
@@ -49,34 +60,28 @@ public class ScriptEventCallback {
     }
 
     private static JsonElement call(Script script, Event event) throws ResponseException {
-        return call(script, event, new JsonObject());
-    }
-
-    private static JsonElement callSuppress(Script script, Event event) {
-        return callSuppress(script, event, new JsonObject());
-    }
-
-    private static void broadcast(Event event, JsonObject params) throws ResponseException {
         try {
-            for (var script : registeredScript.get(event)) {
-                try {
-                    call(script, event, params);
-                } catch (ResponseException e) {
-                    throw e;
-                } catch (Exception e) {
-                    Log.error("Exception encountered while broadcasting event", e);
-                }
-            }
+            return call(script, event, new JsonObject());
         } catch (ResponseException e) {
             throw e;
         } catch (Exception e) {
-            Log.error("Exception encountered while broadcasting event", e);
+            Log.error("Exception encountered while calling event callback", e);
         }
+        return null;
     }
 
-    private static void broadcastSuppress(Event event, JsonObject params) {
+    private static JsonElement callSuppress(Script script, Event event) {
         try {
-            for (var script : registeredScript.get(event)) {
+            return callSuppress(script, event, new JsonObject());
+        } catch (Exception e) {
+            Log.error("Exception encountered while calling event callback", e);
+        }
+        return null;
+    }
+
+    private static void broadcast(Event event, JsonObject params) {
+        try {
+            for (var script : registeredNonTimedEventScript.get(event)) {
                 try {
                     callSuppress(script, event, params);
                 } catch (Exception e) {
@@ -88,19 +93,38 @@ public class ScriptEventCallback {
         }
     }
 
-    private static void broadcast(Event event) throws ResponseException {
+    private static void broadcast(Event event) {
         broadcast(event, new JsonObject());
     }
 
-    private static void broadcastSuppress(Event event) {
-        broadcastSuppress(event, new JsonObject());
-    }
-
     public static void onGametickStart() {
-        broadcastSuppress(Event.ON_GAMETICK_START);
+        broadcast(Event.ON_GAMETICK_START);
+        ImmutableSet<Timer> timers;
+        do {
+            timers = TimerManager.onGametickStart();
+            for (Timer timer : timers) {
+                callSuppress(timer.script(), timer.event());
+            }
+        } while (!timers.isEmpty());
     }
 
     public static void onGametickEnd() {
-        broadcastSuppress(Event.ON_GAMETICK_END);
+        broadcast(Event.ON_GAMETICK_END);
+        ImmutableSet<Timer> timers;
+        do {
+            timers = TimerManager.onGametickEnd();
+            for (Timer timer : timers) {
+                callSuppress(timer.script(), timer.event());
+                if (!(timer instanceof Clock)) {
+                    timer.script().deregisterCallback(timer.event());
+                }
+            }
+        } while (!timers.isEmpty());
+
+        // clear onGametickStartDelay(0)
+        timers = TimerManager.onGametickStart();
+        for (Timer timer : timers) {
+            timer.script().deregisterCallback(timer.event());
+        }
     }
 }

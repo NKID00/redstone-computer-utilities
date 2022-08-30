@@ -10,6 +10,7 @@ import name.nkid00.rcutil.helper.GametimeHelper;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.io.ResponseException;
+import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.ScriptManager;
 import name.nkid00.rcutil.model.Event;
@@ -20,11 +21,12 @@ public class ScriptApi {
     public static JsonElement dispatch(String method, JsonObject params, String clientAddress, MinecraftServer server)
             throws ResponseException {
         if (method.equals("registerScript")) {
-            return new JsonPrimitive(registerScript(
-                    params.get("script").getAsString(),
+            registerScript(params.get("script").getAsString(),
                     params.get("description").getAsString(),
                     params.get("permissionLevel").getAsInt(),
-                    clientAddress));
+                    params.get("callback").getAsString(),
+                    clientAddress);
+            return null;
         }
         var authKey = params.get("authKey").getAsString();
         if (!ScriptManager.authKeyValid(authKey)) {
@@ -117,8 +119,8 @@ public class ScriptApi {
         throw ResponseException.METHOD_NOT_FOUND;
     }
 
-    public static String registerScript(String script, String description, int permissionLevel, String clientAddress)
-            throws ResponseException {
+    public static void registerScript(String script, String description, int permissionLevel, String callback,
+            String clientAddress) throws ResponseException {
         if (!CommandHelper.isLetterDigitUnderline(script)) {
             throw ResponseException.ILLEGAL_NAME;
         }
@@ -128,11 +130,27 @@ public class ScriptApi {
         if (ScriptManager.nameExists(script)) {
             throw ResponseException.NAME_EXISTS;
         }
-        return ScriptManager.createScript(script, description, permissionLevel, clientAddress);
+        var authKey = ScriptManager.createScript(script, description, permissionLevel, clientAddress);
+        var params = new JsonObject();
+        params.addProperty("authKey", authKey);
+        try {
+            ScriptServerIO.send(callback, params, clientAddress);
+        } catch (ResponseException e) {
+            ScriptManager.deregisterScript(authKey);
+            throw e;
+        } catch (Exception e) {
+            Log.error("Exception encountered while registering script " + script, e);
+            ScriptManager.deregisterScript(authKey);
+        }
+        if (ScriptManager.nameExists(script)) {
+            Log.info("Script {} is registered", script);
+        }
     }
 
     public static void deregisterScript(String authKey) throws ResponseException {
+        var name = ScriptManager.scriptByAuthKey(authKey).name;
         ScriptManager.deregisterScript(authKey);
+        Log.info("Script {} is deregistered", name);
     }
 
     public static void registerCallback(Script script, Event event, String callback)
@@ -144,6 +162,11 @@ public class ScriptApi {
     }
 
     public static void deregisterCallback(Script script, Event event) throws ResponseException {
+        switch (event.name()) {
+            case "onGametickStartDelay":
+            case "onGametickEndDelay":
+                throw ResponseException.EVENT_CALLBACK_CANNOT_DEREGISTER;
+        }
         if (!script.callbackExists(event)) {
             throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
         }

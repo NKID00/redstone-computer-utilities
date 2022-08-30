@@ -8,12 +8,15 @@ public abstract class Event {
     private final String name;
     private final Object param;
 
-    public static final SimpleEvent ON_SCRIPT_LOAD = new SimpleEvent("onScriptLoad");
-    public static final SimpleEvent ON_SCRIPT_UNLOAD = new SimpleEvent("onScriptUnload");
+    public static final SimpleEvent ON_SCRIPT_RELOAD = new SimpleEvent("onScriptReload");
     public static final SimpleEvent ON_SCRIPT_RUN = new SimpleEvent("onScriptRun");
     public static final SimpleEvent ON_SCRIPT_INVOKE = new SimpleEvent("onScriptInvoke");
     public static final SimpleEvent ON_GAMETICK_START = new SimpleEvent("onGametickStart");
     public static final SimpleEvent ON_GAMETICK_END = new SimpleEvent("onGametickEnd");
+    public static final TimedEvent ON_GAMETICK_START_DELAY = new TimedEvent("onGametickStartDelay");
+    public static final TimedEvent ON_GAMETICK_END_DELAY = new TimedEvent("onGametickEndDelay");
+    public static final TimedEvent ON_GAMETICK_START_CLOCK = new TimedEvent("onGametickStartClock");
+    public static final TimedEvent ON_GAMETICK_END_CLOCK = new TimedEvent("onGametickEndClock");
     public static final InterfaceEvent ON_INTERFACE_REDSTONE_UPDATE = new InterfaceEvent("onInterfaceRedstoneUpdate");
     public static final InterfaceEvent ON_INTERFACE_READ = new InterfaceEvent("onInterfaceRead");
     public static final InterfaceEvent ON_INTERFACE_WRITE = new InterfaceEvent("onInterfaceWrite");
@@ -27,10 +30,8 @@ public abstract class Event {
 
     public static Event fromRequest(String name, JsonElement param) {
         switch (name) {
-            case "onScriptLoad":
-                return ON_SCRIPT_LOAD;
-            case "onScriptUnload":
-                return ON_SCRIPT_UNLOAD;
+            case "onScriptReload":
+                return ON_SCRIPT_RELOAD;
             case "onScriptRun":
                 return ON_SCRIPT_RUN;
             case "onScriptInvoke":
@@ -39,6 +40,26 @@ public abstract class Event {
                 return ON_GAMETICK_START;
             case "onGametickEnd":
                 return ON_GAMETICK_END;
+            case "onGametickStartDelay":
+            case "onGametickEndDelay":
+            case "onGametickStartClock":
+            case "onGametickEndClock":
+                long interval;
+                try {
+                    interval = param.getAsLong();
+                } catch (ClassCastException | IllegalStateException e) {
+                    return null;
+                }
+                switch (name) {
+                    case "onGametickStartDelay":
+                        return ON_GAMETICK_START_DELAY.withInterval(interval);
+                    case "onGametickEndDelay":
+                        return ON_GAMETICK_END_DELAY.withInterval(interval);
+                    case "onGametickStartClock":
+                        return ON_GAMETICK_START_CLOCK.withInterval(interval);
+                    case "onGametickEndClock":
+                        return ON_GAMETICK_END_CLOCK.withInterval(interval);
+                }
             case "onInterfaceRedstoneUpdate":
             case "onInterfaceRead":
             case "onInterfaceWrite":
@@ -72,7 +93,7 @@ public abstract class Event {
         }
     }
 
-    public String event() {
+    public String name() {
         return name;
     }
 

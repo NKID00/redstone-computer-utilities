@@ -9,7 +9,7 @@ class Interface:
     processed locally.'''
 
     def __init__(self, name: str,
-                 script: Optional[rcu.script.Script] = None) -> None:
+                 script: Optional[rcu.Script] = None) -> None:
         self._name = name
         self._script = script
 
@@ -18,7 +18,7 @@ class Interface:
         return self._name
 
     @property
-    def script(self) -> Optional[rcu.script.Script]:
+    def script(self) -> Optional[rcu.Script]:
         return self._script
 
     def __eq__(self, other: object) -> bool:
@@ -28,7 +28,7 @@ class Interface:
     def __hash__(self) -> int:
         return hash((self._name,))
 
-    def with_script(self, script: rcu.script.Script) -> Interface:
+    def with_script(self, script: rcu.Script) -> Interface:
         '''Create a new interface handle that bounds to the given script.'''
         return Interface(self._name, script)
 

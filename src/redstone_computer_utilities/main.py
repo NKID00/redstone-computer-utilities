@@ -117,7 +117,7 @@ async def _run_async(host: str, port: int) -> None:
             script._set_io(io)  # pylint: disable=protected-access
             try:
                 await script._register()  # pylint: disable=protected-access
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 _error(f'Error occurred while registering script '
                        f'{script.name}')
                 _error(format_exc())

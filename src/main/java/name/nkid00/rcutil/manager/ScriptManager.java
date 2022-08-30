@@ -4,7 +4,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,7 +23,7 @@ public class ScriptManager {
     private static ConcurrentHashMap<String, Script> nameScript = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Script> authKeyScript = new ConcurrentHashMap<>();
     private static SetMultimap<String, Script> clientAddressScript = Multimaps
-            .synchronizedSetMultimap(LinkedHashMultimap.create());
+            .synchronizedSetMultimap(HashMultimap.create());
 
     public static Script scriptByName(String name) {
         return nameScript.get(name);
@@ -50,7 +50,6 @@ public class ScriptManager {
         nameScript.put(name, script);
         authKeyScript.put(authKey, script);
         clientAddressScript.get(clientAddress).add(script);
-        Log.info("Script \"{}\" is registered", name);
         return authKey;
     }
 
@@ -60,7 +59,6 @@ public class ScriptManager {
         authKeyScript.remove(script.authKey);
         ScriptEventCallback.deregisterAllCallbacks(script);
         clientAddressScript.remove(script.clientAddress, script);
-        Log.info("Script \"{}\" is deregistered", script.name);
     }
 
     public static void deregisterClientAddress(String clientAddress) {
@@ -68,7 +66,7 @@ public class ScriptManager {
             nameScript.remove(script.name);
             authKeyScript.remove(script.authKey);
             ScriptEventCallback.deregisterAllCallbacks(script);
-            Log.info("Script \"{}\" is deregistered due to disconnection", script.name);
+            Log.info("Script {} is deregistered due to disconnection", script.name);
         }
         clientAddressScript.removeAll(clientAddress);
     }

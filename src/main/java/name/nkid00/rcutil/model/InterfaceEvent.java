@@ -10,6 +10,10 @@ public class InterfaceEvent extends Event {
     }
 
     public InterfaceEvent withInterface(Interface interfaze) {
-        return new InterfaceEvent(event(), interfaze);
+        return new InterfaceEvent(name(), interfaze);
+    }
+
+    public Interface interfaze() {
+        return (Interface) this.param();
     }
 }

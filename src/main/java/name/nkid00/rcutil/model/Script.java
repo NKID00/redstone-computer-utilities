@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import name.nkid00.rcutil.helper.I18n;
+import name.nkid00.rcutil.manager.TimerManager;
 import net.minecraft.text.Text;
 
 public class Script {
@@ -13,6 +14,7 @@ public class Script {
     public final String authKey;
     public final String clientAddress;
     public final ConcurrentHashMap<Event, String> callbacks = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Event, Timer> timers = new ConcurrentHashMap<>();
 
     public Script(String name, String description, int permissionLevel, String authKey, String clientAddress) {
         this.name = name;
@@ -20,27 +22,6 @@ public class Script {
         this.permissionLevel = permissionLevel;
         this.authKey = authKey;
         this.clientAddress = clientAddress;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof Script) {
-            var other = (Script) obj;
-            if (name == null ? other.name != null : !name.equals(other.name)) {
-                return false;
-            }
-            if (authKey == null ? other.authKey != null : !authKey.equals(other.authKey)) {
-                return false;
-            }
-            return true;
-        }
-        return false;
     }
 
     public Text info(UUID uuid) {
@@ -68,10 +49,47 @@ public class Script {
 
     public void registerCallback(Event event, String callback) {
         callbacks.put(event, callback);
+        if (event instanceof TimedEvent) {
+            var timer = Timer.create((TimedEvent) event, this);
+            timers.put(event, timer);
+            TimerManager.register(timer);
+        }
     }
 
     public void deregisterCallback(Event event) {
         callbacks.remove(event);
+        if (event instanceof TimedEvent) {
+            TimerManager.deregister(timers.remove(event));
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        // some random prime number
+        int result = 31 + (name == null ? 0 : name.hashCode());
+        result = result * 31 + (authKey == null ? 0 : authKey.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Script) {
+            var other = (Script) obj;
+            if (name == null ? other.name != null : !name.equals(other.name)) {
+                return false;
+            }
+            if (authKey == null ? other.authKey != null : !authKey.equals(other.authKey)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override

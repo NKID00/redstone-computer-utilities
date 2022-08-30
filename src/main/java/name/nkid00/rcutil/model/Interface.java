@@ -164,6 +164,15 @@ public class Interface implements Iterable<TargetBlockPos> {
     }
 
     @Override
+    public int hashCode() {
+        // some random prime number
+        int result = 31 + (name == null ? 0 : name.hashCode());
+        result = result * 31 + (world == null ? 0 : world.hashCode());
+        result = result * 31 + (blocks == null ? 0 : blocks.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

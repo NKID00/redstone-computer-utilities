@@ -99,6 +99,15 @@ public class Blocks implements Iterable<BlockPos> {
     }
 
     @Override
+    public int hashCode() {
+        // some random prime number
+        int result = 31 + (first == null ? 0 : first.hashCode());
+        result = result * 31 + (increment == null ? 0 : increment.hashCode());
+        result = result * 31 + size;
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

@@ -35,6 +35,8 @@ public class ResponseException extends Exception {
             -11, "Access denied");
     public static final ResponseException INTERFACE_NOT_FOUND = new ResponseException(
             -12, "Interface cannot be found");
+    public static final ResponseException EVENT_CALLBACK_CANNOT_DEREGISTER = new ResponseException(
+            -13, "EventCallbackCannotDeregister");
 
     public ResponseException(int code, String message, String id) {
         this.code = code;

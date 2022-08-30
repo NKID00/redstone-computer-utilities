@@ -170,9 +170,14 @@ public class ScriptServerIO {
     public static void sync() {
         MapHelper.forEachValueSynchronized(connections, ctx -> {
             var handler = (ScriptServerIOHandler) ctx.handler();
-            var promise = handler.fallbackUnblockPromise;
-            if (promise.isDone()) {
-                var result = promise.getNow();
+            while (true) {
+                if (!handler.fallbackUnblockPromise.isDone()) {
+                    return;
+                }
+                var result = handler.fallbackUnblockPromise.getNow();
+                if (result.isResponse()) {
+                    return;
+                }
                 handler.fallbackUnblockPromise = result.nextPromise();
                 ctx.writeAndFlush(handleRequest(result.msg(), result.addr()));
             }
