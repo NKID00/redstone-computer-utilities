@@ -86,6 +86,20 @@
 `/rcu lang <语言>`
 - 设置命令执行者的显示语言。
 
+### 性能
+
+在 `AMD Ryzen 7 4800U` CPU 上运行的 Kubuntu `22.04.1 LTS x86_64`（Kernel `5.15.0-46-lowlatency`）上运行的 Minecraft 1.19.2 服务器上测试时，一次空事件回调消耗约 0.27ms，一次空 API 调用消耗约 0.12ms。原始测试结果如下：
+
+|                                                             | tps  | mspt |
+| ----------------------------------------------------------- | ---- | ---- |
+| 未安装模组                                                  | 1382 | 0.72 |
+| 无外部程序                                                  | 1383 | 0.72 |
+| onGametickStart 事件回调，无 API 调用                       | 1013 | 0.99 |
+| onGametickStart 事件回调，每次事件回调时进行 1 次 API 调用  | 929  | 1.08 |
+| onGametickStart 事件回调，每次事件回调时进行 10 次 API 调用 | 458  | 2.18 |
+
+测试使用 carpet 模组命令 `/tick warp 100000` 和外部程序 `example/nop_api_*.py`，无玩家登录。
+
 ## 开发
 
 Java 源代码文件位于 `src/main/java/`。Python 源代码文件位于 `src/redstone_computer_utilities/`。

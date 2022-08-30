@@ -86,6 +86,20 @@ All commands provided by the mod require at least permission level 2 (configurab
 `/rcu lang <language>`
 - Set display language of the command source player.
 
+### Performance
+
+When tested on Minecraft 1.19.2 server on Kubuntu `22.04.1 LTS x86_64` (Kernel `5.15.0-46-lowlatency`) on CPU `AMD Ryzen 7 4800U`, A no-op event callback consumes ~0.27ms and a no-op API call consumes ~0.12ms. Raw data is as follows:
+
+|                                                             | tps  | mspt |
+| ----------------------------------------------------------- | ---- | ---- |
+| Mod not installed                                           | 1382 | 0.72 |
+| No script registered                                        | 1383 | 0.72 |
+| onGametickStart event callback, no API calls                | 1013 | 0.99 |
+| onGametickStart event callback, 1 API call for each event   | 929  | 1.08 |
+| onGametickStart event callback, 10 API calls for each event | 458  | 2.18 |
+
+Measured using carpet mod with command `/tick warp 100000` and scripts `example/nop_api_*.py`, no player is logged in.
+
 ## Development
 
 Java sources are located in `src/main/java/`. Python sources are located in `src/redstone_computer_utilities/`.
