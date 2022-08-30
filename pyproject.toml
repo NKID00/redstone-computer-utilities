@@ -6,7 +6,7 @@ authors = ["NKID00 <nkid00@pm.me>"]
 license = "MPL-2.0"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.6"
 colorama = "^0.4.5"
 
 [tool.poetry.dev-dependencies]
