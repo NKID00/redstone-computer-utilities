@@ -15,6 +15,7 @@
         {
             "name": "registerScript",
             "summary": "Register the script.",
+            "description": "The parameter `callback` will be called as callback of event `onScriptRegister` during the registration process.",
             "tags": [
                 {
                     "name": "Script"
@@ -30,10 +31,13 @@
                 },
                 {
                     "$ref": "#/components/contentDescriptors/permissionLevel"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/callback"
                 }
             ],
             "result": {
-                "$ref": "#/components/contentDescriptors/authKey"
+                "$ref": "#/components/contentDescriptors/null"
             },
             "errors": [
                 {
@@ -93,15 +97,33 @@
                             "type": "object",
                             "properties": {
                                 "description": {
-                                    "$ref": "#/components/contentDescriptors/description"
+                                    "type": "string"
                                 },
                                 "permissionLevel": {
-                                    "$ref": "#/components/contentDescriptors/permissionLevel"
+                                    "type": "integer",
+                                    "minimum": 2,
+                                    "maximum": 4
                                 },
                                 "events": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/contentDescriptors/event"
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "param": {
+                                                "oneOf": [
+                                                    {
+                                                        "type": "string"
+                                                    },
+                                                    {
+                                                        "type": "integer"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "additionalProperties": false
                                     }
                                 }
                             }
@@ -218,6 +240,9 @@
                     "$ref": "#/components/errors/EventCallbackNotRegistered"
                 },
                 {
+                    "$ref": "#/components/errors/EventCallbackCannotDeregister"
+                },
+                {
                     "$ref": "#/components/errors/InvalidAuthKey"
                 }
             ]
@@ -248,7 +273,23 @@
                 "schema": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/components/contentDescriptors/event"
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "param": {
+                                "oneOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            }
+                        },
+                        "additionalProperties": false
                     }
                 }
             },
@@ -399,7 +440,28 @@
                     "type": "object",
                     "patternProperties": {
                         "^[A-Za-z0-9_]+$": {
-                            "$ref": "#/components/contentDescriptors/args"
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "first": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "increment": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "size": {
+                                    "type": "integer"
+                                }
+                            },
+                            "additionalProperties": false
                         }
                     },
                     "additionalProperties": false
@@ -642,11 +704,18 @@
                 "schema": {
                     "type": "object",
                     "properties": {
-                        "name" : {
+                        "name": {
                             "type": "string"
                         },
-                        "param" : {
-                            "type": "any"
+                        "param": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
                         }
                     },
                     "additionalProperties": false
@@ -670,7 +739,8 @@
                             "type": "object"
                         },
                         {
-                            "type": "array"
+                            "type": "array",
+                            "items": true
                         }
                     ]
                 }
@@ -718,6 +788,15 @@
                 "schema": {
                     "type": "integer",
                     "description": "64-bit integer."
+                }
+            },
+            "interval": {
+                "name": "interval",
+                "summary": "Interval in gametick.",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "description": "Positive 64-bit integer."
                 }
             }
         },
@@ -769,6 +848,10 @@
             "InterfaceNotFound": {
                 "code": -12,
                 "message": "Interface cannot be found"
+            },
+            "EventCallbackCannotDeregister": {
+                "code": -13,
+                "message": "Event callback cannot be deregistered"
             }
         }
     }

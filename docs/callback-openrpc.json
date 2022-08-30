@@ -7,15 +7,20 @@
     },
     "methods": [
         {
-            "name": "onScriptLoad",
-            "summary": "Called after all scripts are loaded when scripts started to load.",
+            "name": "onScriptRegister",
+            "summary": "Called when the scripts is almost registered.",
+            "description": "Registered with registerScript and cannot be registered with registerCallback. Error response will be considered failure of the registration process",
             "tags": [
                 {
                     "name": "ScriptLifecycle"
                 }
             ],
             "paramStructure": "by-name",
-            "params": [],
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
             },
@@ -26,8 +31,8 @@
             ]
         },
         {
-            "name": "onScriptUnload",
-            "summary": "Called before any script is unloaded when scripts started to unload.",
+            "name": "onScriptReload",
+            "summary": "Called when `/rcu reload` is executed.",
             "tags": [
                 {
                     "name": "ScriptLifecycle"
@@ -147,19 +152,96 @@
             ]
         },
         {
+            "name": "onGametickStartDelay",
+            "summary": "Called only once at the start of the gametick after delay interval.",
+            "description": "registerCallback param: #/components/contentDescriptors/interval",
+            "tags": [
+                {
+                    "name": "Gametick"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onGametickEndDelay",
+            "summary": "Called only once at the end of the gametick after delay interval.",
+            "description": "registerCallback param: #/components/contentDescriptors/interval",
+            "tags": [
+                {
+                    "name": "Gametick"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onGametickStartClock",
+            "summary": "Called at the start of the gametick for every clock cycle.",
+            "description": "registerCallback param: #/components/contentDescriptors/interval",
+            "tags": [
+                {
+                    "name": "Gametick"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
+            "name": "onGametickEndClock",
+            "summary": "Called at the end of the gametick for every clock cycle.",
+            "description": "registerCallback param: #/components/contentDescriptors/interval",
+            "tags": [
+                {
+                    "name": "Gametick"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptInternalError"
+                }
+            ]
+        },
+        {
             "name": "onInterfaceRedstoneUpdate",
             "summary": "Called at the end of the gametick when redstone signal received by the interface is changed.",
+            "description": "registerCallback param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
                 }
             ],
             "paramStructure": "by-name",
-            "params": [
-                {
-                    "$ref": "#/components/contentDescriptors/interface"
-                }
-            ],
+            "params": [],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
             },
@@ -171,7 +253,8 @@
         },
         {
             "name": "onInterfaceRead",
-            "summary": "Called when the interface is read successfully by the script.",
+            "summary": "Called when the interface is read successfully by the script. param=interface",
+            "description": "registerCallback param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
@@ -181,9 +264,6 @@
             "params": [
                 {
                     "$ref": "#/components/contentDescriptors/script"
-                },
-                {
-                    "$ref": "#/components/contentDescriptors/interface"
                 }
             ],
             "result": {
@@ -198,6 +278,7 @@
         {
             "name": "onInterfaceWrite",
             "summary": "Called when the interface is written successfully by the script.",
+            "description": "registerCallback param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
@@ -207,9 +288,6 @@
             "params": [
                 {
                     "$ref": "#/components/contentDescriptors/script"
-                },
-                {
-                    "$ref": "#/components/contentDescriptors/interface"
                 }
             ],
             "result": {
@@ -223,7 +301,7 @@
         },
         {
             "name": "onInterfaceNew",
-            "summary": "(experimental) Called when the interface is created successfully.",
+            "summary": "(experimental) Called when a interface is created successfully.",
             "tags": [
                 {
                     "name": "Interface"
@@ -247,17 +325,14 @@
         {
             "name": "onInterfaceRemove",
             "summary": "(experimental) Called when the interface is removed successfully.",
+            "description": "registerCallback param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
                 }
             ],
             "paramStructure": "by-name",
-            "params": [
-                {
-                    "$ref": "#/components/contentDescriptors/interface"
-                }
-            ],
+            "params": [],
             "result": {
                 "$ref": "#/components/contentDescriptors/null"
             },
@@ -354,7 +429,8 @@
                             "type": "object"
                         },
                         {
-                            "type": "array"
+                            "type": "array",
+                            "items": true
                         }
                     ]
                 }
@@ -402,6 +478,15 @@
                 "schema": {
                     "type": "integer",
                     "description": "64-bit integer."
+                }
+            },
+            "interval": {
+                "name": "interval",
+                "summary": "Interval in gametick.",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "description": "Nonnegative 64-bit integer."
                 }
             }
         },
@@ -453,6 +538,10 @@
             "InterfaceNotFound": {
                 "code": -12,
                 "message": "Interface cannot be found"
+            },
+            "EventCallbackCannotDeregister": {
+                "code": -13,
+                "message": "Event callback cannot be deregistered"
             }
         }
     }

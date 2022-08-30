@@ -8,6 +8,8 @@
 
 每个序列化的 json 消息在传输时都**必须**用开头的 2 字节大端序的长度字段封装为帧。序列化的 json 消息的长度**必须**小于或等于 65535。为避免冲突，发自模组的请求的 id **必须**为以 `s_` 开头的字符串，同时发自外部程序的请求的 id **必须**为以 `c_` 开头的字符串且**应该**为以 `c_<外部程序名>_` 开头的字符串。事件回调的 method 名称**应该**以 `<外部程序名>_` 开头。上述的 `<外部程序名>` 不包括尖括号。
 
+由于 Minecraft 对多线程操作世界的限制，每个事件回调都会阻塞服务器主线程直到得到响应，得到来自正在处理该事件回调的外部程序的请求或超时，且模组只会在每个游戏刻开始时处理待处理的请求。外部程序**必须**利用 `onScriptRegister` 事件回调来保证服务器主线程在外部程序注册过程中被阻塞。
+
 ## 鉴权
 
 认证密钥将会在外部程序注册时分发，并在外部程序注销或卸载时销毁。任何其他的 API 调用都需要这一认证密钥。
@@ -56,13 +58,17 @@
 详见 [callback-openrpc.json](./callback-openrpc.json)。谨慎使用实验性事件回调！
 
 - 外部程序生命周期
-  - onScriptLoad
-  - onScriptUnload
+  - onScriptRegister
+  - onScriptReload
   - onScriptRun
   - onScriptInvoke
 - 游戏刻
   - onGametickStart
   - onGametickEnd
+  - onGametickStartDelay
+  - onGametickEndDelay
+  - onGametickStartClock
+  - onGametickEndClock
 - 接口
   - onInterfaceRedstoneUpdate
   - onInterfaceRead
