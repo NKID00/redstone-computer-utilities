@@ -6,7 +6,7 @@ Scripts are language-neutral programs outside the game that can read or write in
 
 Communication between the mod and scripts is accomplished with two-way JSON-RPC on one or more TCP connections. Once initialized, the mod will bind the loopback address (configurable), listen to port 37265 (configurable) and wait for connections from scripts. A single connection may be reused by multiple scripts, with authorization keys as identifiers. Each script MUST use only one connection. When a connection is lost, all scripts related to the connection will be deregistered.
 
-Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 65535. To avoid collision, ids of requests sent by the mod MUST be a string started with `s_`, while ids of requests sent by scripts MUST be a string started with `c_` and SHOULD be a string started start with `c_<script name>_`. Names of event callback methods SHOULD start with `<script name>_`. The above `<script name>` excludes the angle brackets.
+Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 65535. To avoid collision, ids of requests sent by the mod MUST be a string started with `s_`, while ids of requests sent by scripts MUST be a string started with `c_` and SHOULD be a string started with `c_<script name>_`. Names of event callback methods SHOULD start with `<script name>_`. The above `<script name>` excludes the angle brackets.
 
 Due to restrictions of multithread world operation in Minecraft, every event callback will block the main thread of the server until a response arrives, a request sent by script handling the event callback arrives or time is out, and the mod will handle pending requests only at the start of every gametick. Scripts MUST utilize the event callback `onScriptRegister` to make sure that the main thread of the server is blocked during script registration process.
 
@@ -16,7 +16,7 @@ An authorization key will be given when the script is registered and will be des
 
 ## Reload
 
-When a script is registered or deregistered, other scripts that depends on it may malfunction and `/rcu reload` SHOULD be executed to reload all scripts. When `/rcu reload` is executed, `onScriptUnload` event callback will be called on all scripts, afterward, `onScriptLoad` event callback will be called on all scripts.
+When a script is registered or deregistered, other scripts that depends on it may malfunction and `/rcu reload` SHOULD be executed to reload all scripts. When `/rcu reload` is executed, `onScriptReload` event callback will be called on all scripts.
 
 ## Stability
 
