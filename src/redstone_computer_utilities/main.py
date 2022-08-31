@@ -129,5 +129,5 @@ async def _run_async(host: str, port: int) -> None:
         raise KeyboardInterrupt()
 
     async with _wait('Running') as wait:
-        await asyncio.wait([watch_dog_task])
+        await watch_dog_task
         watch_dog_task.result()
