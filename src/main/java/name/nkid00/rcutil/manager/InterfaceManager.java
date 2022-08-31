@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -21,7 +22,10 @@ import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
 import name.nkid00.rcutil.model.Interface;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 
 public class InterfaceManager {
     private static ConcurrentHashMap<String, Interface> interfaces = new ConcurrentHashMap<>();
@@ -35,7 +39,7 @@ public class InterfaceManager {
     }
 
     public static Interface tryCreate(String name, UUID uuid, Collection<String> options)
-            throws BlockNotTargetException {
+            throws BlockNotTargetException, IllegalArgumentException {
         var selection = SelectionManager.selection(uuid);
         var world = selection.world;
         var lsb = selection.lsb;
@@ -50,6 +54,16 @@ public class InterfaceManager {
         return interfaze;
     }
 
+    public static Interface tryCreate(String name, ServerWorld world, BlockPos lsb, Vec3i increment, int size,
+            JsonObject args) throws BlockNotTargetException, IllegalArgumentException {
+        var interfaze = new Interface(name, world, lsb, increment, size);
+        if (!interfaze.valid()) {
+            throw new BlockNotTargetException();
+        }
+        interfaces.put(name, interfaze);
+        return interfaze;
+    }
+
     public static Interface remove(String name) {
         return interfaces.remove(name);
     }
@@ -58,6 +72,10 @@ public class InterfaceManager {
             final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(interfaces, builder::suggest);
         return builder.buildFuture();
+    }
+
+    public static Iterable<Interface> iterable() {
+        return interfaces.values();
     }
 
     public static int size() {

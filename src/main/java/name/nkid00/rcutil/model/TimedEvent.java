@@ -1,5 +1,8 @@
 package name.nkid00.rcutil.model;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 public class TimedEvent extends Event {
     public TimedEvent(String name) {
         this(name, 0);
@@ -15,5 +18,10 @@ public class TimedEvent extends Event {
 
     public long interval() {
         return param() == null ? 0 : (long) this.param();
+    }
+
+    @Override
+    public JsonElement jsonParam() {
+        return new JsonPrimitive(interval());
     }
 }

@@ -22,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
 public class Interface implements Iterable<TargetBlockPos> {
-    public final String name;
+    private final String name;
     private final ServerWorld world;
     private final Blocks blocks;
 
@@ -119,7 +119,7 @@ public class Interface implements Iterable<TargetBlockPos> {
     }
 
     public Text info(UUID uuid) {
-        return I18n.t(uuid, "rcutil.info.interface.detail", name, first(), size());
+        return I18n.t(uuid, "rcutil.info.interface.detail", name, lsb(), size());
     }
 
     public void highlight(ServerPlayerEntity viewer) {
@@ -141,7 +141,7 @@ public class Interface implements Iterable<TargetBlockPos> {
         return new TargetBlockPos(world, blocks.get(index));
     }
 
-    public TargetBlockPos first() {
+    public TargetBlockPos lsb() {
         return new TargetBlockPos(world, blocks.first());
     }
 
@@ -151,6 +151,14 @@ public class Interface implements Iterable<TargetBlockPos> {
 
     public int size() {
         return blocks.size();
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public ServerWorld world() {
+        return world;
     }
 
     public List<TargetBlockPos> toList() {

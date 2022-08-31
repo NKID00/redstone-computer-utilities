@@ -405,10 +405,29 @@
             },
             "event": {
                 "name": "event",
-                "summary": "Name of the event.",
+                "summary": "Name and additional parameter of the event.",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "param": {
+                            "oneOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false
                 }
             },
             "callback": {
@@ -427,10 +446,6 @@
                     "anyOf": [
                         {
                             "type": "object"
-                        },
-                        {
-                            "type": "array",
-                            "items": true
                         }
                     ]
                 }
@@ -486,7 +501,63 @@
                 "required": true,
                 "schema": {
                     "type": "integer",
-                    "description": "Nonnegative 64-bit integer."
+                    "description": "Positive 64-bit integer."
+                }
+            },
+            "blockPos": {
+                "name": "blockPos",
+                "summary": "Position of the block.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minLength": 3,
+                    "maxLength": 3
+                }
+            },
+            "world": {
+                "name": "world",
+                "summary": "Identifier of the world.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "first": {
+                "name": "first",
+                "summary": "Position of the first block of the interface.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minLength": 3,
+                    "maxLength": 3
+                }
+            },
+            "increment": {
+                "name": "increment",
+                "summary": "Difference between each two neighbor blocks of the interface.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minLength": 3,
+                    "maxLength": 3
+                }
+            },
+            "size": {
+                "name": "size",
+                "summary": "Size of the interface.",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },
@@ -507,9 +578,9 @@
                 "code": -4,
                 "message": "Invalid permission level"
             },
-            "ScriptNotRegistered": {
+            "ScriptNotFound": {
                 "code": -5,
-                "message": "Script is not registered"
+                "message": "Script cannot be found"
             },
             "IllegalArgument": {
                 "code": -6,
@@ -539,9 +610,13 @@
                 "code": -12,
                 "message": "Interface cannot be found"
             },
-            "EventCallbackCannotDeregister": {
+            "PlayerNotFound": {
                 "code": -13,
-                "message": "Event callback cannot be deregistered"
+                "message": "Player cannot be found"
+            },
+            "WorldNotFound": {
+                "code": -14,
+                "message": "World cannot be found"
             }
         }
     }

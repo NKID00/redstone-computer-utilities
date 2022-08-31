@@ -76,7 +76,7 @@
         },
         {
             "name": "listScript",
-            "summary": "List registered script.",
+            "summary": "List names of registered script.",
             "tags": [
                 {
                     "name": "Script"
@@ -103,30 +103,9 @@
                                     "type": "integer",
                                     "minimum": 2,
                                     "maximum": 4
-                                },
-                                "events": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "name": {
-                                                "type": "string"
-                                            },
-                                            "param": {
-                                                "oneOf": [
-                                                    {
-                                                        "type": "string"
-                                                    },
-                                                    {
-                                                        "type": "integer"
-                                                    }
-                                                ]
-                                            }
-                                        },
-                                        "additionalProperties": false
-                                    }
                                 }
-                            }
+                            },
+                            "additionalProperties": false
                         }
                     },
                     "additionalProperties": false
@@ -140,7 +119,7 @@
         },
         {
             "name": "invokeScript",
-            "summary": "List registered scripts.",
+            "summary": "Invoke the scripts.",
             "tags": [
                 {
                     "name": "Script"
@@ -163,7 +142,7 @@
             },
             "errors": [
                 {
-                    "$ref": "#/components/errors/ScriptNotRegistered"
+                    "$ref": "#/components/errors/ScriptNotFound"
                 },
                 {
                     "$ref": "#/components/errors/IllegalArgument"
@@ -281,6 +260,9 @@
                             "param": {
                                 "oneOf": [
                                     {
+                                        "type": "null"
+                                    },
+                                    {
                                         "type": "string"
                                     },
                                     {
@@ -295,7 +277,7 @@
             },
             "errors": [
                 {
-                    "$ref": "#/components/errors/ScriptNotRegistered"
+                    "$ref": "#/components/errors/ScriptNotFound"
                 },
                 {
                     "$ref": "#/components/errors/InvalidAuthKey"
@@ -334,7 +316,7 @@
             },
             "errors": [
                 {
-                    "$ref": "#/components/errors/ScriptNotRegistered"
+                    "$ref": "#/components/errors/ScriptNotFound"
                 },
                 {
                     "$ref": "#/components/errors/EventNotFound"
@@ -364,6 +346,18 @@
                     "$ref": "#/components/contentDescriptors/interface"
                 },
                 {
+                    "$ref": "#/components/contentDescriptors/world"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/lsb"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/increment"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/size"
+                },
+                {
                     "$ref": "#/components/contentDescriptors/args"
                 },
                 {
@@ -379,6 +373,9 @@
                 },
                 {
                     "$ref": "#/components/errors/NameExists"
+                },
+                {
+                    "$ref": "#/components/errors/BlockNotTarget"
                 },
                 {
                     "$ref": "#/components/errors/IllegalArgument"
@@ -413,9 +410,6 @@
                     "$ref": "#/components/errors/InterfaceNotFound"
                 },
                 {
-                    "$ref": "#/components/errors/AccessDenied"
-                },
-                {
                     "$ref": "#/components/errors/InvalidAuthKey"
                 }
             ]
@@ -442,23 +436,28 @@
                         "^[A-Za-z0-9_]+$": {
                             "type": "object",
                             "properties": {
-                                "name": {
+                                "world": {
                                     "type": "string"
                                 },
-                                "first": {
+                                "lsb": {
                                     "type": "array",
                                     "items": {
                                         "type": "integer"
-                                    }
+                                    },
+                                    "minLength": 3,
+                                    "maxLength": 3
                                 },
                                 "increment": {
                                     "type": "array",
                                     "items": {
                                         "type": "integer"
-                                    }
+                                    },
+                                    "minLength": 3,
+                                    "maxLength": 3
                                 },
                                 "size": {
-                                    "type": "integer"
+                                    "type": "integer",
+                                    "minimum": 1
                                 }
                             },
                             "additionalProperties": false
@@ -559,6 +558,56 @@
             ]
         },
         {
+            "name": "listPlayer",
+            "summary": "(experimental) List online players.",
+            "tags": [
+                {
+                    "name": "Miscellaneous"
+                },
+                {
+                    "name": "Experimental"
+                }
+            ],
+            "deprecated": true,
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "name": "players",
+                "schema": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^.+$": {
+                            "type": "object",
+                            "properties": {
+                                "uuid": {
+                                    "type": "string"
+                                },
+                                "permissionLevel": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 4
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/ScriptNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
             "name": "info",
             "summary": "Log the message as information.",
             "tags": [
@@ -631,6 +680,102 @@
                 "$ref": "#/components/contentDescriptors/null"
             },
             "errors": [
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "sendInfo",
+            "summary": "Send the message as information to the player.",
+            "tags": [
+                {
+                    "name": "Logging"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/uuid"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/message"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/PlayerNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "sendWarn",
+            "summary": "Send the message as warning to the player.",
+            "tags": [
+                {
+                    "name": "Logging"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/uuid"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/message"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/PlayerNotFound"
+                },
+                {
+                    "$ref": "#/components/errors/InvalidAuthKey"
+                }
+            ]
+        },
+        {
+            "name": "sendError",
+            "summary": "Send the message as error to the player.",
+            "tags": [
+                {
+                    "name": "Logging"
+                }
+            ],
+            "paramStructure": "by-name",
+            "params": [
+                {
+                    "$ref": "#/components/contentDescriptors/uuid"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/message"
+                },
+                {
+                    "$ref": "#/components/contentDescriptors/authKey"
+                }
+            ],
+            "result": {
+                "$ref": "#/components/contentDescriptors/null"
+            },
+            "errors": [
+                {
+                    "$ref": "#/components/errors/PlayerNotFound"
+                },
                 {
                     "$ref": "#/components/errors/InvalidAuthKey"
                 }
@@ -710,6 +855,9 @@
                         "param": {
                             "oneOf": [
                                 {
+                                    "type": "null"
+                                },
+                                {
                                     "type": "string"
                                 },
                                 {
@@ -737,10 +885,6 @@
                     "anyOf": [
                         {
                             "type": "object"
-                        },
-                        {
-                            "type": "array",
-                            "items": true
                         }
                     ]
                 }
@@ -798,6 +942,62 @@
                     "type": "integer",
                     "description": "Positive 64-bit integer."
                 }
+            },
+            "blockPos": {
+                "name": "blockPos",
+                "summary": "Position of the block.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minLength": 3,
+                    "maxLength": 3
+                }
+            },
+            "world": {
+                "name": "world",
+                "summary": "Identifier of the world.",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "lsb": {
+                "name": "lsb",
+                "summary": "Position of the lsb of the interface.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minLength": 3,
+                    "maxLength": 3
+                }
+            },
+            "increment": {
+                "name": "increment",
+                "summary": "Difference between each two neighbor blocks of the interface.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minLength": 3,
+                    "maxLength": 3
+                }
+            },
+            "size": {
+                "name": "size",
+                "summary": "Size of the interface.",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1
+                }
             }
         },
         "errors": {
@@ -817,9 +1017,9 @@
                 "code": -4,
                 "message": "Invalid permission level"
             },
-            "ScriptNotRegistered": {
+            "ScriptNotFound": {
                 "code": -5,
-                "message": "Script is not registered"
+                "message": "Script cannot be found"
             },
             "IllegalArgument": {
                 "code": -6,
@@ -849,9 +1049,21 @@
                 "code": -12,
                 "message": "Interface cannot be found"
             },
-            "EventCallbackCannotDeregister": {
+            "PlayerNotFound": {
                 "code": -13,
-                "message": "Event callback cannot be deregistered"
+                "message": "Player cannot be found"
+            },
+            "WorldNotFound": {
+                "code": -14,
+                "message": "World cannot be found"
+            },
+            "InvalidSize": {
+                "code": -15,
+                "message": "Invalid size"
+            },
+            "BlockNotTarget": {
+                "code": -16,
+                "message": "Non-target block is found in the interface"
             }
         }
     }

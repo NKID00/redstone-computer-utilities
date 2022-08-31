@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import name.nkid00.rcutil.Options;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class Log {
@@ -82,5 +83,13 @@ public class Log {
                 player.sendMessage(makeCompilerHappy);
             }
         });
+    }
+
+    public static void send(ServerPlayerEntity player, Text message) {
+        player.sendMessage(message, false);
+    }
+
+    public static void send(ServerPlayerEntity player, String message) {
+        send(player, TextHelper.literal(message));
     }
 }

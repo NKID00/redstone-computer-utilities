@@ -34,7 +34,6 @@ See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs wi
   - registerScript
   - deregisterScript
   - listScript
-  - infoScript
   - invokeScript
 - Event Callback
   - registerCallback
@@ -50,10 +49,14 @@ See [api-openrpc.json](./api-openrpc.json) for details. Use experimental APIs wi
   - writeInterface
 - Miscellaneous
   - gametime
+  - *listPlayer (experimental)*
 - Logging
   - info
   - warn
   - error
+  - sendInfo
+  - sendWarn
+  - sendError
 
 ## Event Callback
 

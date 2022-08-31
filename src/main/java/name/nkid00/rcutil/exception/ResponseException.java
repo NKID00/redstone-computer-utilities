@@ -1,8 +1,8 @@
-package name.nkid00.rcutil.io;
+package name.nkid00.rcutil.exception;
 
 import com.google.gson.JsonObject;
 
-public class ResponseException extends Exception {
+public class ResponseException extends RCUtilException {
     private int code;
     private String message;
     private String id;
@@ -19,8 +19,8 @@ public class ResponseException extends Exception {
             -3, "Target with the name already exists");
     public static final ResponseException INVALID_PERMISSION_LEVEL = new ResponseException(
             -4, "Invalid permission level");
-    public static final ResponseException SCRIPT_NOT_REGISTERED = new ResponseException(
-            -5, "Script is not registered");
+    public static final ResponseException SCRIPT_NOT_FOUND = new ResponseException(
+            -5, "Script cannot be found");
     public static final ResponseException ILLEGAL_ARGUMENT = new ResponseException(
             -6, "Illegal argument");
     public static final ResponseException SCRIPT_INTERNAL_ERROR = new ResponseException(
@@ -35,8 +35,14 @@ public class ResponseException extends Exception {
             -11, "Access denied");
     public static final ResponseException INTERFACE_NOT_FOUND = new ResponseException(
             -12, "Interface cannot be found");
-    public static final ResponseException EVENT_CALLBACK_CANNOT_DEREGISTER = new ResponseException(
-            -13, "EventCallbackCannotDeregister");
+    public static final ResponseException PLAYER_NOT_FOUND = new ResponseException(
+            -13, "Player cannot be found");
+    public static final ResponseException WORLD_NOT_FOUND = new ResponseException(
+            -14, "World cannot be found");
+    public static final ResponseException INVALID_SIZE = new ResponseException(
+            -15, "Invalid size");
+    public static final ResponseException BLOCK_NOT_TARGET = new ResponseException(
+            -16, "Non-target block is found in the interface");
 
     public ResponseException(int code, String message, String id) {
         this.code = code;

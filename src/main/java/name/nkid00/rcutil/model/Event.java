@@ -1,7 +1,9 @@
 package name.nkid00.rcutil.model;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
+import name.nkid00.rcutil.exception.ResponseException;
 import name.nkid00.rcutil.manager.InterfaceManager;
 
 public abstract class Event {
@@ -26,6 +28,16 @@ public abstract class Event {
     public Event(String name, Object param) {
         this.name = name;
         this.param = param;
+    }
+
+    public static Event fromRequest(JsonObject event) throws ResponseException {
+        var name = event.get("name").getAsString();
+        var param = event.get("param");
+        var result = Event.fromRequest(name, param);
+        if (result == null) {
+            throw ResponseException.EVENT_NOT_FOUND;
+        }
+        return result;
     }
 
     public static Event fromRequest(String name, JsonElement param) {
@@ -99,6 +111,10 @@ public abstract class Event {
 
     public Object param() {
         return param;
+    }
+
+    public JsonElement jsonParam() {
+        return null;
     }
 
     @Override

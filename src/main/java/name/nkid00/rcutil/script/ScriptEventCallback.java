@@ -7,8 +7,8 @@ import com.google.common.collect.SetMultimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import name.nkid00.rcutil.exception.ResponseException;
 import name.nkid00.rcutil.helper.Log;
-import name.nkid00.rcutil.io.ResponseException;
 import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.TimerManager;
 import name.nkid00.rcutil.model.Clock;
@@ -44,56 +44,47 @@ public class ScriptEventCallback {
         }
     }
 
-    private static JsonElement call(Script script, Event event, JsonObject params) throws ResponseException {
+    public static JsonElement call(Script script, Event event, JsonObject args) throws ResponseException {
         if (script.callbackExists(event)) {
-            return ScriptServerIO.send(script.callback(event), params, script.clientAddress);
+            try {
+                return ScriptServerIO.send(script.callback(event), args, script.clientAddress);
+            } catch (ResponseException e) {
+                throw e;
+            } catch (Exception e) {
+                Log.error("Exception encountered while calling event callback", e);
+                return null;
+            }
         }
-        return null;
+        throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
     }
 
-    private static JsonElement callSuppress(Script script, Event event, JsonObject params) {
+    public static JsonElement callSuppress(Script script, Event event, JsonObject args) {
         try {
-            return call(script, event, params);
+            return call(script, event, args);
         } catch (ResponseException e) {
             return null;
         }
     }
 
-    private static JsonElement call(Script script, Event event) throws ResponseException {
-        try {
-            return call(script, event, new JsonObject());
-        } catch (ResponseException e) {
-            throw e;
-        } catch (Exception e) {
-            Log.error("Exception encountered while calling event callback", e);
-        }
-        return null;
+    public static JsonElement call(Script script, Event event) throws ResponseException {
+        return call(script, event, new JsonObject());
     }
 
-    private static JsonElement callSuppress(Script script, Event event) {
-        try {
-            return callSuppress(script, event, new JsonObject());
-        } catch (Exception e) {
-            Log.error("Exception encountered while calling event callback", e);
-        }
-        return null;
+    public static JsonElement callSuppress(Script script, Event event) {
+        return callSuppress(script, event, new JsonObject());
     }
 
-    private static void broadcast(Event event, JsonObject params) {
+    public static void broadcast(Event event, JsonObject args) {
         try {
             for (var script : registeredNonTimedEventScript.get(event)) {
-                try {
-                    callSuppress(script, event, params);
-                } catch (Exception e) {
-                    Log.error("Exception encountered while broadcasting event", e);
-                }
+                callSuppress(script, event, args);
             }
         } catch (Exception e) {
             Log.error("Exception encountered while broadcasting event", e);
         }
     }
 
-    private static void broadcast(Event event) {
+    public static void broadcast(Event event) {
         broadcast(event, new JsonObject());
     }
 

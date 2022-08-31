@@ -1,21 +1,27 @@
 package name.nkid00.rcutil.script;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import name.nkid00.rcutil.exception.BlockNotTargetException;
+import name.nkid00.rcutil.exception.ResponseException;
 import name.nkid00.rcutil.helper.BitSetHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.GametimeHelper;
 import name.nkid00.rcutil.helper.Log;
+import name.nkid00.rcutil.helper.PosHelper;
 import name.nkid00.rcutil.helper.TextHelper;
-import name.nkid00.rcutil.io.ResponseException;
+import name.nkid00.rcutil.helper.WorldHelper;
 import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.ScriptManager;
 import name.nkid00.rcutil.model.Event;
+import name.nkid00.rcutil.model.Interface;
 import name.nkid00.rcutil.model.Script;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.Vec3i;
 
 public class ScriptApi {
     public static JsonElement dispatch(String method, JsonObject params, String clientAddress, MinecraftServer server)
@@ -38,22 +44,20 @@ public class ScriptApi {
         }
         var script = ScriptManager.scriptByAuthKey(authKey);
         switch (method) {
-            case "listScript":
-                break;
-            case "infoScript":
-                break;
-            case "invokeScript":
-                break;
+            case "listScript": {
+                var scripts = new JsonObject();
+                for (var scriptTarget : ScriptManager.iterable()) {
+                    var scriptJsonObject = new JsonObject();
+                    scriptJsonObject.addProperty("description", scriptTarget.description);
+                    scriptJsonObject.addProperty("permissionLevel", scriptTarget.permissionLevel);
+                    scripts.add(scriptTarget.name, scriptJsonObject);
+                }
+                return scripts;
+            }
             case "registerCallback":
             case "deregisterCallback": {
-                var eventJsonObject = params.get("event").getAsJsonObject();
-                var name = eventJsonObject.get("name").getAsString();
-                var param = eventJsonObject.get("param");
+                var event = Event.fromRequest(params.get("event").getAsJsonObject());
                 var callback = params.get("callback").getAsString();
-                var event = Event.fromRequest(name, param);
-                if (event == null) {
-                    throw ResponseException.EVENT_NOT_FOUND;
-                }
                 switch (method) {
                     case "registerCallback":
                         registerCallback(script, event, callback);
@@ -63,15 +67,92 @@ public class ScriptApi {
                         return null;
                 }
             }
+            case "invokeScript":
             case "listCallback":
-                break;
-            case "invokeCallback":
-                break;
-            case "newInterface":
-                break;
+            case "invokeCallback": {
+                var scriptTarget = ScriptManager.scriptByName(params.get("script").getAsString());
+                if (scriptTarget == null) {
+                    throw ResponseException.SCRIPT_NOT_FOUND;
+                }
+                switch (method) {
+                    case "invokeScript": {
+                        var args = params.get("args").getAsJsonObject();
+                        return ScriptEventCallback.call(scriptTarget, Event.ON_SCRIPT_INVOKE, args);
+                    }
+                    case "listCallback": {
+                        var events = new JsonArray(scriptTarget.callbacks.size());
+                        for (var event : scriptTarget.callbacks.keySet()) {
+                            var eventJsonObject = new JsonObject();
+                            eventJsonObject.addProperty("name", event.name());
+                            eventJsonObject.add("param", event.jsonParam());
+                            events.add(eventJsonObject);
+                        }
+                        return events;
+                    }
+                    case "invokeCallback": {
+                        var event = Event.fromRequest(params.get("event").getAsJsonObject());
+                        var args = params.get("args").getAsJsonObject();
+                        return ScriptEventCallback.call(scriptTarget, event, args);
+                    }
+                }
+            }
+            case "newInterface": {
+                var name = params.get("interface").getAsString();
+                if (!CommandHelper.isLetterDigitUnderline(name)) {
+                    throw ResponseException.ILLEGAL_NAME;
+                }
+                if (InterfaceManager.hasInterface(name)) {
+                    throw ResponseException.NAME_EXISTS;
+                }
+                var world = WorldHelper.fromString(server, params.get("world").getAsString());
+                if (world == null) {
+                    throw ResponseException.WORLD_NOT_FOUND;
+                }
+                var lsb = PosHelper.toBlockPos(PosHelper.fromJson(params.get("lsb")));
+                var increment = PosHelper.fromJson(params.get("increment"));
+                var size = params.get("size").getAsInt();
+                if (size < 1) {
+                    throw ResponseException.INVALID_SIZE;
+                }
+                if (size != 1 && increment.equals(Vec3i.ZERO)) {
+                    throw ResponseException.INVALID_SIZE;
+                }
+                var args = params.get("args").getAsJsonObject();
+                Interface interfaze;
+                try {
+                    interfaze = InterfaceManager.tryCreate(name, world, lsb, increment, size, args);
+                } catch (BlockNotTargetException e) {
+                    throw ResponseException.BLOCK_NOT_TARGET;
+                } catch (IllegalArgumentException e) {
+                    throw ResponseException.ILLEGAL_ARGUMENT;
+                }
+                if (interfaze == null) {
+                    throw ResponseException.ILLEGAL_ARGUMENT;
+                }
+                return null;
+            }
+            case "listInterface": {
+                var interfaces = new JsonObject();
+                for (var interfazeTarget : InterfaceManager.iterable()) {
+                    var interfaceJsonObject = new JsonObject();
+                    interfaceJsonObject.addProperty("world", WorldHelper.toString(interfazeTarget.world()));
+                    var lsb = interfazeTarget.lsb();
+                    var lsbJsonArray = new JsonArray(3);
+                    lsbJsonArray.add(lsb.getX());
+                    lsbJsonArray.add(lsb.getY());
+                    lsbJsonArray.add(lsb.getZ());
+                    interfaceJsonObject.add("lsb", lsbJsonArray);
+                    var increment = interfazeTarget.increment();
+                    var incrementJsonArray = new JsonArray(3);
+                    incrementJsonArray.add(increment.getX());
+                    incrementJsonArray.add(increment.getY());
+                    incrementJsonArray.add(increment.getZ());
+                    interfaceJsonObject.add("increment", incrementJsonArray);
+                    interfaces.add(interfazeTarget.name(), interfaceJsonObject);
+                }
+                return interfaces;
+            }
             case "removeInterface":
-            case "listInterface":
-            case "infoInterface":
             case "readInterface":
             case "writeInterface": {
                 var interfaze = InterfaceManager.interfaze(params.get("interface").getAsString());
@@ -79,12 +160,10 @@ public class ScriptApi {
                     throw ResponseException.INTERFACE_NOT_FOUND;
                 }
                 switch (method) {
-                    case "removeInterface":
-                        break;
-                    case "listInterface":
-                        break;
-                    case "infoInterface":
-                        break;
+                    case "removeInterface": {
+                        InterfaceManager.remove(interfaze.name());
+                        return null;
+                    }
                     case "readInterface":
                         return new JsonPrimitive(BitSetHelper.toBase64(interfaze.readSuppress()));
                     case "writeInterface":
@@ -94,26 +173,61 @@ public class ScriptApi {
             }
                 break;
             case "gametime":
-                return new JsonPrimitive(gametime());
-            case "info": {
-                var message = params.get("message").getAsString();
-                Log.info("({}) {}", script.name, message);
-                Log.broadcastToOps(server, "(%s/INFO) %s".formatted(script.name, message));
-                return null;
+                return new JsonPrimitive(GametimeHelper.gametime());
+            case "listPlayer": {
+                var players = new JsonObject();
+                for (var player : server.getPlayerManager().getPlayerList()) {
+                    var playerJsonObject = new JsonObject();
+                    var profile = player.getGameProfile();
+                    playerJsonObject.addProperty("uuid", profile.getName());
+                    playerJsonObject.addProperty("permissionLevel", server.getPermissionLevel(profile));
+                    players.add(player.getGameProfile().getName(), playerJsonObject);
+                }
+                return players;
             }
-            case "warn": {
-                var message = params.get("message").getAsString();
-                Log.warn("({}) {}", script.name, message);
-                Log.broadcastToOps(server, TextHelper.warn(TextHelper.literal(
-                        "(%s/WARN) %s".formatted(script.name, message))));
-                return null;
-            }
+            case "info":
+            case "warn":
             case "error": {
                 var message = params.get("message").getAsString();
-                Log.error("({}) {}", script.name, message);
-                Log.broadcastToOps(server, TextHelper.error(TextHelper.literal(
-                        "(%s/ERROR) %s".formatted(script.name, message))));
-                return null;
+                switch (method) {
+                    case "info":
+                        Log.info("({}) {}", script.name, message);
+                        Log.broadcastToOps(server, "(%s/INFO) %s".formatted(script.name, message));
+                        return null;
+                    case "warn":
+                        Log.warn("({}) {}", script.name, message);
+                        Log.broadcastToOps(server, TextHelper.warn(TextHelper.literal(
+                                "(%s/WARN) %s".formatted(script.name, message))));
+                        return null;
+                    case "error":
+                        Log.error("({}) {}", script.name, message);
+                        Log.broadcastToOps(server, TextHelper.error(TextHelper.literal(
+                                "(%s/ERROR) %s".formatted(script.name, message))));
+                        return null;
+                }
+            }
+            case "sendInfo":
+            case "sendWarn":
+            case "sendError": {
+                var uuid = params.get("uuid").getAsString();
+                var player = server.getPlayerManager().getPlayer(uuid);
+                if (player == null) {
+                    throw ResponseException.PLAYER_NOT_FOUND;
+                }
+                var message = params.get("message").getAsString();
+                switch (method) {
+                    case "sendInfo":
+                        Log.send(player, "(%s/INFO) %s".formatted(script.name, message));
+                        return null;
+                    case "sendWarn":
+                        Log.send(player, TextHelper.warn(TextHelper.literal(
+                                "(%s/WARN) %s".formatted(script.name, message))));
+                        return null;
+                    case "sendError":
+                        Log.send(player, TextHelper.error(TextHelper.literal(
+                                "(%s/ERROR) %s".formatted(script.name, message))));
+                        return null;
+                }
             }
         }
         throw ResponseException.METHOD_NOT_FOUND;
@@ -162,18 +276,9 @@ public class ScriptApi {
     }
 
     public static void deregisterCallback(Script script, Event event) throws ResponseException {
-        switch (event.name()) {
-            case "onGametickStartDelay":
-            case "onGametickEndDelay":
-                throw ResponseException.EVENT_CALLBACK_CANNOT_DEREGISTER;
-        }
         if (!script.callbackExists(event)) {
             throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
         }
         ScriptEventCallback.deregisterCallback(script, event);
-    }
-
-    public static long gametime() throws ResponseException {
-        return GametimeHelper.gametime();
     }
 }

@@ -77,6 +77,10 @@ public class ScriptManager {
         return builder.buildFuture();
     }
 
+    public static Iterable<Script> iterable() {
+        return nameScript.values();
+    }
+
     public static int size() {
         return nameScript.size();
     }

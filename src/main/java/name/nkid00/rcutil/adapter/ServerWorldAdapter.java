@@ -33,7 +33,11 @@ public class ServerWorldAdapter extends TypeAdapter<ServerWorld> {
             in.nextNull();
             return null;
         } else {
-            return WorldHelper.fromString(server, in.nextString());
+            var world = WorldHelper.fromString(server, in.nextString());
+            if (world == null) {
+                return server.getOverworld();
+            }
+            return world;
         }
     }
 }

@@ -27,6 +27,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.util.concurrent.Promise;
 import name.nkid00.rcutil.Options;
+import name.nkid00.rcutil.exception.ResponseException;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.script.ScriptApi;
