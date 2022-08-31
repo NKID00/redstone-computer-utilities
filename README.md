@@ -30,7 +30,7 @@ Python 3.6 or newer is required to use the provided Python library.
 1. Execute `/rcu` to receive a wand item (or get a pink dye by yourself).
 2. Attach target blocks to redstone wires of your redstone mechanics to be debugged.
 3. Left click with the wand item to select the most significant bit, right click to select the least significant bit.
-4. Execute `/rcu new <interface name>` to create a interface.
+4. Execute `/rcu new <interface name>` to create an interface.
 5. Write debugging program and wrap it as a script.
 6. Execute `/rcu run <script name> <interface name>` to run the script.
 
