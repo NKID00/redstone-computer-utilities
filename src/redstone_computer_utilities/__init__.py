@@ -3,11 +3,13 @@
 Simple debug tools for redstone computers.'''
 
 __all__ = ['register_script', 'create_script', 'run',
-           'ResponseError', 'Script', 'Interface',
+           'ResponseError', 'Script', 'Interface', 'Event', 'Vec3i',
            'Interval', 'gametick', 'redstonetick', 'second']
 
 from .main import __version__, register_script, create_script, run
 from .io import ResponseError
 from .script import Script
 from .interface import Interface
+from .event import Event
+from .pos import Vec3i
 from .interval import Interval, gametick, redstonetick, second

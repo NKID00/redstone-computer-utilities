@@ -4,13 +4,15 @@ from typing import Any, Optional
 import redstone_computer_utilities as rcu
 
 
-class _Event:
+class Event:
+    '''Event.'''
+
     def __init__(self, name: str, param: Any) -> None:
         self._name = name
         self._param = param
 
     def __eq__(self, other: object) -> bool:
-        return (isinstance(other, _Event)
+        return (isinstance(other, Event)
                 and self._name == other._name
                 and self._param == other._param)
 
@@ -40,7 +42,7 @@ class _Event:
         return self.param
 
 
-class _SimpleEvent(_Event):
+class _SimpleEvent(Event):
     def __init__(self, name: str) -> None:
         super().__init__(name, None)
 
@@ -51,7 +53,7 @@ class _SimpleEvent(_Event):
         return hash((self._name, self.serializable_param))
 
 
-class _InterfaceEvent(_Event):
+class _InterfaceEvent(Event):
     def __init__(self, name: str,
                  interface: Optional[rcu.Interface] = None):
         super().__init__(name, interface)
@@ -71,7 +73,7 @@ class _InterfaceEvent(_Event):
         return self.param.name
 
 
-class _TimedEvent(_Event):
+class _TimedEvent(Event):
     def __init__(self, name: str,
                  interval: Optional[rcu.Interval] = None):
         super().__init__(name, interval)

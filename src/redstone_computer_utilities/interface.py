@@ -5,8 +5,8 @@ import redstone_computer_utilities as rcu
 
 
 class Interface:
-    '''Interface. Only represents a handle, the actual interface is never
-    processed locally.'''
+    '''Interface. Only represents a handle that may bound to a script, the
+    actual interface is never processed locally.'''
 
     def __init__(self, name: str,
                  script: Optional[rcu.Script] = None) -> None:

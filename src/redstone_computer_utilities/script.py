@@ -1,12 +1,15 @@
+from __future__ import annotations
 from traceback import format_exc
-from typing import Any, Awaitable, Callable, Optional, TypeVar, cast
+from typing import Any, Awaitable, Callable, Iterable, Optional, TypeVar, cast
 import asyncio
+from uuid import UUID
 
 from redstone_computer_utilities.interval import Interval
 
 from .io import MethodNotFoundError, _JsonRpcIO
-from .event import _Event, _SimpleEvent, _Events
+from .event import Event, _SimpleEvent, _Events
 from .interface import Interface
+from .pos import Vec3i
 from .util import (_bytes_to_base64, _base64_to_bytes,
                    _base64_to_int, _int_to_base64)
 from .cli import _error
@@ -34,8 +37,8 @@ class Script:
         self._description: str = description
         self._permission_level: int = permission_level
         self._event_callbacks: dict[
-            _Event, list[Callable[..., Awaitable]]] = {}
-        self._event_method_names: dict[str, _Event] = {}
+            Event, list[Callable[..., Awaitable]]] = {}
+        self._event_method_names: dict[str, Event] = {}
         self._io: Optional[_JsonRpcIO] = None
         self._id_lock: asyncio.Lock = asyncio.Lock()
         self._id_value: int = 0
@@ -61,14 +64,14 @@ class Script:
             params['authKey'] = self._auth_key
         return await cast(_JsonRpcIO, self._io).send(method, params, self._id)
 
-    def _register_event_callback(self, event: _Event, callback: _C) -> _C:
+    def _register_event_callback(self, event: Event, callback: _C) -> _C:
         if event not in self._event_callbacks:
             self._event_callbacks[event] = []
         self._event_callbacks[event].append(callback)
         self._event_method_names[event.to_method_name(self)] = event
         return callback
 
-    def _event_callback_registerer(self, event: _Event) -> Callable[[_C], _C]:
+    def _event_callback_registerer(self, event: Event) -> Callable[[_C], _C]:
         return lambda callback: self._register_event_callback(event, callback)
 
     async def _dispatch_request(self, method: str, params: dict[str, Any]
@@ -130,14 +133,66 @@ class Script:
     def __hash__(self) -> int:
         return hash((self.name, self._auth_key))
 
-    async def gametime(self) -> int:
-        '''Get current monotonic world time of the overworld in gametick.
+    async def list_script(self) -> dict[str, Script]:
+        '''List registered scripts.'''
+        return {k: Script(k, v['description'], v['permissionLevel'])
+                for k, v in (await self._call_api('listScript')).items()}
 
-        Guaranteed to return the same value as player executes
-        `/time query gametime` in the same gametick. Also guaranteed to return
-        the same value when called from callbacks of event onGametickStart and
-        onGametickEnd in the same gametick.'''
-        return await self._call_api('gametime')
+    async def invoke_script(self, script: str | Script, **kwargs) -> Any:
+        '''Invoke the script.'''
+        if isinstance(script, Script):
+            script = script.name
+        return await self._call_api('invokeScript', script=script, args=kwargs)
+
+    async def list_callback(self, script: str | Script) -> list[Event]:
+        '''(experimental) List registered event callbacks of the script.'''
+        if isinstance(script, Script):
+            script = script.name
+        return [Event(item['name'], item['param']) for item in
+                await self._call_api('listCallback', script=script)]
+
+    async def invoke_callback(self, script: str | Script, event: str | Event,
+                              **kwargs) -> Any:
+        '''(experimental) Invoke the event callback of the script.'''
+        if isinstance(script, Script):
+            script = script.name
+        if isinstance(event, Event):
+            event_dict = {'name': event.name,
+                          'param': event.serializable_param}
+        else:
+            event_dict = {'name': event, 'param': None}
+        return await self._call_api('listCallback', script=script,
+                                    event=event_dict, args=kwargs)
+
+    async def new_interface(self, name: str, lsb: Iterable[int] | Vec3i,
+                            increment: Iterable[int] | Vec3i, size: int,
+                            world: str = 'minecraft:overworld',
+                            **kwargs) -> Interface:
+        '''Create an interface.'''
+        if not isinstance(lsb, Vec3i):
+            lsb = Vec3i.from_iterable(lsb)
+        if not isinstance(increment, Vec3i):
+            increment = Vec3i.from_iterable(increment)
+        await self._call_api('newInterface', interface=name,
+                             world=world, lsb=[lsb.x, lsb.y, lsb.z],
+                             increment=[increment.x, increment.y, increment.z],
+                             size=size, args=kwargs)
+        return Interface(name, self)
+
+    async def remove_interface(self, interface: str | Interface) -> None:
+        '''Remove the interface.'''
+        if isinstance(interface, Interface):
+            interface = interface.name
+        await self._call_api('removeInterface', interface=interface)
+
+    async def list_interface(self) -> dict[str, tuple[Interface, str, Vec3i,
+                                                      Vec3i, int]]:
+        '''List interfaces. Values of the result is a tuple (interface handle,
+        world, lsb, increment, size).'''
+        return {k: (Interface(k, self), v['world'],
+                    Vec3i.from_iterable(v['lsb']),
+                    Vec3i.from_iterable(v['increment']), v['size'])
+                for k, v in (await self._call_api('listInterface')).items()}
 
     async def read_interface(self, interface: Interface) -> int:
         '''Read from the interface.'''
@@ -163,6 +218,21 @@ class Script:
                 interface=interface.name,
                 data=_int_to_base64(data))
 
+    async def gametime(self) -> int:
+        '''Get current monotonic world time of the overworld in gametick.
+
+        Guaranteed to return the same value as player executes
+        `/time query gametime` in the same gametick. Also guaranteed to return
+        the same value when called from callbacks of event onGametickStart and
+        onGametickEnd in the same gametick.'''
+        return await self._call_api('gametime')
+
+    async def list_player(self) -> dict[str, tuple[UUID, int]]:
+        '''List interfaces. Values of the result is a tuple (uuid, permission
+        level).'''
+        return {k: (UUID(v['uuid']), v['permissionLevel'])
+                for k, v in (await self._call_api('listPlayer')).items()}
+
     async def info(self, message: str) -> None:
         '''Log the message as information.'''
         await self._call_api('info', message=message)
@@ -174,6 +244,24 @@ class Script:
     async def error(self, message: str) -> None:
         '''Log the message as error.'''
         await self._call_api('error', message=message)
+
+    async def send_info(self, uuid: str | UUID, message: str) -> None:
+        '''Send the message as information to the player.'''
+        if isinstance(uuid, UUID):
+            uuid = str(uuid)
+        await self._call_api('sendInfo', uuid=uuid, message=message)
+
+    async def send_warn(self, uuid: str | UUID, message: str) -> None:
+        '''Send the message as warning to the player.'''
+        if isinstance(uuid, UUID):
+            uuid = str(uuid)
+        await self._call_api('sendWarn', uuid=uuid, message=message)
+
+    async def send_error(self, uuid: str | UUID, message: str) -> None:
+        '''Send the message as error to the player.'''
+        if isinstance(uuid, UUID):
+            uuid = str(uuid)
+        await self._call_api('sendError', uuid=uuid, message=message)
 
     @property
     def on_gametick_start(self) -> Callable[[Callable[[], Awaitable[None]]],

@@ -301,7 +301,7 @@
         },
         {
             "name": "onInterfaceNew",
-            "summary": "(experimental) Called when a interface is created successfully.",
+            "summary": "(experimental) Called when an interface is created successfully.",
             "tags": [
                 {
                     "name": "Interface"
