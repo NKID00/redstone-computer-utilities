@@ -48,7 +48,7 @@ public class ScriptServerIO {
         port = Options.port();
         if (Options.localhostOnly()) {
             address = InetAddress.getLoopbackAddress();
-            Log.info("Starting script server on localhost:{}", port);
+            Log.info("Preparing script server on localhost:{}", port);
         } else {
             if (!Options.host().isEmpty()) {
                 try {
@@ -56,7 +56,7 @@ public class ScriptServerIO {
                 } catch (UnknownHostException e) {
                 }
             }
-            Log.info("Starting script server on {}:{}", address == null ? "*" : address.getHostAddress(), port);
+            Log.info("Preparing script server on {}:{}", address == null ? "*" : address.getHostAddress(), port);
         }
         bootstrap = new ServerBootstrap();
         var threadFactory = new ThreadFactoryBuilder()
@@ -87,13 +87,23 @@ public class ScriptServerIO {
     }
 
     public static void start(MinecraftServer server) {
-        serverChannel = bootstrap.bind(address, port).syncUninterruptibly().channel();
+        Log.info("Starting script server");
+        var future = bootstrap.bind(address, port).awaitUninterruptibly();
+        if (future.cause() != null) {
+            Log.error("Error occurred while starting script server", future.cause());
+            server.stop(false);
+        } else {
+            serverChannel = future.channel();
+        }
     }
 
     public static void stop(MinecraftServer server) {
-        Log.info("Stopping script server");
-        serverChannel.close().syncUninterruptibly();
-        group.shutdownGracefully().syncUninterruptibly();
+        if (serverChannel != null) {
+            Log.info("Stopping script server");
+            serverChannel.close().awaitUninterruptibly();
+            serverChannel = null;
+            group.shutdownGracefully().awaitUninterruptibly();
+        }
     }
 
     private static String id() {
@@ -125,7 +135,7 @@ public class ScriptServerIO {
         var handler = (ScriptServerIOHandler) ctx.handler();
         handler.unblockPromises.put(id, promise);
         handler.callbackRequestIds.addFirst(id);
-        ctx.writeAndFlush(request).syncUninterruptibly();
+        ctx.writeAndFlush(request).awaitUninterruptibly();
         UnblockResult result;
         while (true) {
             if (!promise.awaitUninterruptibly(Options.timeoutMillis())) {
