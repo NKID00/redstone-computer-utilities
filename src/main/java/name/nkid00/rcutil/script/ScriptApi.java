@@ -155,7 +155,7 @@ public class ScriptApi {
             case "removeInterface":
             case "readInterface":
             case "writeInterface": {
-                var interfaze = InterfaceManager.interfaze(params.get("interface").getAsString());
+                var interfaze = InterfaceManager.interfaceByName(params.get("interface").getAsString());
                 if (interfaze == null) {
                     throw ResponseException.INTERFACE_NOT_FOUND;
                 }

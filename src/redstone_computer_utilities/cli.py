@@ -8,6 +8,8 @@ import sys
 
 import colorama
 
+import redstone_computer_utilities as rcu
+
 
 def _cli_init() -> None:
     colorama.init()
@@ -88,7 +90,7 @@ _SPINNER = itertools.cycle('⠸⢰⣠⣄⡆⠇⠋⠙')
 
 
 @contextlib.asynccontextmanager
-async def _wait(message: Optional[str] = None):
+async def _wait(message: Optional[str] = None, *, task_manager: rcu.task._TaskManager):
     wait_object = _Wait(message)
     stdout = sys.stdout
     wrapper = _Wrapper(sys.stdout)
@@ -100,7 +102,7 @@ async def _wait(message: Optional[str] = None):
                 wrapper.message = f'\r{next(_SPINNER)} {wait_object.message}'
             await asyncio.sleep(0.1)
 
-    task = asyncio.create_task(wait())
+    task = task_manager.create_task(wait())
     try:
         yield wait_object
     finally:

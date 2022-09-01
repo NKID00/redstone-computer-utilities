@@ -9,6 +9,13 @@ class Interval:
         self._gametick = interval_gametick
         self._tps = tps
 
+    def __eq__(self, other: object) -> bool:
+        return (isinstance(other, Interval)
+                and self._gametick == other._gametick)
+
+    def __hash__(self) -> int:
+        return hash((self._gametick,))
+
     @property
     def gametick(self) -> int:
         return self._gametick

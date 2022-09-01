@@ -94,6 +94,7 @@ class _TimedEvent(Event):
 
 
 class _Events:
+    ON_SCRIPT_REGISTER = _SimpleEvent('onScriptRegister')
     ON_SCRIPT_RELOAD = _SimpleEvent('onScriptReload')
     ON_SCRIPT_RUN = _SimpleEvent('onScriptRun')
     ON_SCRIPT_INVOKE = _SimpleEvent('onScriptInvoke')
@@ -103,7 +104,8 @@ class _Events:
     ON_GAMETICK_END_DELAY = _TimedEvent('onGametickEndDelay')
     ON_GAMETICK_START_CLOCK = _TimedEvent('onGametickStartClock')
     ON_GAMETICK_END_CLOCK = _TimedEvent('onGametickEndClock')
-    ON_INTERFACE_REDSTONE_UPDATE = _InterfaceEvent('onInterfaceRedstoneUpdate')
+    ON_INTERFACE_UPDATE = _InterfaceEvent('onInterfaceUpdate')
+    ON_INTERFACE_UPDATE_IMMEDIATE = _InterfaceEvent('onInterfaceUpdateImmediate')
     ON_INTERFACE_READ = _InterfaceEvent('onInterfaceRead')
     ON_INTERFACE_WRITE = _InterfaceEvent('onInterfaceWrite')
     ON_INTERFACE_NEW = _InterfaceEvent('onInterfaceNew')

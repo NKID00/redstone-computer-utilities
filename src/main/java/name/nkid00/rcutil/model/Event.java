@@ -19,7 +19,8 @@ public abstract class Event {
     public static final TimedEvent ON_GAMETICK_END_DELAY = new TimedEvent("onGametickEndDelay");
     public static final TimedEvent ON_GAMETICK_START_CLOCK = new TimedEvent("onGametickStartClock");
     public static final TimedEvent ON_GAMETICK_END_CLOCK = new TimedEvent("onGametickEndClock");
-    public static final InterfaceEvent ON_INTERFACE_REDSTONE_UPDATE = new InterfaceEvent("onInterfaceRedstoneUpdate");
+    public static final InterfaceEvent ON_INTERFACE_UPDATE = new InterfaceEvent("onInterfaceUpdate");
+    public static final InterfaceEvent ON_INTERFACE_UPDATE_IMMEDIATE = new InterfaceEvent("onInterfaceUpdateImmediate");
     public static final InterfaceEvent ON_INTERFACE_READ = new InterfaceEvent("onInterfaceRead");
     public static final InterfaceEvent ON_INTERFACE_WRITE = new InterfaceEvent("onInterfaceWrite");
     public static final InterfaceEvent ON_INTERFACE_NEW = new InterfaceEvent("onInterfaceNew");
@@ -33,14 +34,10 @@ public abstract class Event {
     public static Event fromRequest(JsonObject event) throws ResponseException {
         var name = event.get("name").getAsString();
         var param = event.get("param");
-        var result = Event.fromRequest(name, param);
-        if (result == null) {
-            throw ResponseException.EVENT_NOT_FOUND;
-        }
-        return result;
+        return Event.fromRequest(name, param);
     }
 
-    public static Event fromRequest(String name, JsonElement param) {
+    public static Event fromRequest(String name, JsonElement param) throws ResponseException {
         switch (name) {
             case "onScriptReload":
                 return ON_SCRIPT_RELOAD;
@@ -60,7 +57,7 @@ public abstract class Event {
                 try {
                     interval = param.getAsLong();
                 } catch (ClassCastException | IllegalStateException e) {
-                    return null;
+                    throw ResponseException.EVENT_NOT_FOUND;
                 }
                 switch (name) {
                     case "onGametickStartDelay":
@@ -72,7 +69,8 @@ public abstract class Event {
                     case "onGametickEndClock":
                         return ON_GAMETICK_END_CLOCK.withInterval(interval);
                 }
-            case "onInterfaceRedstoneUpdate":
+            case "onInterfaceUpdate":
+            case "onInterfaceUpdateImmediate":
             case "onInterfaceRead":
             case "onInterfaceWrite":
             case "onInterfaceNew":
@@ -81,13 +79,15 @@ public abstract class Event {
                 try {
                     interfaceName = param.getAsString();
                 } catch (ClassCastException | IllegalStateException e) {
-                    return null;
+                    throw ResponseException.EVENT_NOT_FOUND;
                 }
                 if (InterfaceManager.hasInterface(interfaceName)) {
-                    var interfaze = InterfaceManager.interfaze(interfaceName);
+                    var interfaze = InterfaceManager.interfaceByName(interfaceName);
                     switch (name) {
-                        case "onInterfaceRedstoneUpdate":
-                            return ON_INTERFACE_REDSTONE_UPDATE.withInterface(interfaze);
+                        case "onInterfaceUpdate":
+                            return ON_INTERFACE_UPDATE.withInterface(interfaze);
+                        case "onInterfaceUpdateImmediate":
+                            return ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(interfaze);
                         case "onInterfaceRead":
                             return ON_INTERFACE_READ.withInterface(interfaze);
                         case "onInterfaceWrite":
@@ -98,10 +98,10 @@ public abstract class Event {
                             return ON_INTERFACE_REMOVE.withInterface(interfaze);
                     }
                 } else {
-                    return null;
+                    throw ResponseException.INTERFACE_NOT_FOUND;
                 }
             default:
-                return null;
+                throw ResponseException.EVENT_NOT_FOUND;
         }
     }
 

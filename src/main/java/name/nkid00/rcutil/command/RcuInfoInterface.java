@@ -24,7 +24,7 @@ public class RcuInfoInterface {
         var args = ArgumentHelper.getMulti(c, "interface name...");
         int result = 0;
         for (String name : args) {
-            var interfaze = InterfaceManager.interfaze(name);
+            var interfaze = InterfaceManager.interfaceByName(name);
             if (interfaze == null) {
                 s.sendError(I18n.t(uuid, "rcutil.command.fail.interface_not_found", name));
             } else {

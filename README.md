@@ -23,7 +23,7 @@ This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fab
 
 Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
 
-Python 3.6 or newer is required to use the provided Python library.
+Python 3.7 or newer is required to use the provided Python library.
 
 ## Basic Usage
 

@@ -1,20 +1,22 @@
 from __future__ import annotations
 from traceback import format_exc
-from typing import Any, Awaitable, Callable, Iterable, Optional, TypeVar, cast
+from typing import Any, Callable, Coroutine, Iterable, TypeVar, Union, cast
 import asyncio
 from uuid import UUID
 
 from redstone_computer_utilities.interval import Interval
 
 from .io import MethodNotFoundError, _JsonRpcIO
-from .event import Event, _SimpleEvent, _Events
+from .event import Event, _Events
 from .interface import Interface
 from .pos import Vec3i
 from .util import (_bytes_to_base64, _base64_to_bytes,
                    _base64_to_int, _int_to_base64)
 from .cli import _error
+from .task import _TaskManager
+from .timer import _Timer
 
-_C = TypeVar('_C', bound=Callable[..., Awaitable[Any]])
+_C = TypeVar('_C', bound=Union[Callable[..., Coroutine], _Timer])
 
 
 class Script:
@@ -37,20 +39,26 @@ class Script:
         self._description: str = description
         self._permission_level: int = permission_level
         self._event_callbacks: dict[
-            Event, list[Callable[..., Awaitable]]] = {}
+            Event, list[Union[Callable[..., Coroutine], _Timer]]] = {}
         self._event_method_names: dict[str, Event] = {}
-        self._io: Optional[_JsonRpcIO] = None
+        self._io: _JsonRpcIO = cast(_JsonRpcIO, None)
         self._id_lock: asyncio.Lock = asyncio.Lock()
         self._id_value: int = 0
         self._auth_key: str = ''
+        self._detached_tasks: set[asyncio.Task] = set()
+        self._detach_task: asyncio.Task = cast(asyncio.Task, None)
+        self._detach_event: asyncio.Event = cast(asyncio.Event, None)
+        self._task_manager: _TaskManager = cast(_TaskManager, None)
 
     @property
     def name(self) -> str:
         return self._name
 
-    def _set_io(self, io: _JsonRpcIO):
-        '''Set the underlying io.'''
+    def _set_internal(self, io: _JsonRpcIO, task_manager: _TaskManager):
+        '''Set the underlying values.'''
         self._io = io
+        self._task_manager = task_manager
+        self._detach_event = task_manager.event()
 
     @property
     def _id(self) -> str:
@@ -62,17 +70,53 @@ class Script:
             params = {}
         if self._auth_key != '':
             params['authKey'] = self._auth_key
-        return await cast(_JsonRpcIO, self._io).send(method, params, self._id)
+        return await self._io.send(method, params, self._id)
 
-    def _register_event_callback(self, event: Event, callback: _C) -> _C:
+    def _add_event_callback(self, event: Event, callback: _C) -> _C:
         if event not in self._event_callbacks:
             self._event_callbacks[event] = []
         self._event_callbacks[event].append(callback)
         self._event_method_names[event.to_method_name(self)] = event
         return callback
 
-    def _event_callback_registerer(self, event: Event) -> Callable[[_C], _C]:
-        return lambda callback: self._register_event_callback(event, callback)
+    async def _register_event(self, event: Event) -> None:
+        await self._call_api(
+            'registerCallback',
+            event={'name': event.name,
+                   'param': event.serializable_param},
+            callback=event.to_method_name(self))
+
+    async def _register_event_callback(self, event: Event,
+                                       callback: _C) -> _C:
+        if not self._is_event_registered(event):
+            await self._register_event(event)
+        self._add_event_callback(event, callback)
+        return callback
+
+    def _remove_event_callback(self, event: Event) -> None:
+        del self._event_callbacks[event]
+        del self._event_method_names[event.to_method_name(self)]
+
+    def _remove_callback(self, event: Event, callback: _C) -> None:
+        if self._is_event_registered(event):
+            self._event_callbacks[event].remove(callback)
+
+    async def _deregister_event(self, event: Event):
+        await self._call_api(
+            'deregisterCallback',
+            event={'name': event.name,
+                   'param': event.serializable_param})
+
+    async def _deregister_event_callback(self, event: Event) -> None:
+        self._remove_event_callback(event)
+        await self._deregister_event(event)
+
+    def _callback_registerer(self, event: Event) -> Callable[[_C], _C]:
+        return lambda callback: self._add_event_callback(event, callback)
+
+    def _is_event_registered(self, event: Event) -> bool:
+        return (event in self._event_callbacks
+                and len(self._event_callbacks[event]) > 0)
 
     async def _dispatch_request(self, method: str, params: dict[str, Any]
                                 ) -> Any:
@@ -83,47 +127,56 @@ class Script:
             params = {key_map[k] if k in key_map else k: params[k]
                       for k in params}
             event = self._event_method_names[method]
-            for callback in self._event_callbacks[event]:
+
+            async def call_suppress(callback, **params) -> Any:
                 try:
-                    result = await callback(**params)
+                    return await callback(**params)
                 except Exception:  # pylint: disable=broad-except
                     _error(f'Error occurred while running event callback '
                            f'{event} of script {self._name}:')
                     _error(format_exc())
-                    result = None
+
+            result = None
+            for callback in self._event_callbacks[event].copy():
+                self._detach_event.clear()
+                if isinstance(callback, _Timer):
+                    self._detach_task = callback.task
+                    self._remove_callback(event, callback)
+                    callback.event.set()
+                else:
+                    self._detach_task = self._task_manager.add_coro(
+                        call_suppress(callback, **params))
+                await asyncio.wait(
+                    (self._detach_event.wait(), self._detach_task),
+                    return_when=asyncio.FIRST_COMPLETED)
+                if self._detach_task.done():
+                    result = self._detach_task.result()
             return result
         raise MethodNotFoundError()
 
     async def _register(self) -> None:
-        method = f'{self._name}_onScriptRegister'
-        event = _SimpleEvent('onScriptRegister')
-        self._event_callbacks[event] = [self._on_script_register]
-        self._event_method_names[method] = event
+        event = _Events.ON_SCRIPT_REGISTER
+        self._add_event_callback(event, self._on_script_register)
         await self._call_api(
             'registerScript',
             script=self._name,
             description=self._description,
             permissionLevel=self._permission_level,
-            callback=method
-        )
+            callback=event.to_method_name(self))
 
     async def _on_script_register(self, auth_key: str) -> None:
-        method = f'{self._name}_onScriptRegister'
-        event = self._event_method_names[method]
-        del self._event_callbacks[event]
-        del self._event_method_names[method]
         self._auth_key = auth_key
         for event in self._event_callbacks:
-            await self._call_api(
-                'registerCallback',
-                event={'name': event.name, 'param': event.serializable_param},
-                callback=event.to_method_name(self)
-            )
+            if event != _Events.ON_SCRIPT_REGISTER:
+                await self._register_event(event)
 
     async def _deregister(self) -> None:
         if self._auth_key != '':
             await self._call_api('deregisterScript')
             self._auth_key = ''
+
+    def _detach(self) -> None:
+        self._detach_event.set()
 
     def __eq__(self, other: object) -> bool:
         return (isinstance(other, Script)
@@ -264,39 +317,94 @@ class Script:
         await self._call_api('sendError', uuid=uuid, message=message)
 
     @property
-    def on_gametick_start(self) -> Callable[[Callable[[], Awaitable[None]]],
-                                            Callable[[], Awaitable[None]]]:
-        '''Called at the start of every gametick.'''
-        return self._event_callback_registerer(_Events.ON_GAMETICK_START)
+    def on_script_register(self) -> Callable[[Callable[[], Coroutine[Any, Any, None]]],
+                                             Callable[[], Coroutine[Any, Any, None]]]:
+        '''Called when the scripts is almost registered.'''
+        return self._callback_registerer(_Events.ON_SCRIPT_REGISTER)
 
     @property
-    def on_gametick_end(self) -> Callable[[Callable[[], Awaitable[None]]],
-                                          Callable[[], Awaitable[None]]]:
+    def on_gametick_start(self) -> Callable[
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
+        '''Called at the start of every gametick.'''
+        return self._callback_registerer(_Events.ON_GAMETICK_START)
+
+    @property
+    def on_gametick_end(self) -> Callable[
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
         '''Called at the end of every gametick.'''
-        return self._event_callback_registerer(_Events.ON_GAMETICK_END)
+        return self._callback_registerer(_Events.ON_GAMETICK_END)
 
     def on_gametick_start_delay(self, interval: Interval) -> Callable[
-            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
         '''Called only once at the start of the gametick after delay
         interval.'''
-        return self._event_callback_registerer(
+        return self._callback_registerer(
             _Events.ON_GAMETICK_START_DELAY.with_interval(interval))
 
     def on_gametick_end_delay(self, interval: Interval) -> Callable[
-            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
         '''Called only once at the end of the gametick after delay
         interval.'''
-        return self._event_callback_registerer(
+        return self._callback_registerer(
             _Events.ON_GAMETICK_END_DELAY.with_interval(interval))
 
     def on_gametick_start_clock(self, interval: Interval) -> Callable[
-            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
         '''Called at the start of the gametick for every clock cycle.'''
-        return self._event_callback_registerer(
+        return self._callback_registerer(
             _Events.ON_GAMETICK_START_CLOCK.with_interval(interval))
 
     def on_gametick_end_clock(self, interval: Interval) -> Callable[
-            [Callable[[], Awaitable[None]]], Callable[[], Awaitable[None]]]:
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
         '''Called at the end of the gametick for every clock cycle.'''
-        return self._event_callback_registerer(
+        return self._callback_registerer(
             _Events.ON_GAMETICK_END_CLOCK.with_interval(interval))
+
+    def on_interface_update(self, interface: Interface) -> Callable[
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
+        '''Called at the end of the gametick when redstone signal received by
+        the interface is changed. Guaranteed to be called at most once within
+        a gametick at the end of it.'''
+        return self._callback_registerer(
+            _Events.ON_INTERFACE_UPDATE.with_interface(interface))
+
+    def on_interface_update_immediate(self, interface: Interface) -> Callable[
+            [Callable[[], Coroutine[Any, Any, None]]],
+            Callable[[], Coroutine[Any, Any, None]]]:
+        '''Called immediately when redstone signal received by the interface
+        is changed. May be triggered multiple times within a single
+        gametick.'''
+        return self._callback_registerer(
+            _Events.ON_INTERFACE_UPDATE_IMMEDIATE.with_interface(interface))
+
+    async def wait(self, interval: Interval) -> None:
+        '''Suspend the execution until the interval elapses. Guaranteed to
+        complete at the start of a gametick.'''
+        await self.wait_gametick_start(interval)
+
+    async def wait_gametick_start(self, interval: Interval) -> None:
+        '''Suspend the execution until the interval elapses. Guaranteed to
+        complete at the start of a gametick.'''
+        event = self._task_manager.event()
+        timer = _Timer(event, self._detach_task)
+        await self._register_event_callback(
+            _Events.ON_GAMETICK_START_DELAY.with_interval(interval), timer)
+        self._detach()
+        await event.wait()
+
+    async def wait_gametick_end(self, interval: Interval) -> None:
+        '''Suspend the execution until the interval elapses. Guaranteed to
+        complete at the end of a gametick.'''
+        event = self._task_manager.event()
+        timer = _Timer(event, self._detach_task)
+        await self._register_event_callback(
+            _Events.ON_GAMETICK_END_DELAY.with_interval(interval), timer)
+        self._detach()
+        await event.wait()

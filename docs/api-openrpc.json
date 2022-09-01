@@ -187,6 +187,9 @@
                     "$ref": "#/components/errors/EventCallbackAlreadyRegistered"
                 },
                 {
+                    "$ref": "#/components/errors/InterfaceNotFound"
+                },
+                {
                     "$ref": "#/components/errors/InvalidAuthKey"
                 }
             ]
@@ -217,9 +220,6 @@
                 },
                 {
                     "$ref": "#/components/errors/EventCallbackNotRegistered"
-                },
-                {
-                    "$ref": "#/components/errors/EventCallbackCannotDeregister"
                 },
                 {
                     "$ref": "#/components/errors/InvalidAuthKey"

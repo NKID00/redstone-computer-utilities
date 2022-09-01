@@ -67,7 +67,6 @@ public class Script {
     public int hashCode() {
         // some random prime number
         int result = 31 + (name == null ? 0 : name.hashCode());
-        result = result * 31 + (authKey == null ? 0 : authKey.hashCode());
         return result;
     }
 
@@ -82,9 +81,6 @@ public class Script {
         if (obj instanceof Script) {
             var other = (Script) obj;
             if (name == null ? other.name != null : !name.equals(other.name)) {
-                return false;
-            }
-            if (authKey == null ? other.authKey != null : !authKey.equals(other.authKey)) {
                 return false;
             }
             return true;

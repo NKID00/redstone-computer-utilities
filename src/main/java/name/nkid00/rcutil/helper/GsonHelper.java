@@ -1,7 +1,10 @@
 package name.nkid00.rcutil.helper;
 
+import java.util.BitSet;
+
 import com.google.gson.GsonBuilder;
 
+import name.nkid00.rcutil.adapter.BitSetAdapter;
 import name.nkid00.rcutil.adapter.BlockPosAdapter;
 import name.nkid00.rcutil.adapter.RegistryAdapterFactory;
 import name.nkid00.rcutil.adapter.ServerWorldAdapter;
@@ -19,12 +22,11 @@ public class GsonHelper {
                 .registerTypeAdapter(BlockPos.class, new BlockPosAdapter())
                 .registerTypeAdapter(Vec3i.class, new Vec3iAdapter())
                 .registerTypeAdapter(ServerWorld.class, new ServerWorldAdapter(server))
-                .registerTypeAdapterFactory(
-                        new RegistryAdapterFactory<>(registryManager.get(Registry.DIMENSION_TYPE_KEY)) {
-                        })
+                .registerTypeAdapter(BitSet.class, new BitSetAdapter())
                 .registerTypeAdapterFactory(
                         new RegistryAdapterFactory<>(registryManager.get(Registry.ITEM_KEY)) {
                         })
-                .setLenient();
+                .setLenient()
+                .disableHtmlEscaping();
     }
 }

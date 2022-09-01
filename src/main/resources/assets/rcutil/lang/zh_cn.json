@@ -12,8 +12,10 @@
     "rcutil.command.rcu_new.fail.invalid_name": "名称%s无效",
     "rcutil.command.rcu_new.fail.invalid_option": "选项无效：%s",
     "rcutil.command.rcu_new.fail.invalid_selection": "无法从选区推导接口",
-    "rcutil.command.rcu_new.fail.not_selected": "选区不完整",
+    "rcutil.command.rcu_new.fail.selection_incomplete": "选区不完整",
+    "rcutil.command.rcu_new.fail.selection_not_found": "选区不存在",
     "rcutil.command.rcu_new.success": "成功创建新接口：%s",
+    "rcutil.command.rcu_new.warn.shared_block": "位于%s的标靶方块被下列接口共用：%s",
     "rcutil.command.rcu_remove.success": "成功移除接口%s",
     "rcutil.info.interface": "共%s个接口：%s",
     "rcutil.info.interface.detail": "[接口%s 位于%s 位宽%sb]",
@@ -24,5 +26,5 @@
     "rcutil.info.script.no_description": "未提供简介",
     "rcutil.select.lsb": "最低有效位已设置为%s",
     "rcutil.select.msb": "最高有效位已设置为%s",
-    "rcutil.select.not_target_block": "只能选择标靶"
+    "rcutil.select.not_target_block": "只能选择标靶方块"
 }

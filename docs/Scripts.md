@@ -10,7 +10,7 @@ Communication between the mod and scripts is accomplished with two-way JSON-RPC 
 
 Each serialized json message MUST be framed with a 2-byte big-endian length field prepended while transferring. Length of the serialized json message MUST be less than or equal to 65535. To avoid collision, ids of requests sent by the mod MUST be a string started with `s_`, while ids of requests sent by scripts MUST be a string started with `c_` and SHOULD be a string started with `c_<script name>_`. Names of event callback methods SHOULD start with `<script name>_`. The above `<script name>` excludes the angle brackets.
 
-Due to restrictions of multithread world operation in Minecraft, every event callback will block the main thread of the server until a response arrives, a request sent by script handling the event callback arrives or time is out, and the mod will handle pending requests only at the start of every gametick. Scripts MUST utilize the event callback `onScriptRegister` to make sure that the main thread of the server is blocked during script registration process.
+Due to restrictions of multithread world operation in Minecraft, every event callback will block the main thread of the server until a response arrives, a request sent by script handling the event callback arrives or timeout interval elapses, and the mod will handle pending requests only at the start of every gametick. Scripts MUST utilize the event callback `onScriptRegister` to make sure that the main thread of the server is blocked during script registration process.
 
 ## Authorization
 
@@ -77,7 +77,8 @@ See [callback-openrpc.json](./callback-openrpc.json) for details. Use experiment
   - onGametickStartClock
   - onGametickEndClock
 - Interface
-  - onInterfaceRedstoneUpdate
+  - onInterfaceUpdate
+  - onInterfaceUpdateImmediate
   - onInterfaceRead
   - onInterfaceWrite
   - *onInterfaceNew (experimental)*

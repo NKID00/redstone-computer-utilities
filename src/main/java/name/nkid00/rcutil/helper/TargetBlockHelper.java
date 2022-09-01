@@ -44,6 +44,25 @@ public class TargetBlockHelper {
         return read(world, pos) > 0;
     }
 
+    public static int readOrZero(ServerWorld world, BlockPos pos) {
+        if (!is(world, pos)) {
+            return 0;
+        }
+        return world.getReceivedRedstonePower(pos);
+    }
+
+    public static boolean readDigitalOrZero(ServerWorld world, BlockPos pos) {
+        return readOrZero(world, pos) > 0;
+    }
+
+    public static int readUnsafe(ServerWorld world, BlockPos pos) {
+        return world.getReceivedRedstonePower(pos);
+    }
+
+    public static boolean readDigitalUnsafe(ServerWorld world, BlockPos pos) {
+        return readUnsafe(world, pos) > 0;
+    }
+
     public static void write(ServerWorld world, BlockPos pos, int power)
             throws BlockNotTargetException {
         if (!is(world, pos)) {
@@ -55,5 +74,24 @@ public class TargetBlockHelper {
     public static void writeDigital(ServerWorld world, BlockPos pos, boolean power)
             throws BlockNotTargetException {
         write(world, pos, power ? 15 : 0);
+    }
+
+    public static void writeSuppress(ServerWorld world, BlockPos pos, int power) {
+        if (!is(world, pos)) {
+            return;
+        }
+        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), Block.NOTIFY_ALL);
+    }
+
+    public static void writeDigitalSuppress(ServerWorld world, BlockPos pos, boolean power) {
+        writeSuppress(world, pos, power ? 15 : 0);
+    }
+
+    public static void writeUnsafe(ServerWorld world, BlockPos pos, int power) {
+        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), Block.NOTIFY_ALL);
+    }
+
+    public static void writeDigitalUnsafe(ServerWorld world, BlockPos pos, boolean power) {
+        writeUnsafe(world, pos, power ? 15 : 0);
     }
 }

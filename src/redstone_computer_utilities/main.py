@@ -7,6 +7,7 @@ import asyncio
 from .script import Script
 from .io import MethodNotFoundError, _JsonRpcIO
 from .cli import _cli_init, _wait, _info, _warn, _error
+from .task import _TaskManager
 
 __version__ = _version(__package__)
 
@@ -64,14 +65,14 @@ async def _run_async(host: str, port: int) -> None:
                 continue
         raise MethodNotFoundError()
 
-    tasks: deque[asyncio.Task] = deque()
-    task_added_event = asyncio.Event()
+    task_manager = _TaskManager(asyncio.get_running_loop())
 
-    async with _wait(f'Connecting to script server {host}:{port}'):
+    async with _wait(f'Connecting to script server {host}:{port}',
+                     task_manager=task_manager):
         while True:
             try:
                 io = _JsonRpcIO(*await asyncio.open_connection(host, port),
-                                dispatch_request, tasks, task_added_event)
+                                dispatch_request, task_manager)
             except OSError:
                 await asyncio.sleep(1)
             else:
@@ -79,43 +80,44 @@ async def _run_async(host: str, port: int) -> None:
         _info(f'Connected to script server {host}:{port}')
 
     async def task_added_event_listener() -> NoReturn:
-        nonlocal task_added_event
-        await task_added_event.wait()
+        nonlocal task_manager
+        await task_manager.task_added_event.wait()
         raise _EventTriggeredError()
 
     async def watch_dog() -> NoReturn:
-        nonlocal tasks
+        nonlocal task_manager
         while True:
             _done, _pending = await asyncio.wait(
-                tasks.copy(), return_when=asyncio.FIRST_EXCEPTION)
+                task_manager.tasks.copy(),
+                return_when=asyncio.FIRST_EXCEPTION)
             tasks_new: deque[asyncio.Task] = deque()
-            for task in tasks:
+            for task in task_manager.tasks:
                 try:
                     task.result()
                 except asyncio.InvalidStateError:
                     tasks_new.append(task)
                     continue
                 except _EventTriggeredError:
-                    task_added_event.clear()
-                    tasks_new.append(asyncio.create_task(
+                    task_manager.task_added_event.clear()
+                    tasks_new.append(task_manager.create_task(
                         task_added_event_listener()))
                     continue
                 except asyncio.IncompleteReadError:
                     _warn('Disconnected')
                     raise
-            tasks.clear()
-            tasks.extend(tasks_new)
+            task_manager.tasks.clear()
+            task_manager.tasks.extend(tasks_new)
 
-    tasks.append(asyncio.create_task(task_added_event_listener()))
-    watch_dog_task = asyncio.create_task(watch_dog())
-    tasks.append(asyncio.create_task(io.run()))
+    task_manager.add_coros(task_added_event_listener(), io.run())
+    watch_dog_task = task_manager.create_task(watch_dog())
 
     scripts_len = len(_registered_scripts)
     success_count = 0
-    async with _wait() as wait:
+    async with _wait(task_manager=task_manager) as wait:
         for i, script in enumerate(_registered_scripts):
             wait(f'Registering script(s) ({i}/{scripts_len})')
-            script._set_io(io)  # pylint: disable=protected-access
+            # pylint: disable=protected-access
+            script._set_internal(io, task_manager)
             try:
                 await script._register()  # pylint: disable=protected-access
             except Exception:  # pylint: disable=broad-except
@@ -129,6 +131,6 @@ async def _run_async(host: str, port: int) -> None:
     if success_count == 0:
         raise KeyboardInterrupt()
 
-    async with _wait('Running') as wait:
+    async with _wait('Running', task_manager=task_manager) as wait:
         await watch_dog_task
         watch_dog_task.result()

@@ -72,7 +72,8 @@ Python 库相关文档参见 [Python.zh_cn.md](./Python.zh_cn.md)。
   - onGametickStartClock
   - onGametickEndClock
 - 接口
-  - onInterfaceRedstoneUpdate
+  - onInterfaceUpdate
+  - onInterfaceUpdateImmediate
   - onInterfaceRead
   - onInterfaceWrite
   - *onInterfaceNew（实验性）*

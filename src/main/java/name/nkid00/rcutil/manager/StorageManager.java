@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.google.gson.stream.JsonToken;
 
 import name.nkid00.rcutil.helper.GsonHelper;
 import name.nkid00.rcutil.helper.Log;
@@ -27,7 +28,13 @@ public class StorageManager {
     public static void load() {
         try (var reader = gson.newJsonReader(new FileReader(file, StandardCharsets.UTF_8))) {
             reader.beginObject();
-            while (reader.hasNext()) {
+            outer: while (reader.hasNext()) {
+                while (reader.peek() != JsonToken.NAME) {
+                    reader.skipValue();
+                    if (!reader.hasNext()) {
+                        break outer;
+                    }
+                }
                 switch (reader.nextName()) {
                     case "selection":
                         SelectionManager.load(reader, gson);
@@ -37,15 +44,11 @@ public class StorageManager {
                         break;
                     case "language":
                         LanguageManager.load(reader, gson);
-                        break;
-                    default:
-                        Log.error("Read unknown field while loading");
-
                 }
             }
             reader.endObject();
         } catch (IOException e) {
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | ClassCastException | IllegalStateException e) {
             Log.error("Error occurred while loading", e);
         }
         save();

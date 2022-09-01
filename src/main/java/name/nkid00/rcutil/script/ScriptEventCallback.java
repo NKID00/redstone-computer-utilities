@@ -10,9 +10,11 @@ import com.google.gson.JsonObject;
 import name.nkid00.rcutil.exception.ResponseException;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.io.ScriptServerIO;
+import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.TimerManager;
 import name.nkid00.rcutil.model.Clock;
 import name.nkid00.rcutil.model.Event;
+import name.nkid00.rcutil.model.Interface;
 import name.nkid00.rcutil.model.Script;
 import name.nkid00.rcutil.model.TimedEvent;
 import name.nkid00.rcutil.model.Timer;
@@ -44,16 +46,36 @@ public class ScriptEventCallback {
         }
     }
 
+    public static JsonElement call(Script script, String method, JsonObject args) throws ResponseException {
+        try {
+            return ScriptServerIO.send(method, args, script.clientAddress);
+        } catch (ResponseException e) {
+            throw e;
+        } catch (Exception e) {
+            Log.error("Exception encountered while calling event callback", e);
+            return null;
+        }
+    }
+
+    public static JsonElement callSuppress(Script script, String method, JsonObject args) {
+        try {
+            return call(script, method, args);
+        } catch (ResponseException e) {
+            return null;
+        }
+    }
+
+    public static JsonElement call(Script script, String method) throws ResponseException {
+        return call(script, method, new JsonObject());
+    }
+
+    public static JsonElement callSuppress(Script script, String method) {
+        return callSuppress(script, method, new JsonObject());
+    }
+
     public static JsonElement call(Script script, Event event, JsonObject args) throws ResponseException {
         if (script.callbackExists(event)) {
-            try {
-                return ScriptServerIO.send(script.callback(event), args, script.clientAddress);
-            } catch (ResponseException e) {
-                throw e;
-            } catch (Exception e) {
-                Log.error("Exception encountered while calling event callback", e);
-                return null;
-            }
+            return call(script, script.callback(event), args);
         }
         throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
     }
@@ -93,8 +115,13 @@ public class ScriptEventCallback {
         ImmutableSet<Timer> timers;
         do {
             timers = TimerManager.onGametickStart();
-            for (Timer timer : timers) {
-                callSuppress(timer.script(), timer.event());
+            for (var timer : timers) {
+                var script = timer.script();
+                var method = script.callback(timer.event());
+                if (!(timer instanceof Clock)) {
+                    script.deregisterCallback(timer.event());
+                }
+                callSuppress(script, method);
             }
         } while (!timers.isEmpty());
     }
@@ -104,18 +131,27 @@ public class ScriptEventCallback {
         ImmutableSet<Timer> timers;
         do {
             timers = TimerManager.onGametickEnd();
-            for (Timer timer : timers) {
-                callSuppress(timer.script(), timer.event());
+            for (var timer : timers) {
+                var script = timer.script();
+                var method = script.callback(timer.event());
                 if (!(timer instanceof Clock)) {
-                    timer.script().deregisterCallback(timer.event());
+                    script.deregisterCallback(timer.event());
                 }
+                callSuppress(script, method);
             }
         } while (!timers.isEmpty());
 
         // clear onGametickStartDelay(0)
-        timers = TimerManager.onGametickStart();
-        for (Timer timer : timers) {
+        for (var timer : TimerManager.onGametickStart()) {
             timer.script().deregisterCallback(timer.event());
         }
+
+        for (var interfaze : InterfaceManager.resetUpdated()) {
+            broadcast(Event.ON_INTERFACE_UPDATE.withInterface(interfaze));
+        }
+    }
+
+    public static void onInterfaceUpdateImmediate(Interface interfaze) {
+        broadcast(Event.ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(interfaze));
     }
 }

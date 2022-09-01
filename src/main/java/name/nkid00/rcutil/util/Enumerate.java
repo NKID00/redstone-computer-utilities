@@ -2,7 +2,7 @@ package name.nkid00.rcutil.util;
 
 import java.util.Iterator;
 
-public class Enumerate<T> implements Iterable<Enumerate<T>.IndexedItem> {
+public class Enumerate<T> implements Iterable<IndexedObject<T>> {
     private final Iterator<T> iterator;
     private final int start;
 
@@ -24,29 +24,11 @@ public class Enumerate<T> implements Iterable<Enumerate<T>.IndexedItem> {
     }
 
     @Override
-    public Iterator<Enumerate<T>.IndexedItem> iterator() {
+    public Iterator<IndexedObject<T>> iterator() {
         return new EnumerateIterator();
     }
 
-    public class IndexedItem {
-        private final int index;
-        private final T item;
-
-        public IndexedItem(int index, T item) {
-            this.index = index;
-            this.item = item;
-        }
-
-        public int index() {
-            return index;
-        }
-
-        public T item() {
-            return item;
-        }
-    }
-
-    public class EnumerateIterator implements Iterator<IndexedItem> {
+    public class EnumerateIterator implements Iterator<IndexedObject<T>> {
         private int index = start;
 
         public int index() {
@@ -59,8 +41,8 @@ public class Enumerate<T> implements Iterable<Enumerate<T>.IndexedItem> {
         }
 
         @Override
-        public IndexedItem next() {
-            return new IndexedItem(index++, iterator.next());
+        public IndexedObject<T> next() {
+            return new IndexedObject<>(index++, iterator.next());
         }
     }
 }

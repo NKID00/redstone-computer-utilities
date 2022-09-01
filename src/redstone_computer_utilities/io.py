@@ -1,8 +1,9 @@
 from __future__ import annotations
 import asyncio
-from collections import deque
 import json
 from typing import Any, Awaitable, Callable, NoReturn, Optional
+
+import redstone_computer_utilities as rcu
 
 
 class ResponseError(Exception):
@@ -62,15 +63,13 @@ class _JsonRpcIO:
                  writer: asyncio.StreamWriter,
                  request_handler: Callable[[str, dict[str, Any]],
                                            Awaitable[Optional[Any]]],
-                 tasks: deque[asyncio.Task],
-                 task_added_event: asyncio.Event) -> None:
+                 task_manager: rcu.task._TaskManager) -> None:
         self._reader = reader
         self._writer = writer
         self._responses: dict[str, dict[str, Any]] = {}
         self._request_handler = request_handler
         self._response_events: dict[str, asyncio.Event] = {}
-        self._tasks = tasks
-        self._task_added_event = task_added_event
+        self._task_manager = task_manager
 
     async def _write(self, data: dict[str, Any]) -> None:
         data_bytes = json.dumps(data, ensure_ascii=False, indent=None,
@@ -130,16 +129,12 @@ class _JsonRpcIO:
                 await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
             else:
                 if isinstance(data, dict):
-                    self._tasks.append(asyncio.create_task(
-                        self._dispatch(data)))
-                    self._task_added_event.set()
+                    self._task_manager.add_coro(self._dispatch(data))
                 elif isinstance(data, list):
                     if len(data) == 0:
                         await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
                     for item in data:
-                        self._tasks.append(asyncio.create_task(
-                            self._dispatch(item)))
-                        self._task_added_event.set()
+                        self._task_manager.add_coro(self._dispatch(item))
                 else:
                     await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
 
@@ -148,7 +143,7 @@ class _JsonRpcIO:
         '''Send a request and receive the corresponding response. A
         ResponseError is raised when an error is received. An OverflowError is
         raised when length of json is greater than 65535'''
-        self._response_events[id_] = asyncio.Event()
+        self._response_events[id_] = self._task_manager.event()
         await self._write({'jsonrpc': '2.0', 'method': method,
                            'params': params, 'id': id_})
         await self._response_events[id_].wait()
