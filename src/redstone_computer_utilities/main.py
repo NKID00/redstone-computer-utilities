@@ -38,6 +38,7 @@ def create_script(name: str, description: str = '',
 def run(host: str = 'localhost', port: int = 37265) -> None:
     '''Try to connect with script server and enter the main loop.'''
     _cli_init()
+    _info('  Use Ctrl-C to exit')
     while True:
         try:
             asyncio.run(_run_async(host, port))
@@ -48,7 +49,7 @@ def run(host: str = 'localhost', port: int = 37265) -> None:
     _info('  Stopped')
 
 
-class EventTriggeredError(Exception):
+class _EventTriggeredError(Exception):
     pass
 
 
@@ -80,7 +81,7 @@ async def _run_async(host: str, port: int) -> None:
     async def task_added_event_listener() -> NoReturn:
         nonlocal task_added_event
         await task_added_event.wait()
-        raise EventTriggeredError()
+        raise _EventTriggeredError()
 
     async def watch_dog() -> NoReturn:
         nonlocal tasks
@@ -94,7 +95,7 @@ async def _run_async(host: str, port: int) -> None:
                 except asyncio.InvalidStateError:
                     tasks_new.append(task)
                     continue
-                except EventTriggeredError:
+                except _EventTriggeredError:
                     task_added_event.clear()
                     tasks_new.append(asyncio.create_task(
                         task_added_event_listener()))
