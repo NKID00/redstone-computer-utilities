@@ -55,4 +55,19 @@ public class CommandHelper {
         }
         return player;
     }
+
+    public static boolean isQuoted(String s) {
+        return (s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("\'") && s.endsWith("\'"));
+    }
+
+    public static String quoted(String s) {
+        return '"' + s.replace("\\", "\\\\").replace("\"", "\\\"") + '"';
+    }
+
+    public static String unquoted(String s) {
+        if (isQuoted(s)) {
+            s = s.substring(1, s.length() - 1);
+        }
+        return s.replace("\\\"", "\"").replace("\\\\", "\\");
+    }
 }

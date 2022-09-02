@@ -63,7 +63,7 @@
                     "$ref": "#/components/contentDescriptors/uuid"
                 },
                 {
-                    "$ref": "#/components/contentDescriptors/args"
+                    "$ref": "#/components/contentDescriptors/runArgs"
                 }
             ],
             "result": {
@@ -273,7 +273,7 @@
         },
         {
             "name": "onInterfaceRead",
-            "summary": "Called before the interface is read by the script.",
+            "summary": "Called before the interface is read by a script.",
             "description": "Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
@@ -297,7 +297,7 @@
         },
         {
             "name": "onInterfaceWrite",
-            "summary": "Called before the interface is written by the script.",
+            "summary": "Called before the interface is written by a script.",
             "description": "Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
@@ -460,14 +460,10 @@
             },
             "args": {
                 "name": "args",
-                "summary": "Arguments to invoke the script.",
+                "summary": "Arguments.",
                 "required": true,
                 "schema": {
-                    "anyOf": [
-                        {
-                            "type": "object"
-                        }
-                    ]
+                    "type": "object"
                 }
             },
             "interface": {
@@ -500,10 +496,17 @@
             },
             "uuid": {
                 "name": "uuid",
-                "summary": "UUID of the player.",
+                "summary": "UUID of the player. Null value represents non-player command source (e.g. server console).",
                 "required": true,
                 "schema": {
-                    "type": "string"
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
                 }
             },
             "gametime": {
@@ -578,6 +581,30 @@
                 "schema": {
                     "type": "integer",
                     "minimum": 1
+                }
+            },
+            "runArgs": {
+                "name": "runArgs",
+                "summary": "Arguments to run the script.",
+                "required": true,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "literal",
+                                    "interface",
+                                    "script"
+                                ]
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             }
         },

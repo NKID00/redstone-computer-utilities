@@ -48,7 +48,8 @@ public class StorageManager {
             }
             reader.endObject();
         } catch (IOException e) {
-        } catch (JsonParseException | ClassCastException | IllegalStateException e) {
+        } catch (JsonParseException | ClassCastException | IllegalStateException
+                | UnsupportedOperationException | NullPointerException e) {
             Log.error("Error occurred while loading", e);
         }
         save();

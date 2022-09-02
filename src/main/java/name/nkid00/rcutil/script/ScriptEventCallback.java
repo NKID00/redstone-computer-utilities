@@ -95,18 +95,21 @@ public class ScriptEventCallback {
         return callSuppress(script, event, new JsonObject());
     }
 
-    public static void broadcast(Event event, JsonObject args) {
+    public static int broadcast(Event event, JsonObject args) {
+        int result = 0;
         try {
             for (var script : registeredNonTimedEventScript.get(event)) {
                 callSuppress(script, event, args);
+                result++;
             }
         } catch (Exception e) {
             Log.error("Exception encountered while broadcasting event", e);
         }
+        return result;
     }
 
-    public static void broadcast(Event event) {
-        broadcast(event, new JsonObject());
+    public static int broadcast(Event event) {
+        return broadcast(event, new JsonObject());
     }
 
     public static void onGametickStart() {

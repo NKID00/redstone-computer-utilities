@@ -580,10 +580,10 @@
                 "schema": {
                     "type": "object",
                     "patternProperties": {
-                        "^.+$": {
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$": {
                             "type": "object",
                             "properties": {
-                                "uuid": {
+                                "name": {
                                     "type": "string"
                                 },
                                 "permissionLevel": {

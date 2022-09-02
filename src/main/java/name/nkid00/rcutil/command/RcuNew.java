@@ -29,7 +29,7 @@ public class RcuNew {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.invalid_name", name));
             return 0;
         }
-        if (InterfaceManager.hasInterface(name)) {
+        if (InterfaceManager.nameExists(name)) {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_new.fail.exists", name));
             return 0;
         }

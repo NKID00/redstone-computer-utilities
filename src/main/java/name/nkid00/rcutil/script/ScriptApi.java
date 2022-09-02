@@ -101,7 +101,7 @@ public class ScriptApi {
                 if (!CommandHelper.isLetterDigitUnderline(name)) {
                     throw ResponseException.ILLEGAL_NAME;
                 }
-                if (InterfaceManager.hasInterface(name)) {
+                if (InterfaceManager.nameExists(name)) {
                     throw ResponseException.NAME_EXISTS;
                 }
                 var world = WorldHelper.fromString(server, params.get("world").getAsString());
@@ -182,9 +182,9 @@ public class ScriptApi {
                 for (var player : server.getPlayerManager().getPlayerList()) {
                     var playerJsonObject = new JsonObject();
                     var profile = player.getGameProfile();
-                    playerJsonObject.addProperty("uuid", profile.getName());
+                    playerJsonObject.addProperty("name", profile.getName());
                     playerJsonObject.addProperty("permissionLevel", server.getPermissionLevel(profile));
-                    players.add(player.getGameProfile().getName(), playerJsonObject);
+                    players.add(profile.getId().toString(), playerJsonObject);
                 }
                 return players;
             }

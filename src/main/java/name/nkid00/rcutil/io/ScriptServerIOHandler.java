@@ -96,7 +96,7 @@ public class ScriptServerIOHandler extends SimpleChannelInboundHandler<JsonEleme
                 INVALID_REQUEST_RESPONSE.retain();
                 ctx.writeAndFlush(INVALID_REQUEST_RESPONSE);
             }
-        } catch (IllegalStateException | ClassCastException | NullPointerException e) {
+        } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
             INVALID_REQUEST_RESPONSE.retain();
             ctx.writeAndFlush(INVALID_REQUEST_RESPONSE);
         }

@@ -61,7 +61,7 @@ public class InterfaceManager {
         return interfaceByBlockPos(new TargetBlockPos(world, x, y, z));
     }
 
-    public static boolean hasInterface(String name) {
+    public static boolean nameExists(String name) {
         return interfaces.containsKey(name);
     }
 

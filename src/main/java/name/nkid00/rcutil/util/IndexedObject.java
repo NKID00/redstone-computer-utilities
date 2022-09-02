@@ -1,22 +1,6 @@
 package name.nkid00.rcutil.util;
 
-public class IndexedObject<T> {
-    private final int index;
-    private final T object;
-
-    public IndexedObject(int index, T item) {
-        this.index = index;
-        this.object = item;
-    }
-
-    public int index() {
-        return index;
-    }
-
-    public T object() {
-        return object;
-    }
-
+public record IndexedObject<T> (int index, T object) {
     @Override
     public int hashCode() {
         // some random prime number

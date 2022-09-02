@@ -71,8 +71,10 @@ public class CommandManager {
                                 .executes(RcuRun::execute)
                                 .then(argument("argument...", StringArgumentType.greedyString())
                                         .suggests(ArgumentHelper.repeatableMulti(ArgumentHelper.merge(
-                                                InterfaceManager::getSuggestions,
-                                                ScriptManager::getSuggestions)))
+                                                ArgumentHelper.map(
+                                                        InterfaceManager::getSuggestions, s -> "interface:" + s),
+                                                ArgumentHelper.map(
+                                                        ScriptManager::getSuggestions, s -> "script:" + s))))
                                         .executes(RcuRun::execute)))));
         // /rcu reload
         dispatcher.register(literal("rcu")

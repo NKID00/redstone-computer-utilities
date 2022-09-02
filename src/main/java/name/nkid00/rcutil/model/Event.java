@@ -58,7 +58,7 @@ public abstract class Event {
                 long interval;
                 try {
                     interval = param.getAsLong();
-                } catch (ClassCastException | IllegalStateException e) {
+                } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
                     throw ResponseException.EVENT_NOT_FOUND;
                 }
                 switch (name) {
@@ -79,10 +79,10 @@ public abstract class Event {
                 String interfaceName;
                 try {
                     interfaceName = param.getAsString();
-                } catch (ClassCastException | IllegalStateException e) {
+                } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
                     throw ResponseException.EVENT_NOT_FOUND;
                 }
-                if (InterfaceManager.hasInterface(interfaceName)) {
+                if (InterfaceManager.nameExists(interfaceName)) {
                     var interfaze = InterfaceManager.interfaceByName(interfaceName);
                     switch (name) {
                         case "onInterfaceUpdate":

@@ -120,7 +120,7 @@ public class ScriptServerIO {
                     clientAddress, server));
         } catch (ResponseException e) {
             return e.toResponse(id);
-        } catch (IllegalStateException | ClassCastException | NullPointerException e) {
+        } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
             return ResponseException.INVALID_REQUEST.toResponse(id);
         }
         response.addProperty("jsonrpc", "2.0");
