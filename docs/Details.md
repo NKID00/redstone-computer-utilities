@@ -38,10 +38,10 @@ All commands provided by the mod require at least permission level 2 (configurab
 `/rcu info script <script name...>`
 - Display detailed information of the script(s).
 
-`/rcu run <script name> [argument...]` (WIP)
-- Run the script with the arguments. Arguments may be interface names, script names or any other strings.
+`/rcu run <script name> [argument...]`
+- Run the script with the arguments. Arguments may be interface names, script names or any other strings. Prefix `interface:` or `script:` may be added to indicate the type of the argument, otherwise the type will be inferred. Quoted arguments or those with types that cannot be inferred are considered literal string. Both of types and values of the arguments will be passed to the script.
 
-`/rcu reload` (WIP)
+`/rcu reload`
 - Reload all scripts.
 
 `/rcu lang`

@@ -11,11 +11,12 @@
 ## Highlights
 
 - Empowers programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
-  - Specially, a asynchronous Python library is provided to simplify development
+  - Specially, a high-level asynchronous Python library is provided to simplify development
 - Supports redstone wires in any sizes and shapes from horizontal, vertical to even diagonal ones
-- Built-in English and Simplified Chinese translations
+- Completions and suggestions for every argument of all commands
 - Server-side-only implementation, fully compatible with vanilla clients
-- Compatible with tick speed controlling, stepping and pausing implemented by other mods
+- Compatibility with tick speed controlling, stepping and pausing implemented by other mods
+- Built-in English and Simplified Chinese translations
 
 ## Installation
 
