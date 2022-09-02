@@ -28,7 +28,9 @@ import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
+import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Interface;
+import name.nkid00.rcutil.script.ScriptEventCallback;
 import name.nkid00.rcutil.util.Enumerate;
 import name.nkid00.rcutil.util.IndexedObject;
 import name.nkid00.rcutil.util.TargetBlockPos;
@@ -90,6 +92,9 @@ public class InterfaceManager {
     private static Interface register(String name, Interface interfaze) {
         interfaces.put(name, interfaze);
         registerBlocks(interfaze);
+        var eventArgs = new JsonObject();
+        eventArgs.addProperty("interface", interfaze.name());
+        ScriptEventCallback.broadcast(Event.ON_INTERFACE_NEW, eventArgs);
         return interfaze;
     }
 
@@ -100,6 +105,7 @@ public class InterfaceManager {
     }
 
     public static Interface remove(String name) {
+        ScriptEventCallback.broadcast(Event.ON_INTERFACE_REMOVE.withInterface(interfaceByName(name)));
         var interfaze = interfaces.remove(name);
         for (var ipos : new Enumerate<>(interfaze)) {
             blocks.remove(ipos.object(), new IndexedObject<>(ipos.index(), interfaze));

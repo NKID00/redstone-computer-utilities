@@ -1,6 +1,5 @@
 package name.nkid00.rcutil.command;
 
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -13,9 +12,7 @@ import name.nkid00.rcutil.helper.PosHelper;
 import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.SelectionManager;
-import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Interface;
-import name.nkid00.rcutil.script.ScriptEventCallback;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuNew {
@@ -63,9 +60,6 @@ public class RcuNew {
             }
             s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_new.success", interfaze.info(uuid)), true);
             interfaze.highlight(player);
-            var eventArgs = new JsonObject();
-            eventArgs.addProperty("interface", interfaze.name());
-            ScriptEventCallback.broadcast(Event.ON_INTERFACE_NEW, eventArgs);
             return 1;
         }
     }

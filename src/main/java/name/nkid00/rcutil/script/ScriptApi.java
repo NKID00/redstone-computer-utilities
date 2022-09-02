@@ -129,9 +129,6 @@ public class ScriptApi {
                 if (interfaze == null) {
                     throw ResponseException.ILLEGAL_ARGUMENT;
                 }
-                var eventArgs = new JsonObject();
-                eventArgs.addProperty("interface", interfaze.name());
-                ScriptEventCallback.broadcast(Event.ON_INTERFACE_NEW, eventArgs);
                 return null;
             }
             case "listInterface": {
@@ -166,7 +163,6 @@ public class ScriptApi {
                 args.addProperty("script", script.name);
                 switch (method) {
                     case "removeInterface":
-                        ScriptEventCallback.broadcast(Event.ON_INTERFACE_REMOVE.withInterface(interfaze), args);
                         InterfaceManager.remove(interfaze.name());
                         return null;
                     case "readInterface":
