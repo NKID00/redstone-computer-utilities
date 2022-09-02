@@ -121,7 +121,7 @@ public class Interface implements Iterable<TargetBlockPos> {
         var newBit = TargetBlockHelper.readDigitalUnsafe(world, pos);
         if (lastBit != newBit) {
             lastValue = readSuppress();
-            ScriptEventCallback.onInterfaceUpdateImmediate(this);
+            ScriptEventCallback.broadcast(Event.ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(this));
             InterfaceManager.markUpdated(this);
         }
     }

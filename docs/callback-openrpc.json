@@ -154,7 +154,7 @@
         {
             "name": "onGametickStartDelay",
             "summary": "Called only once at the start of the gametick after delay interval.",
-            "description": "Will be deregistered automatically before called. registerCallback param: #/components/contentDescriptors/interval",
+            "description": "Will be deregistered automatically before called. Event param: #/components/contentDescriptors/interval",
             "tags": [
                 {
                     "name": "Gametick"
@@ -174,7 +174,7 @@
         {
             "name": "onGametickEndDelay",
             "summary": "Called only once at the end of the gametick after delay interval.",
-            "description": "Will be deregistered automatically before called. registerCallback param: #/components/contentDescriptors/interval",
+            "description": "Will be deregistered automatically before called. Event param: #/components/contentDescriptors/interval",
             "tags": [
                 {
                     "name": "Gametick"
@@ -194,7 +194,7 @@
         {
             "name": "onGametickStartClock",
             "summary": "Called at the start of the gametick for every clock cycle.",
-            "description": "registerCallback param: #/components/contentDescriptors/interval",
+            "description": "Event param: #/components/contentDescriptors/interval",
             "tags": [
                 {
                     "name": "Gametick"
@@ -214,7 +214,7 @@
         {
             "name": "onGametickEndClock",
             "summary": "Called at the end of the gametick for every clock cycle.",
-            "description": "registerCallback param: #/components/contentDescriptors/interval",
+            "description": "Event param: #/components/contentDescriptors/interval",
             "tags": [
                 {
                     "name": "Gametick"
@@ -234,7 +234,7 @@
         {
             "name": "onInterfaceUpdate",
             "summary": "Called at the end of the gametick when redstone signal received by the interface is changed.",
-            "description": "Guaranteed to be called at most once within a gametick at the end of it. registerCallback param: #/components/contentDescriptors/interface",
+            "description": "Guaranteed to be called at most once within a gametick at the end of it. Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
@@ -253,8 +253,8 @@
         },
         {
             "name": "onInterfaceUpdateImmediate",
-            "summary": "Called immediately when redstone signal received by the interface is changed.",
-            "description": "May be triggered multiple times within a single gametick. registerCallback param: #/components/contentDescriptors/interface",
+            "summary": "Called immediately after redstone signal received by the interface is changed.",
+            "description": "May be triggered multiple times within a single gametick. Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
@@ -273,8 +273,8 @@
         },
         {
             "name": "onInterfaceRead",
-            "summary": "Called when the interface is read successfully by the script.",
-            "description": "registerCallback param: #/components/contentDescriptors/interface",
+            "summary": "Called before the interface is read by the script.",
+            "description": "Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
@@ -297,8 +297,8 @@
         },
         {
             "name": "onInterfaceWrite",
-            "summary": "Called when the interface is written successfully by the script.",
-            "description": "registerCallback param: #/components/contentDescriptors/interface",
+            "summary": "Called before the interface is written by the script.",
+            "description": "Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"
@@ -321,7 +321,7 @@
         },
         {
             "name": "onInterfaceNew",
-            "summary": "(experimental) Called when an interface is created successfully.",
+            "summary": "(experimental) Called after an interface is created successfully.",
             "tags": [
                 {
                     "name": "Interface"
@@ -344,8 +344,8 @@
         },
         {
             "name": "onInterfaceRemove",
-            "summary": "(experimental) Called when the interface is removed successfully.",
-            "description": "registerCallback param: #/components/contentDescriptors/interface",
+            "summary": "(experimental) Called before the interface is removed.",
+            "description": "Event param: #/components/contentDescriptors/interface",
             "tags": [
                 {
                     "name": "Interface"

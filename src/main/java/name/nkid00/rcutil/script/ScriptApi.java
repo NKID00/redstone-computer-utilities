@@ -129,6 +129,9 @@ public class ScriptApi {
                 if (interfaze == null) {
                     throw ResponseException.ILLEGAL_ARGUMENT;
                 }
+                var eventArgs = new JsonObject();
+                eventArgs.addProperty("interface", interfaze.name());
+                ScriptEventCallback.broadcast(Event.ON_INTERFACE_NEW, eventArgs);
                 return null;
             }
             case "listInterface": {
@@ -159,14 +162,18 @@ public class ScriptApi {
                 if (interfaze == null) {
                     throw ResponseException.INTERFACE_NOT_FOUND;
                 }
+                var args = new JsonObject();
+                args.addProperty("script", script.name);
                 switch (method) {
-                    case "removeInterface": {
+                    case "removeInterface":
+                        ScriptEventCallback.broadcast(Event.ON_INTERFACE_REMOVE.withInterface(interfaze), args);
                         InterfaceManager.remove(interfaze.name());
                         return null;
-                    }
                     case "readInterface":
+                        ScriptEventCallback.broadcast(Event.ON_INTERFACE_READ.withInterface(interfaze), args);
                         return new JsonPrimitive(BitSetHelper.toBase64(interfaze.readSuppress()));
                     case "writeInterface":
+                        ScriptEventCallback.broadcast(Event.ON_INTERFACE_WRITE.withInterface(interfaze), args);
                         interfaze.writeSuppress(BitSetHelper.fromBase64(params.get("data").getAsString()));
                         return null;
                 }

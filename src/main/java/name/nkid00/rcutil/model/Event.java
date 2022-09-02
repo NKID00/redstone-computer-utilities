@@ -15,6 +15,7 @@ public abstract class Event {
     public static final SimpleEvent ON_SCRIPT_INVOKE = new SimpleEvent("onScriptInvoke");
     public static final SimpleEvent ON_GAMETICK_START = new SimpleEvent("onGametickStart");
     public static final SimpleEvent ON_GAMETICK_END = new SimpleEvent("onGametickEnd");
+    public static final SimpleEvent ON_INTERFACE_NEW = new SimpleEvent("onInterfaceNew");
     public static final TimedEvent ON_GAMETICK_START_DELAY = new TimedEvent("onGametickStartDelay");
     public static final TimedEvent ON_GAMETICK_END_DELAY = new TimedEvent("onGametickEndDelay");
     public static final TimedEvent ON_GAMETICK_START_CLOCK = new TimedEvent("onGametickStartClock");
@@ -23,7 +24,6 @@ public abstract class Event {
     public static final InterfaceEvent ON_INTERFACE_UPDATE_IMMEDIATE = new InterfaceEvent("onInterfaceUpdateImmediate");
     public static final InterfaceEvent ON_INTERFACE_READ = new InterfaceEvent("onInterfaceRead");
     public static final InterfaceEvent ON_INTERFACE_WRITE = new InterfaceEvent("onInterfaceWrite");
-    public static final InterfaceEvent ON_INTERFACE_NEW = new InterfaceEvent("onInterfaceNew");
     public static final InterfaceEvent ON_INTERFACE_REMOVE = new InterfaceEvent("onInterfaceRemove");
 
     public Event(String name, Object param) {
@@ -49,6 +49,8 @@ public abstract class Event {
                 return ON_GAMETICK_START;
             case "onGametickEnd":
                 return ON_GAMETICK_END;
+            case "onInterfaceNew":
+                return ON_INTERFACE_NEW;
             case "onGametickStartDelay":
             case "onGametickEndDelay":
             case "onGametickStartClock":
@@ -73,7 +75,6 @@ public abstract class Event {
             case "onInterfaceUpdateImmediate":
             case "onInterfaceRead":
             case "onInterfaceWrite":
-            case "onInterfaceNew":
             case "onInterfaceRemove":
                 String interfaceName;
                 try {
@@ -92,8 +93,6 @@ public abstract class Event {
                             return ON_INTERFACE_READ.withInterface(interfaze);
                         case "onInterfaceWrite":
                             return ON_INTERFACE_WRITE.withInterface(interfaze);
-                        case "onInterfaceNew":
-                            return ON_INTERFACE_NEW.withInterface(interfaze);
                         case "onInterfaceRemove":
                             return ON_INTERFACE_REMOVE.withInterface(interfaze);
                     }

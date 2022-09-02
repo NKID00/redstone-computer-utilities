@@ -14,7 +14,6 @@ import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.TimerManager;
 import name.nkid00.rcutil.model.Clock;
 import name.nkid00.rcutil.model.Event;
-import name.nkid00.rcutil.model.Interface;
 import name.nkid00.rcutil.model.Script;
 import name.nkid00.rcutil.model.TimedEvent;
 import name.nkid00.rcutil.model.Timer;
@@ -149,9 +148,5 @@ public class ScriptEventCallback {
         for (var interfaze : InterfaceManager.resetUpdated()) {
             broadcast(Event.ON_INTERFACE_UPDATE.withInterface(interfaze));
         }
-    }
-
-    public static void onInterfaceUpdateImmediate(Interface interfaze) {
-        broadcast(Event.ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(interfaze));
     }
 }

@@ -100,6 +100,7 @@ class _Events:
     ON_SCRIPT_INVOKE = _SimpleEvent('onScriptInvoke')
     ON_GAMETICK_START = _SimpleEvent('onGametickStart')
     ON_GAMETICK_END = _SimpleEvent('onGametickEnd')
+    ON_INTERFACE_NEW = _SimpleEvent('onInterfaceNew')
     ON_GAMETICK_START_DELAY = _TimedEvent('onGametickStartDelay')
     ON_GAMETICK_END_DELAY = _TimedEvent('onGametickEndDelay')
     ON_GAMETICK_START_CLOCK = _TimedEvent('onGametickStartClock')
@@ -108,5 +109,4 @@ class _Events:
     ON_INTERFACE_UPDATE_IMMEDIATE = _InterfaceEvent('onInterfaceUpdateImmediate')
     ON_INTERFACE_READ = _InterfaceEvent('onInterfaceRead')
     ON_INTERFACE_WRITE = _InterfaceEvent('onInterfaceWrite')
-    ON_INTERFACE_NEW = _InterfaceEvent('onInterfaceNew')
     ON_INTERFACE_REMOVE = _InterfaceEvent('onInterfaceRemove')
