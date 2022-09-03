@@ -1,9 +1,9 @@
 from __future__ import annotations
 import asyncio
 import json
-from typing import Any, Awaitable, Callable, NoReturn, Optional
+from typing import Any, Awaitable, Callable, Coroutine, NoReturn, Optional
 
-import redstone_computer_utilities as rcu
+from .task import TaskManager
 
 
 class ResponseError(Exception):
@@ -47,11 +47,35 @@ class ResponseError(Exception):
         return json.dumps(self.to_response())
 
 
+class ResponseErrors:
+    INVALID_REQUEST = ResponseError(-32600, "Invalid Request")
+    METHOD_NOT_FOUND = ResponseError(-32601, "Method not found")
+    INVALID_AUTH_KEY = ResponseError(-1, "Invalid authorization key")
+    ILLEGAL_NAME = ResponseError(-2, "Illegal name")
+    NAME_EXISTS = ResponseError(-3, "Target with the name already exists")
+    INVALID_PERMISSION_LEVEL = ResponseError(-4, "Invalid permission level")
+    SCRIPT_NOT_FOUND = ResponseError(-5, "Script cannot be found")
+    ILLEGAL_ARGUMENT = ResponseError(-6, "Illegal argument")
+    SCRIPT_INTERNAL_ERROR = ResponseError(-7, "Script internal error")
+    EVENT_NOT_FOUND = ResponseError(-8, "Event cannot be found")
+    EVENT_CALLBACK_ALREADY_REGISTERED = ResponseError(
+        -9, "Event callback is already registered")
+    EVENT_CALLBACK_NOT_REGISTERED = ResponseError(
+        -10, "Event callback is not registered")
+    ACCESS_DENIED = ResponseError(-11, "Access denied")
+    INTERFACE_NOT_FOUND = ResponseError(-12, "Interface cannot be found")
+    PLAYER_NOT_FOUND = ResponseError(-13, "Player cannot be found")
+    WORLD_NOT_FOUND = ResponseError(-14, "World cannot be found")
+    INVALID_SIZE = ResponseError(-15, "Invalid size")
+    BLOCK_NOT_TARGET = ResponseError(
+        -16, "Non-target block is found in the interface")
+
+
 class MethodNotFoundError(Exception):
     pass
 
 
-class _JsonRpcIO:
+class JsonRpcIO:
     PARSE_ERROR_RESPONSE = ('{"jsonrpc":"2.0","error":{"code":-32700,'
                             '"message":"Parse error"},"id":null}'
                             ).encode('utf-8')
@@ -62,8 +86,8 @@ class _JsonRpcIO:
     def __init__(self, reader: asyncio.StreamReader,
                  writer: asyncio.StreamWriter,
                  request_handler: Callable[[str, dict[str, Any]],
-                                           Awaitable[Optional[Any]]],
-                 task_manager: rcu.task._TaskManager) -> None:
+                                           Coroutine[Any, Any, Any]],
+                 task_manager: TaskManager) -> None:
         self._reader = reader
         self._writer = writer
         self._responses: dict[str, dict[str, Any]] = {}
@@ -85,16 +109,16 @@ class _JsonRpcIO:
     async def _dispatch_request(self, request: dict[str, Any]
                                 ) -> None:
         try:
-            result = await self._request_handler(request['method'],
-                                                 request['params'])
+            result = await self._request_handler(
+                request['method'], request['params'])
         except ResponseError as exc:
             if exc.get_id() is None:
                 response = exc.to_response(request['id'])
             else:
                 raise
         except MethodNotFoundError:
-            response = ResponseError(-32601, "Method not found", request['id']
-                                     ).to_response()
+            response = ResponseErrors.METHOD_NOT_FOUND.with_id(
+                request['id']).to_response()
         else:
             response = {'jsonrpc': '2.0', 'result': result,
                         'id': request['id']}
@@ -109,13 +133,13 @@ class _JsonRpcIO:
 
     async def _dispatch(self, data: dict[str, Any]) -> None:
         if 'jsonrpc' not in data or data['jsonrpc'] != '2.0':
-            await self._write_bytes(_JsonRpcIO.INVALID_REQUEST_RESPONSE)
+            await self._write_bytes(JsonRpcIO.INVALID_REQUEST_RESPONSE)
         elif 'method' in data:
             await self._dispatch_request(data)
         elif 'result' in data or 'error' in data:
             await self._dispatch_response(data)
         else:
-            await self._write_bytes(_JsonRpcIO.INVALID_REQUEST_RESPONSE)
+            await self._write_bytes(JsonRpcIO.INVALID_REQUEST_RESPONSE)
 
     async def run(self) -> NoReturn:
         '''Enter main loop'''
@@ -126,17 +150,18 @@ class _JsonRpcIO:
             try:
                 data = json.loads(data_bytes.decode('utf-8'))
             except json.JSONDecodeError:
-                await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
+                await self._write_bytes(JsonRpcIO.PARSE_ERROR_RESPONSE)
             else:
                 if isinstance(data, dict):
                     self._task_manager.add_coro(self._dispatch(data))
                 elif isinstance(data, list):
                     if len(data) == 0:
-                        await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
+                        await self._write_bytes(
+                            JsonRpcIO.PARSE_ERROR_RESPONSE)
                     for item in data:
                         self._task_manager.add_coro(self._dispatch(item))
                 else:
-                    await self._write_bytes(_JsonRpcIO.PARSE_ERROR_RESPONSE)
+                    await self._write_bytes(JsonRpcIO.PARSE_ERROR_RESPONSE)
 
     async def send(self, method: str, params: dict[str, Any], id_: str
                    ) -> Any:

@@ -8,18 +8,18 @@ import sys
 
 import colorama
 
-import redstone_computer_utilities as rcu
+from .task import TaskManager
 
 
-def _cli_init() -> None:
+def cli_init() -> None:
     colorama.init()
 
 
-def _endswith_line_break(s: str) -> bool:
+def endswith_line_break(s: str) -> bool:
     return s.endswith(('\r', '\n'))
 
 
-class _Wrapper:
+class WaitIOWrapper:
     def __init__(self, inner: TextIO, message: str = '') -> None:
         self._inner = inner
         self._buffer = io.StringIO()
@@ -52,11 +52,11 @@ class _Wrapper:
         if s == '':
             return 0
         lines = s.splitlines(True)
-        if len(lines) > 1 or _endswith_line_break(lines[0]):
+        if len(lines) > 1 or endswith_line_break(lines[0]):
             lines[0] = self._buffer.getvalue() + lines[0]
             self._buffer = io.StringIO()
             self.clear_message()
-            if _endswith_line_break(lines[-1]):
+            if endswith_line_break(lines[-1]):
                 self._inner.write(''.join(map(lambda s: '  ' + s, lines)))
             else:
                 self._inner.write(''.join(map(lambda s: '  ' + s, lines[:-1])))
@@ -70,7 +70,7 @@ class _Wrapper:
         return getattr(self._inner, name)
 
 
-class _Wait:
+class Wait:
     def __init__(self, message: Optional[str]) -> None:
         self._message = message
 
@@ -86,20 +86,20 @@ class _Wait:
         self._message = message
 
 
-_SPINNER = itertools.cycle('⠸⢰⣠⣄⡆⠇⠋⠙')
+SPINNER_ITER = itertools.cycle('⠸⢰⣠⣄⡆⠇⠋⠙')
 
 
 @contextlib.asynccontextmanager
-async def _wait(message: Optional[str] = None, *, task_manager: rcu.task._TaskManager):
-    wait_object = _Wait(message)
+async def spinner(message: Optional[str] = None, *, task_manager: TaskManager):
+    wait_object = Wait(message)
     stdout = sys.stdout
-    wrapper = _Wrapper(sys.stdout)
+    wrapper = WaitIOWrapper(sys.stdout)
     sys.stdout = cast(TextIO, wrapper)
 
     async def wait():
         while True:
             if wait_object.message is not None:
-                wrapper.message = f'\r{next(_SPINNER)} {wait_object.message}'
+                wrapper.message = f'\r{next(SPINNER_ITER)} {wait_object.message}'
             await asyncio.sleep(0.1)
 
     task = task_manager.create_task(wait())
@@ -111,13 +111,27 @@ async def _wait(message: Optional[str] = None, *, task_manager: rcu.task._TaskMa
         sys.stdout = stdout
 
 
-def _info(message: str):
-    print(message)
+def print_colored(color: str, *values: object, sep: Optional[str] = None,
+                  end: Optional[str] = None) -> None:
+    if len(values) == 0:
+        return
+    elif len(values) == 1:
+        print(color + str(values[0]) + colorama.Fore.RESET, end=end)
+    else:
+        print(color + str(values[0]), *values[1:-1],
+              values[-1] + colorama.Fore.RESET, sep=sep, end=end)
 
 
-def _warn(message: str):
-    print(colorama.Fore.YELLOW + message + colorama.Fore.RESET)
+def info(*values: object, sep: Optional[str] = None,
+         end: Optional[str] = None) -> None:
+    print(*values, sep=sep, end=end)
 
 
-def _error(message: str):
-    print(colorama.Fore.RED + message + colorama.Fore.RESET)
+def warn(*values: object, sep: Optional[str] = None,
+         end: Optional[str] = None):
+    print_colored(colorama.Fore.YELLOW, *values, sep=sep, end=end)
+
+
+def error(*values: object, sep: Optional[str] = None,
+          end: Optional[str] = None):
+    print_colored(colorama.Fore.RED, *values, sep=sep, end=end)

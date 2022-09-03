@@ -1,11 +1,12 @@
 from fractions import Fraction
 from numbers import Rational, Real
+from typing import Union
 
 
 class Interval:
     '''Non-ambiguous interval.'''
 
-    def __init__(self, interval_gametick: int, tps: int | Rational = 20):
+    def __init__(self, interval_gametick: int, tps: Union[int, Rational] = 20):
         self._gametick = interval_gametick
         self._tps = tps
 
@@ -21,36 +22,37 @@ class Interval:
         return self._gametick
 
     @property
-    def redstonetick(self) -> int | Rational:  # int is not rational to mypy :(
+    def redstonetick(self) -> Union[int, Rational]:
+        # int is not rational to mypy :(
         interval = Fraction(self._gametick, 2)
         if interval.denominator == 1:
             return interval.numerator
         return interval
 
     @property
-    def second(self) -> int | Rational:
+    def second(self) -> Union[int, Rational]:
         interval = Fraction(self._gametick, self._tps)
         if interval.denominator == 1:
             return interval.numerator
         return interval
 
     @property
-    def tps(self) -> int | Rational:
+    def tps(self) -> Union[int, Rational]:
         return self._tps
 
 
-def gametick(interval: int, tps: int | Rational = 20) -> Interval:
+def gametick(interval: int, tps: Union[int, Rational] = 20) -> Interval:
     '''Non-ambiguous interval.'''
     return Interval(interval, tps)
 
 
-def redstonetick(interval: Real, tps: int | Rational = 20) -> Interval:
+def redstonetick(interval: Real, tps: Union[int, Rational] = 20) -> Interval:
     '''Non-ambiguous interval. Non-integral value will be floored after
     converted to gametick.'''
     return Interval(int(interval * 2), tps)
 
 
-def second(interval: Real, tps: int | Rational = 20) -> Interval:
+def second(interval: Real, tps: Union[int, Rational] = 20) -> Interval:
     '''Non-ambiguous interval. Non-integral value will be floored after
     converted to gametick.'''
     return Interval(int(interval * tps), tps)
