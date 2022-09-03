@@ -11,7 +11,8 @@
 ## Highlights
 
 - Empowers programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
-  - Specially, a high-level asynchronous Python library is provided to simplify development
+  - Specially, a Python library is provided to simplify development
+    - The Python library uses asynchronous network communication, features high-level APIs and a user-friendly CLI and supports static typing.
 - Supports redstone wires in any sizes and shapes from horizontal, vertical to even diagonal ones
 - Completions and suggestions for every argument of all commands
 - Server-side-only implementation, fully compatible with vanilla clients
@@ -33,7 +34,8 @@ Python 3.7.2 or newer is required to use the provided Python library.
 3. Left click with the wand item to select the most significant bit, right click to select the least significant bit.
 4. Execute `/rcu new <interface name>` to create an interface.
 5. Write debugging program and wrap it as a script.
-6. Execute `/rcu run <script name> <interface name>` to run the script.
+6. Start up Minecraft and the script.
+7. Execute `/rcu run <script name> <interface name>` to run the script.
 
 You may also accelerate tick speed if it takes too long.
 
@@ -47,6 +49,14 @@ To build the mod, Java 17 or newer, Python 3.7.2 or newer and Poetry are require
 
 ```sh
 $ ./gradlew build
+```
+
+Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
+
+To install the Python library into the current virtual environment, run the following command:
+
+```sh
+$ poetry install
 ```
 
 Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
@@ -71,7 +81,10 @@ $ python minecraft2po.py path/to/messages.json path/to/messages.po
 - [Fabric Loader](https://github.com/FabricMC/fabric-loader), distributed under [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE).
 - [Fabric API](https://github.com/FabricMC/fabric), distributed under [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE).
 - [GSON](https://github.com/google/gson), distributed under [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE).
+- [netty](https://github.com/netty/netty), distributed under [Apache-2.0](https://github.com/netty/netty/blob/4.1/LICENSE.txt).
+- [Guava](https://github.com/google/guava), distributed under [Apache-2.0](https://github.com/google/guava/blob/master/COPYING).
 - [colorama](https://github.com/tartley/colorama), distributed under [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt).
+- [typing-extensions](https://github.com/python/typing_extensions), distributed under [PSF-2.0](https://github.com/python/typing_extensions/blob/main/LICENSE).
 
 ## Copyright
 

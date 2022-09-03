@@ -11,7 +11,8 @@
 ## 亮点
 
 - 可以用任何编程语言（只要它支持 JSON 和 TCP）编写的程序来调试红石计算机
-  - 特别地，用 Python 编写外部程序时可以使用提供的高阶异步库来简化开发
+  - 特别地，用 Python 编写外部程序时可以使用提供的库来简化开发
+    - Python 库使用异步网络通信，提供高阶 API 和友好的控制台界面，支持静态类型检查
 - 支持各种位宽和水平、竖直甚至倾斜的各种形状的红石排线
 - 全部命令的所有参数都拥有自动补全和提示
 - 纯服务端实现，完全兼容原版客户端
@@ -33,9 +34,10 @@
 3. 使用魔杖物品左键选择最高有效位，右键选择最低有效位。
 4. 执行 `/rcu new <接口名>` 来创建一个接口。
 5. 编写调试程序并将其封装为外部程序。
-6. 执行 `/rcu run <外部程序名> <接口名>` 来运行调试程序。
+6. 运行 Minecraft 和外部程序。
+7. 执行 `/rcu run <外部程序名> <接口名>` 来运行调试程序。
 
-如果调试程序耗时太久，也可以尝试加快游戏刻速度。
+如果调试程序耗时太久也可以尝试加快游戏刻速度。
 
 详见 [docs/Details.zh_cn.md](./docs/Details.zh_cn.md)。
 
@@ -71,7 +73,10 @@ $ python minecraft2po.py 文件路径/messages.json 文件路径/messages.po
 - [Fabric Loader](https://github.com/FabricMC/fabric-loader)，使用 [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE) 许可证分发。
 - [Fabric API](https://github.com/FabricMC/fabric)，使用 [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE) 许可证分发。
 - [GSON](https://github.com/google/gson)，使用 [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE) 许可证分发。
+- [netty](https://github.com/netty/netty)，使用 [Apache-2.0](https://github.com/netty/netty/blob/4.1/LICENSE.txt) 许可证分发。
+- [Guava](https://github.com/google/guava)，使用 [Apache-2.0](https://github.com/google/guava/blob/master/COPYING) 许可证分发。
 - [colorama](https://github.com/tartley/colorama)，使用 [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt) 许可证分发。
+- [typing-extensions](https://github.com/python/typing_extensions)，使用 [PSF-2.0](https://github.com/python/typing_extensions/blob/main/LICENSE) 许可证分发。
 
 ## 版权
 
