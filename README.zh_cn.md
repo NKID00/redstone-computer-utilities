@@ -25,7 +25,7 @@
 
 多人游戏只需要安装在服务器侧，单人游戏需要安装在客户端侧。
 
-需要安装 Python 3.7.2 或更新版本来使用提供的 Python 库。
+需要安装 Python 3.7.2 或更新版本（CPython 或 PyPy）来使用提供的 Python 库。
 
 ## 基础用法
 
@@ -45,13 +45,19 @@
 
 Java 源代码文件位于 `src/main/java/`。Python 源代码文件位于 `src/redstone_computer_utilities/`。
 
-要构建模组，需要安装 Java 17 或更新版本，Python 3.7.2 或更新版本和 Poetry。运行以下命令：
+要构建模组，需要安装 Java 17 或更新版本，Python 3.7.2 或更新版本（CPython 或 PyPy）和 Poetry。运行以下命令：
 
 ```sh
 $ ./gradlew build
 ```
 
 构建出的 jar 文件位于 `build/libs/`。构建出的 wheel 文件位于 `dist/`。
+
+要安装 Python 库到当前的虚拟环境，运行以下命令：
+
+```sh
+$ poetry install
+```
 
 要提取翻译键，需要安装 Java 和 GNU gettext。运行以下命令：
 

@@ -25,7 +25,7 @@ This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fab
 
 Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
 
-Python 3.7.2 or newer is required to use the provided Python library.
+Python 3.7.2 or newer (CPython or PyPy) is required to use the provided Python library.
 
 ## Basic Usage
 
@@ -45,7 +45,7 @@ See [docs/Details.md](./docs/Details.md) for details.
 
 Java sources are located in `src/main/java/`. Python sources are located in `src/redstone_computer_utilities/`.
 
-To build the mod, Java 17 or newer, Python 3.7.2 or newer and Poetry are required. Run the following command:
+To build the mod, Java 17 or newer, Python 3.7.2 or newer (CPython or PyPy) and Poetry are required. Run the following command:
 
 ```sh
 $ ./gradlew build
@@ -58,8 +58,6 @@ To install the Python library into the current virtual environment, run the foll
 ```sh
 $ poetry install
 ```
-
-Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
 
 To extract translation keys, Java and GNU gettext are required. Run the following command:
 
