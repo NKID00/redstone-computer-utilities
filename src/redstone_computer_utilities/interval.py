@@ -46,13 +46,15 @@ def gametick(interval: int, tps: Union[int, Rational] = 20) -> Interval:
     return Interval(interval, tps)
 
 
-def redstonetick(interval: Real, tps: Union[int, Rational] = 20) -> Interval:
+def redstonetick(interval: Union[int, Real],
+                 tps: Union[int, Rational] = 20) -> Interval:
     '''Non-ambiguous interval. Non-integral value will be floored after
     converted to gametick.'''
     return Interval(int(interval * 2), tps)
 
 
-def second(interval: Real, tps: Union[int, Rational] = 20) -> Interval:
+def second(interval: Union[int, Real],
+           tps: Union[int, Rational] = 20) -> Interval:
     '''Non-ambiguous interval. Non-integral value will be floored after
     converted to gametick.'''
     return Interval(int(interval * tps), tps)

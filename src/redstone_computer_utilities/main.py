@@ -10,7 +10,7 @@ try:
     from types import UnionType, NoneType  # type:ignore
 except ImportError:  # Python < 3.10
     UnionType = None  # type:ignore
-    NoneType = type(None)
+    NoneType = type(None)  # type:ignore
 
 import typing_extensions
 from typing_extensions import Protocol
@@ -230,50 +230,33 @@ def get_union_args(t: Type) -> tuple[Type, ...]:
         return (t,)
 
 
-class NoArgProtocol(Protocol):
+class NoArgCallback(Protocol):
     def __call__(self) -> Coroutine[Any, Any, None]: ...
 
 
-class InterfaceArgProtocol(Protocol):
-    def __call__(
-        self, interface: Interface) -> Coroutine[Any, Any, None]: ...
+class InterfaceArgCallback(Protocol):
+    def __call__(self, interface: Interface) -> Coroutine[Any, Any, None]: ...
 
 
-class ScriptArgProtocol(Protocol):
+class ScriptArgCallback(Protocol):
     def __call__(self, script: Script) -> Coroutine[Any, Any, None]: ...
 
 
-class RunProtocol(Protocol):
+class RunCallback(Protocol):
     def __call__(self, uuid: UUID, run_args: list[dict[str, str]]
                  ) -> Coroutine[Any, Any, int]: ...
 
 
-class InvokeProtocol(Protocol):
+class InvokeCallback(Protocol):
     def __call__(self, script: Script, args: dict[str, Any]
                  ) -> Coroutine[Any, Any, Any]: ...
 
 
-class MainProtocolWithoutUUID(Protocol):
-    def __call__(self, *args: Union[str, Interface, Script]
-                 ) -> Coroutine[Any, Any, int]: ...
-
-
-class MainProtocolWithUUID(Protocol):
-    def __call__(self, uuid: Optional[UUID],
-                 *args: Union[str, Interface, Script]
-                 ) -> Coroutine[Any, Any, int]: ...
-
-
-MainProtocol = Union[MainProtocolWithoutUUID, MainProtocolWithUUID]
-AnyCallback = TypeVar('AnyCallback',
-                      bound=Union[Callable[..., Coroutine], Timer])
-NoArgCallback = TypeVar('NoArgCallback', bound=NoArgProtocol)
-InterfaceArgCallback = TypeVar('InterfaceArgCallback',
-                               bound=InterfaceArgProtocol)
-ScriptArgCallback = TypeVar('ScriptArgCallback', bound=ScriptArgProtocol)
-RunCallback = TypeVar('RunCallback', bound=RunProtocol)
-InvokeCallback = TypeVar('InvokeCallback', bound=InvokeProtocol)
-MainCallback = TypeVar('MainCallback', bound=MainProtocol)
+AnyCallback = Callable[..., Coroutine]
+# there's no way to define a type to constrain the params of main callback :(
+MainRetVal = TypeVar('MainRetVal', int, None,
+                     Optional[int])
+MainCallback = Callable[..., Coroutine[Any, Any, MainRetVal]]
 
 
 class Script:
@@ -296,8 +279,8 @@ class Script:
         self._description: str = description
         self._permission_level: int = permission_level
         self._event_callbacks: dict[
-            Event, list[Union[Callable[..., Coroutine], Timer]]] = {}
-        self._main_callbacks: list[MainProtocol] = []
+            Event, list[Union[AnyCallback, Timer]]] = {}
+        self._main_callbacks: list[MainCallback] = []
         self._event_method_names: dict[str, Event] = {}
         self._io: JsonRpcIO = cast(JsonRpcIO, None)
         self._id_lock: asyncio.Lock = asyncio.Lock()
@@ -330,7 +313,9 @@ class Script:
             params['authKey'] = self._auth_key
         return await self._io.send(method, params, self._id)
 
-    def _add_event_callback(self, event: Event, callback: AnyCallback) -> AnyCallback:
+    def _add_event_callback(self, event: Event,
+                            callback: Union[AnyCallback, Timer]
+                            ) -> Union[AnyCallback, Timer]:
         if event not in self._event_callbacks:
             self._event_callbacks[event] = []
         self._event_callbacks[event].append(callback)
@@ -345,7 +330,8 @@ class Script:
             callback=event.to_method_name(self))
 
     async def _register_event_callback(self, event: Event,
-                                       callback: AnyCallback) -> AnyCallback:
+                                       callback: Union[AnyCallback, Timer]
+                                       ) -> Union[AnyCallback, Timer]:
         if not self._is_event_registered(event):
             await self._register_event(event)
         self._add_event_callback(event, callback)
@@ -355,7 +341,8 @@ class Script:
         del self._event_callbacks[event]
         del self._event_method_names[event.to_method_name(self)]
 
-    def _remove_callback(self, event: Event, callback: AnyCallback) -> None:
+    def _remove_callback(self, event: Event,
+                         callback: Union[AnyCallback, Timer]) -> None:
         if self._is_event_registered(event):
             self._event_callbacks[event].remove(callback)
 
@@ -369,8 +356,10 @@ class Script:
         self._remove_event_callback(event)
         await self._deregister_event(event)
 
-    def _callback_registerer(self, event: Event) -> Callable[[AnyCallback], AnyCallback]:
-        return lambda callback: self._add_event_callback(event, callback)
+    def _callback_registerer(self, event: Event
+                             ) -> Callable[[AnyCallback], AnyCallback]:
+        return cast(Callable[[AnyCallback], AnyCallback],
+                    lambda callback: self._add_event_callback(event, callback))
 
     def _is_event_registered(self, event: Event) -> bool:
         return (event in self._event_callbacks
@@ -469,7 +458,8 @@ class Script:
         return {k: Script(k, v['description'], v['permissionLevel'])
                 for k, v in (await self._call_api('listScript')).items()}
 
-    async def invoke_script(self, script: Union[str, Script], **kwargs) -> Any:
+    async def invoke_script(self, script: Union[str, Script], **kwargs: Any
+                            ) -> Any:
         '''Invoke the script.'''
         if isinstance(script, Script):
             script = script.name
@@ -692,7 +682,7 @@ class Script:
 
     async def _dispatch_main(self, uuid: Optional[UUID],
                              run_args: list[dict[str, str]]) -> int:
-        async def call_suppress(callback: MainProtocol, *args: Any) -> int:
+        async def call_suppress(callback: MainCallback, *args: Any) -> int:
             try:
                 result = await callback(*args)
             except ResponseError:
@@ -840,10 +830,13 @@ def create_script(name: str, description: str = '',
     return script
 
 
-def run(host: str = 'localhost', port: int = 37265) -> None:
+def run(host: str = 'localhost', port: int = 37265,
+        enable_builtins=False) -> None:
     '''Try to connect with script server and enter the main loop.'''
     cli_init()
     info('  Use Ctrl-C to exit')
+    if enable_builtins:
+        from . import builtins  # pylint: disable=unused-import
     while True:
         try:
             asyncio.run(run_async(host, port))
