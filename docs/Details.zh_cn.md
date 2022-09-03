@@ -52,14 +52,41 @@
 
 ## 性能
 
-在 `AMD Ryzen 7 4800U` CPU 上运行的 Kubuntu `22.04.1 LTS x86_64`（Kernel `5.15.0-46-lowlatency`）上运行的 Minecraft 1.19.2 服务器上测试时，一次空事件回调消耗约 0.27ms，一次空 API 调用消耗约 0.12ms。原始测试结果如下：
+在 `AMD Ryzen 7 4800U` CPU 上运行的 Minecraft 1.19.2 服务器上测试时，一次空事件回调消耗约 0.33ms，一次空 API 调用消耗约 0.12ms。原始测试结果如下：
 
-|                                                             | tps  | mspt |
-| ----------------------------------------------------------- | ---- | ---- |
-| 未安装模组                                                  | 1382 | 0.72 |
-| 无外部程序                                                  | 1383 | 0.72 |
-| onGametickStart 事件回调，无 API 调用                       | 1013 | 0.99 |
-| onGametickStart 事件回调，每次事件回调时进行 1 次 API 调用  | 929  | 1.08 |
-| onGametickStart 事件回调，每次事件回调时进行 10 次 API 调用 | 458  | 2.18 |
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th>CPython 3.10.4</th>
+            <th>PyPy 3.8.13, 7.3.9</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>未安装模组</td>
+            <td colspan=2>1374 tps, 0.73 mspt</td>
+        </tr>
+        <tr>
+            <td>无外部程序</td>
+            <td colspan=2>1377 tps,  0.73 mspt</td>
+        </tr>
+        <tr>
+            <td>onGametickStart 事件回调，无 API 调用</td>
+            <td>946 tps, 1.06 mspt</td>
+            <td>963 tps, 1.04 mspt</td>
+        </tr>
+        <tr>
+            <td>onGametickStart 事件回调，每次事件回调时进行 1 次 API 调用</td>
+            <td>850 tps, 1.18 mspt</td>
+            <td>828 tps, 1.21 mspt</td>
+        </tr>
+        <tr>
+            <td>onGametickStart 事件回调，每次事件回调时进行 10 次 API 调用</td>
+            <td>429 tps, 2.33 mspt</td>
+            <td>449 tps, 2.23 mspt</td>
+        </tr>
+    </tbody>
+</table>
 
 测试使用 carpet 模组命令 `/tick warp 100000` 和外部程序 `example/nop_api_*.py`，无玩家登录。

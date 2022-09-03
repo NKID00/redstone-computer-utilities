@@ -52,14 +52,41 @@ All commands provided by the mod require at least permission level 2 (configurab
 
 ## Performance
 
-When tested on Minecraft 1.19.2 server on Kubuntu `22.04.1 LTS x86_64` (Kernel `5.15.0-46-lowlatency`) on CPU `AMD Ryzen 7 4800U`, A no-op event callback consumes ~0.27ms and a no-op API call consumes ~0.12ms. Raw data is as follows:
+When tested on Minecraft 1.19.2 server on CPU `AMD Ryzen 7 4800U`, A no-op event callback consumes ~0.33ms and a no-op API call consumes ~0.12ms. Raw data is as follows:
 
-|                                                             | tps  | mspt |
-| ----------------------------------------------------------- | ---- | ---- |
-| Mod not installed                                           | 1382 | 0.72 |
-| No script registered                                        | 1383 | 0.72 |
-| onGametickStart event callback, no API calls                | 1013 | 0.99 |
-| onGametickStart event callback, 1 API call for each event   | 929  | 1.08 |
-| onGametickStart event callback, 10 API calls for each event | 458  | 2.18 |
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th>CPython 3.10.4</th>
+            <th>PyPy 3.8.13, 7.3.9</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Mod not installed</td>
+            <td colspan=2>1374 tps, 0.73 mspt</td>
+        </tr>
+        <tr>
+            <td>No script registered</td>
+            <td colspan=2>1377 tps,  0.73 mspt</td>
+        </tr>
+        <tr>
+            <td>onGametickStart event callback, no API calls</td>
+            <td>946 tps, 1.06 mspt</td>
+            <td>963 tps, 1.04 mspt</td>
+        </tr>
+        <tr>
+            <td>onGametickStart event callback, 1 API call for each event</td>
+            <td>850 tps, 1.18 mspt</td>
+            <td>828 tps, 1.21 mspt</td>
+        </tr>
+        <tr>
+            <td>onGametickStart event callback, 10 API calls for each event</td>
+            <td>429 tps, 2.33 mspt</td>
+            <td>449 tps, 2.23 mspt</td>
+        </tr>
+    </tbody>
+</table>
 
 Measured using carpet mod with command `/tick warp 100000` and scripts `example/nop_api_*.py`, no player is logged in.
