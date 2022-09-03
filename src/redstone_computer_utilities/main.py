@@ -2,16 +2,18 @@ from __future__ import annotations
 from collections import deque
 from traceback import format_exc
 import asyncio
-from types import NoneType
 from typing import (Any, Callable, Coroutine, Iterable, NoReturn, Optional,
-                    Protocol, Type, TypeVar, Union, cast)
+                    Type, TypeVar, Union, cast)
 from uuid import UUID
 import inspect
-import typing_extensions
 try:
-    from types import UnionType
+    from types import UnionType, NoneType  # type:ignore
 except ImportError:  # Python < 3.10
     UnionType = None  # type:ignore
+    NoneType = type(None)
+
+import typing_extensions
+from typing_extensions import Protocol
 
 from .interval import Interval
 from .timer import Timer
