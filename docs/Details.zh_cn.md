@@ -8,7 +8,7 @@
 
 外部程序可以用来读写接口并响应事件（如游戏刻、数据变化、被其他外部程序调用）。
 
-外部程序相关文档参见 [Scripts.zh_cn.md](./Scripts.zh_cn.md)。
+外部程序相关文档参见 [docs/Scripts.zh_cn.md](./Scripts.zh_cn.md)。
 
 ## 命令
 

@@ -2,7 +2,7 @@
 
 Scripts are language-neutral programs outside the game that can read or write interfaces and are called when specific event occurs (e.g. gametick, data change, called from other scripts). For scripts written in Python, a library is provided to simplify the development. Name of a script MUST be unique among all registered scripts and MUST be a string consists of only letters, numbers and underlines.
 
-See [Python.md](./Python.md) for documentation about the Python library.
+See [docs/Python.md](./Python.md) for documentation about the Python library.
 
 ## Communication
 

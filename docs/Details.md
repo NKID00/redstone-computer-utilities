@@ -8,7 +8,7 @@ Before any further operation with redstone signals, it is essential to abstract 
 
 Scripts can read or write interfaces and response to specific events (e.g. gametick, data change, called from other scripts).
 
-See [Scripts.md](./Scripts.md) for documentation about scripts.
+See [docs/Scripts.md](./Scripts.md) for documentation about scripts.
 
 ## Commands
 
