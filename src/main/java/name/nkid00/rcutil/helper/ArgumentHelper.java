@@ -42,7 +42,7 @@ public class ArgumentHelper {
                         return readStringUntil(c);
                     }
                     var result = readUnquotedString();
-                    if (peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
+                    if ((!canRead()) || peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
                         return result;
                     } else {
                         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
@@ -103,7 +103,7 @@ public class ArgumentHelper {
                         return CommandHelper.quoted(readStringUntil(c));
                     }
                     var result = readUnquotedString();
-                    if (peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
+                    if ((!canRead()) || peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
                         return result;
                     } else {
                         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
