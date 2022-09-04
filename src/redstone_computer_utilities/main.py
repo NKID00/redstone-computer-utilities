@@ -283,14 +283,20 @@ class InvokeCallback(Protocol):
 
 AnyCallback = Callable[..., Coroutine]
 # there's no way to define a type to constrain the params of main callback :(
-MainRetVal = TypeVar('MainRetVal', int, None,
-                     Optional[int])
-MainCallback = Callable[..., Coroutine[Any, Any, MainRetVal]]
+MainRetValT = TypeVar('MainRetValT', int, None,
+                      Optional[int])
+MainCallback = Callable[..., Coroutine[Any, Any, MainRetValT]]
+CallbackT = TypeVar('CallbackT', bound=AnyCallback)
+StaticCallbackRegisterer = Callable[[CallbackT], CallbackT]
+RuntimeCallbackRegisterer = Callable[
+    [CallbackT], Coroutine[Any, Any, CallbackT]]
+CallbackRegisterer = Callable[[CallbackT], Any]
 
 
 class Script:
-    '''May represents a handle or a real script with callable apis. It is
-    recommended to use ``create_script`` rather than register manually.'''
+    '''May represents a handle only or a running script with callable apis,
+    which can be inspected with the member ``running``. It is recommended to
+    use ``create_script`` rather than register manually.'''
 
     def __init__(self, name: str, description: str = '',
                  permission_level: int = 2) -> None:
@@ -320,6 +326,7 @@ class Script:
         self._detach_event: asyncio.Event = cast(asyncio.Event, None)
         self._task_manager: TaskManager = cast(
             TaskManager, None)
+        self._running: bool = False
 
     def __eq__(self, other: object) -> bool:
         return (isinstance(other, Script)
@@ -342,6 +349,11 @@ class Script:
         self._io = io
         self._task_manager = task_manager
         self._detach_event = task_manager.event()
+        self._running = True
+
+    @property
+    def running(self) -> bool:
+        return self._running
 
     @property
     def _id(self) -> str:
@@ -354,6 +366,10 @@ class Script:
         if self._auth_key != '':
             params['authKey'] = self._auth_key
         return await self._io.send(method, params, self._id)
+
+    def _is_event_registered(self, event: Event) -> bool:
+        return (event in self._event_callbacks
+                and len(self._event_callbacks[event]) > 0)
 
     def _add_event_callback(self, event: Event,
                             callback: Union[AnyCallback, Timer]
@@ -399,13 +415,15 @@ class Script:
         await self._deregister_event(event)
 
     def _callback_registerer(self, event: Event
-                             ) -> Callable[[AnyCallback], AnyCallback]:
-        return cast(Callable[[AnyCallback], AnyCallback],
-                    lambda callback: self._add_event_callback(event, callback))
-
-    def _is_event_registered(self, event: Event) -> bool:
-        return (event in self._event_callbacks
-                and len(self._event_callbacks[event]) > 0)
+                             ) -> CallbackRegisterer[AnyCallback]:
+        if self._running:
+            return cast(RuntimeCallbackRegisterer[AnyCallback],
+                        lambda callback: self._register_event_callback(
+                            event, callback))
+        else:
+            return cast(StaticCallbackRegisterer[AnyCallback],
+                        lambda callback: self._add_event_callback(
+                            event, callback))
 
     async def _dispatch_request(self, method: str, params: dict[str, Any]
                                 ) -> Any:
@@ -620,97 +638,97 @@ class Script:
         await self._call_api('sendError', uuid=str(uuid), message=message)
 
     @property
-    def on_script_register(self) -> Callable[[NoArgCallback], NoArgCallback]:
+    def on_script_register(self) -> CallbackRegisterer[NoArgCallback]:
         '''Called when the scripts is almost registered.'''
         return self._callback_registerer(Events.ON_SCRIPT_REGISTER)
 
     @property
-    def on_script_reload(self) -> Callable[[NoArgCallback], NoArgCallback]:
+    def on_script_reload(self) -> CallbackRegisterer[NoArgCallback]:
         '''Called when `/rcu reload` is executed.'''
         return self._callback_registerer(Events.ON_SCRIPT_RELOAD)
 
     @property
-    def on_script_run(self) -> Callable[[RunCallback], RunCallback]:
+    def on_script_run(self) -> CallbackRegisterer[RunCallback]:
         '''Called when `/rcu run` is executed.'''
         return self._callback_registerer(Events.ON_SCRIPT_RUN)
 
     @property
-    def on_script_invoke(self) -> Callable[[InvokeCallback], InvokeCallback]:
+    def on_script_invoke(self) -> CallbackRegisterer[InvokeCallback]:
         '''Called when invoked by another script.'''
         return self._callback_registerer(Events.ON_SCRIPT_INVOKE)
 
     @property
-    def on_gametick_start(self) -> Callable[[NoArgCallback], NoArgCallback]:
+    def on_gametick_start(self) -> CallbackRegisterer[NoArgCallback]:
         '''Called at the start of every gametick.'''
         return self._callback_registerer(Events.ON_GAMETICK_START)
 
     @property
-    def on_gametick_end(self) -> Callable[[NoArgCallback], NoArgCallback]:
+    def on_gametick_end(self) -> CallbackRegisterer[NoArgCallback]:
         '''Called at the end of every gametick.'''
         return self._callback_registerer(Events.ON_GAMETICK_END)
 
-    def on_gametick_start_delay(self, interval: Interval) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_gametick_start_delay(self, interval: Interval
+                                ) -> CallbackRegisterer[NoArgCallback]:
         '''Called only once at the start of the gametick after delay
         interval.'''
         return self._callback_registerer(
             Events.ON_GAMETICK_START_DELAY.with_interval(interval))
 
-    def on_gametick_end_delay(self, interval: Interval) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_gametick_end_delay(self, interval: Interval
+                              ) -> CallbackRegisterer[NoArgCallback]:
         '''Called only once at the end of the gametick after delay
         interval.'''
         return self._callback_registerer(
             Events.ON_GAMETICK_END_DELAY.with_interval(interval))
 
-    def on_gametick_start_clock(self, interval: Interval) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_gametick_start_clock(self, interval: Interval
+                                ) -> CallbackRegisterer[NoArgCallback]:
         '''Called at the start of the gametick for every clock cycle.'''
         return self._callback_registerer(
             Events.ON_GAMETICK_START_CLOCK.with_interval(interval))
 
-    def on_gametick_end_clock(self, interval: Interval) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_gametick_end_clock(self, interval: Interval
+                              ) -> CallbackRegisterer[NoArgCallback]:
         '''Called at the end of the gametick for every clock cycle.'''
         return self._callback_registerer(
             Events.ON_GAMETICK_END_CLOCK.with_interval(interval))
 
-    def on_interface_update(self, interface: Interface) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_interface_update(self, interface: Interface
+                            ) -> CallbackRegisterer[NoArgCallback]:
         '''Called at the end of the gametick when redstone signal received by
         the interface is changed. Guaranteed to be called at most once within
         a gametick at the end of it.'''
         return self._callback_registerer(
             Events.ON_INTERFACE_UPDATE.with_interface(interface))
 
-    def on_interface_update_immediate(self, interface: Interface) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_interface_update_immediate(self, interface: Interface
+                                      ) -> CallbackRegisterer[NoArgCallback]:
         '''Called immediately when redstone signal received by the interface
         is changed. May be triggered multiple times within a single
         gametick.'''
         return self._callback_registerer(
             Events.ON_INTERFACE_UPDATE_IMMEDIATE.with_interface(interface))
 
-    def on_interface_read(self, interface: Interface) -> Callable[
-            [ScriptArgCallback], ScriptArgCallback]:
+    def on_interface_read(self, interface: Interface
+                          ) -> CallbackRegisterer[ScriptArgCallback]:
         '''Called before the interface is read by a script.'''
         return self._callback_registerer(
             Events.ON_INTERFACE_READ.with_interface(interface))
 
-    def on_interface_write(self, interface: Interface) -> Callable[
-            [ScriptArgCallback], ScriptArgCallback]:
+    def on_interface_write(self, interface: Interface
+                           ) -> CallbackRegisterer[ScriptArgCallback]:
         '''Called before the interface is written by a script.'''
         return self._callback_registerer(
             Events.ON_INTERFACE_WRITE.with_interface(interface))
 
-    def on_interface_new(self, interface: Interface) -> Callable[
-            [InterfaceArgCallback], InterfaceArgCallback]:
+    def on_interface_new(self, interface: Interface
+                         ) -> CallbackRegisterer[InterfaceArgCallback]:
         '''(experimental) Called after an interface is created successfully.'''
         return self._callback_registerer(
             Events.ON_INTERFACE_UPDATE.with_interface(interface))
 
-    def on_interface_remove(self, interface: Interface) -> Callable[
-            [NoArgCallback], NoArgCallback]:
+    def on_interface_remove(self, interface: Interface
+                            ) -> CallbackRegisterer[NoArgCallback]:
         '''(experimental) Called before the interface is removed.'''
         return self._callback_registerer(
             Events.ON_INTERFACE_REMOVE.with_interface(interface))
@@ -791,46 +809,60 @@ class Script:
             raise response_error
         return result
 
-    @property
-    def main(self) -> Callable[[MainCallback], MainCallback]:
-        '''Called and dispatched when `/rcu run` is executed.'''
-        def registerer(callback: MainCallback) -> MainCallback:
-            signature = inspect.signature(callback)
-            params = list(signature.parameters.values())
-            if len(params) > 0:
-                param0 = params[0]
-                if param0.kind in (Parameter.POSITIONAL_OR_KEYWORD,
-                                   Parameter.POSITIONAL_ONLY):
-                    if param0.annotation == UUID:
-                        raise TypeError(
-                            f'inappropriate parameter {params[0]} for main '
-                            f'function, use Optional[UUID] instead')
-                    elif param0.annotation == Optional[UUID]:
-                        params = params[1:]
-                for param in params:
-                    if param.kind in (Parameter.POSITIONAL_OR_KEYWORD,
-                                      Parameter.POSITIONAL_ONLY,
-                                      Parameter.VAR_POSITIONAL):
-                        for anno in get_union_args(param.annotation):
-                            if anno not in (str, Interface, Script):
-                                raise TypeError(
-                                    f'Inappropriate parameter {param} for '
-                                    f'main function')
-                    else:
-                        raise TypeError(
-                            f'Inappropriate parameter {param} for main'
-                            f'function, use positional argument instead')
-            for anno in get_union_args(signature.return_annotation):
-                if anno not in (int, None, NoneType, NoReturn):
+    @staticmethod
+    def _check_main(callback: MainCallback):
+        signature = inspect.signature(callback)
+        params = list(signature.parameters.values())
+        if len(params) > 0:
+            param0 = params[0]
+            if param0.kind in (Parameter.POSITIONAL_OR_KEYWORD,
+                               Parameter.POSITIONAL_ONLY):
+                if param0.annotation == UUID:
                     raise TypeError(
-                        f'Inappropriate return type '
-                        f'{signature.return_annotation} for main function')
+                        f'inappropriate parameter {params[0]} for main '
+                        f'function, use Optional[UUID] instead')
+                elif param0.annotation == Optional[UUID]:
+                    params = params[1:]
+            for param in params:
+                if param.kind in (Parameter.POSITIONAL_OR_KEYWORD,
+                                  Parameter.POSITIONAL_ONLY,
+                                  Parameter.VAR_POSITIONAL):
+                    for anno in get_union_args(param.annotation):
+                        if anno not in (str, Interface, Script):
+                            raise TypeError(
+                                f'Inappropriate parameter {param} for '
+                                f'main function')
+                else:
+                    raise TypeError(
+                        f'Inappropriate parameter {param} for main'
+                        f'function, use positional argument instead')
+        for anno in get_union_args(signature.return_annotation):
+            if anno not in (int, None, NoneType, NoReturn):
+                raise TypeError(
+                    f'Inappropriate return type '
+                    f'{signature.return_annotation} for main function')
+
+    @property
+    def main(self) -> CallbackRegisterer[MainCallback]:
+        '''Called and dispatched when `/rcu run` is executed.'''
+        async def runtime_registerer(callback: MainCallback) -> MainCallback:
+            Script._check_main(callback)
+            if len(self._main_callbacks) == 0:
+                await self.on_script_run(self._dispatch_main)
+            self._main_callbacks.append(callback)
+            return callback
+
+        def static_registerer(callback: MainCallback) -> MainCallback:
+            Script._check_main(callback)
             if len(self._main_callbacks) == 0:
                 self.on_script_run(self._dispatch_main)
             self._main_callbacks.append(callback)
             return callback
 
-        return registerer
+        if self._running:
+            return runtime_registerer
+        else:
+            return static_registerer
 
     async def wait(self, interval: Interval) -> None:
         '''Suspend the execution until the interval elapses. Guaranteed to

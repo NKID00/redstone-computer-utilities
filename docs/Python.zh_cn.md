@@ -11,21 +11,32 @@ script = rcu.create_script('my_script')
 
 ## 注册事件回调
 
+可以用函数装饰器来注册事件回调：（必须用 `async` 关键字来声明协程。）
+
 ```python
 @script.on_gametick_start
 async def _():  # 协程的名称不重要。
-    print("我被调用了！")  # 在这里编写代码。
+    print('Ticking!')  # 在这里编写代码。
 ```
 
-必须用 async 关键字来声明协程。
+也可以在运行时注册事件回调：（必须使用 `await` 关键字）
+
+```python
+async def update():
+    print("I'm called!")
+
+@script.main
+async def _(interface: rcu.Interface):
+    await script.on_interface_update(interface)(update)
+```
 
 ## 调用 API
 
 ```python
-await script.info('来自 my script 的信息')
+await script.info('info from my script')
 ```
 
-必须用 await 关键字来等待协程完成。
+必须用 `await` 关键字来等待 API 调用完成。
 
 ## `main` 函数
 

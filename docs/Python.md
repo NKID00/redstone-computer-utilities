@@ -8,23 +8,34 @@ import redstone_computer_utilities as rcu
 script = rcu.create_script('my_script')
 ```
 
-## Register a event callback
+## Register event callbacks
+
+Event callbacks can be registered with a function decorator: (Keyword `async` is required to define a coroutine.)
 
 ```python
 @script.on_gametick_start
 async def _():  # Name of the coroutine is insignificant.
-    print("I'm called!")  # Write real code here.
+    print('Ticking!')  # Write real code here.
 ```
 
-Keyword `async` is required to define a coroutine.
+Event callbacks may also be registered at runtime: (keyword `await` is required)
 
-## Call API
+```python
+async def update():
+    print("I'm called!")
+
+@script.main
+async def _(interface: rcu.Interface):
+    await script.on_interface_update(interface)(update)
+```
+
+## Call APIs
 
 ```python
 await script.info('info from my script')
 ```
 
-Keyword `await` is required to wait the coroutine to finish.
+Keyword `await` is required to wait the api call to finish.
 
 ## `main` function
 
