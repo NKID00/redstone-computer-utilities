@@ -38,7 +38,7 @@ public class RcuRun {
         eventArgs.add("runArgs", argsJsonArray);
         try {
             var result = ScriptEventCallback.call(script, Event.ON_SCRIPT_RUN, eventArgs).getAsInt();
-            s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_run.success"), true);
+            s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_run.success", script.name), true);
             return result;
         } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.invalid_response"));
