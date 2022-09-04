@@ -256,18 +256,18 @@ public class ScriptApi {
             ScriptManager.deregisterScript(authKey);
             throw e;
         } catch (Exception e) {
-            Log.error("Exception encountered while registering script " + script, e);
+            Log.error("Exception encountered while registering script:" + script, e);
             ScriptManager.deregisterScript(authKey);
         }
         if (ScriptManager.nameExists(script)) {
-            Log.info("Script {} is registered", script);
+            Log.info("script:{} is registered", script);
         }
     }
 
     public static void deregisterScript(String authKey) throws ResponseException {
         var name = ScriptManager.scriptByAuthKey(authKey).name;
         ScriptManager.deregisterScript(authKey);
-        Log.info("Script {} is deregistered", name);
+        Log.info("script:{} is deregistered", name);
     }
 
     public static void registerCallback(Script script, Event event, String callback)

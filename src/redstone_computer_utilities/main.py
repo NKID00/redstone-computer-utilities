@@ -1,11 +1,13 @@
 from __future__ import annotations
 from collections import deque
+from itertools import zip_longest
 from traceback import format_exc
 import asyncio
 from typing import (Any, Callable, Coroutine, Iterable, NoReturn, Optional,
                     Type, TypeVar, Union, cast)
 from uuid import UUID
 import inspect
+from inspect import Parameter
 try:
     from types import UnionType, NoneType  # type:ignore
 except ImportError:  # Python < 3.10
@@ -28,7 +30,7 @@ from .util import (base64_to_int, base64_to_bytes,
 class Event:
     '''Event.'''
 
-    def __init__(self, name: str, param: Any) -> None:
+    def __init__(self, name: str, param: Any = None) -> None:
         self._name = name
         self._param = param
 
@@ -44,6 +46,11 @@ class Event:
         if self._param is None:
             return self._name
         return f'{self._name}({self.serializable_param})'
+
+    def __repr__(self) -> str:
+        if self._param is None:
+            return f'Event({self._name!r})'
+        return f'Event({self._name!r}, {self._param!r})'
 
     @property
     def name(self) -> str:
@@ -73,6 +80,9 @@ class SimpleEvent(Event):
     def __hash__(self) -> int:
         return hash((self._name, self.serializable_param))
 
+    def __repr__(self) -> str:
+        return f'SimpleEvent({self._name!r})'
+
 
 class InterfaceEvent(Event):
     def __init__(self, name: str,
@@ -84,6 +94,11 @@ class InterfaceEvent(Event):
 
     def __hash__(self) -> int:
         return hash((self._name, self.serializable_param))
+
+    def __repr__(self) -> str:
+        if self._param is None:
+            return f'InterfaceEvent({self._name!r})'
+        return f'InterfaceEvent({self._name!r}, {self._param!r})'
 
     def with_interface(self, interface: Interface
                        ) -> InterfaceEvent:
@@ -104,6 +119,11 @@ class TimedEvent(Event):
 
     def __hash__(self) -> int:
         return hash((self._name, self.serializable_param))
+
+    def __repr__(self) -> str:
+        if self._param is None:
+            return f'TimedEvent({self._name!r})'
+        return f'TimedEvent({self._name!r}, {self._param!r})'
 
     def with_interval(self, interval: Interval
                       ) -> TimedEvent:
@@ -157,6 +177,15 @@ class Interface:
 
     def __hash__(self) -> int:
         return hash((self._name,))
+
+    def __str__(self) -> str:
+        return f'interface:{self._name}'
+
+    def __repr__(self) -> str:
+        if self._script is None:
+            return f'Interface({self._name!r})'
+        else:
+            return f'Interface({self._name!r}, {self._script!r})'
 
     def with_script(self, script: Script) -> Interface:
         '''Create a new interface handle that bounds to the given script.'''
@@ -222,7 +251,7 @@ def is_union(t: Type) -> bool:
 
 
 def get_union_args(t: Type) -> tuple[Type, ...]:
-    if t == inspect.Parameter.empty:
+    if t == Parameter.empty:
         return ()
     elif is_union(t):
         return typing_extensions.get_args(t)
@@ -291,6 +320,19 @@ class Script:
         self._detach_event: asyncio.Event = cast(asyncio.Event, None)
         self._task_manager: TaskManager = cast(
             TaskManager, None)
+
+    def __eq__(self, other: object) -> bool:
+        return (isinstance(other, Script)
+                and self._name == other._name)
+
+    def __hash__(self) -> int:
+        return hash((self._name,))
+
+    def __str__(self) -> str:
+        return f'script:{self._name}'
+
+    def __repr__(self) -> str:
+        return f'Script({self._name!r}, ...)'
 
     @property
     def name(self) -> str:
@@ -393,7 +435,7 @@ class Script:
                     raise
                 except Exception:  # pylint: disable=broad-except
                     error(f'Error occurred while running event callback '
-                          f'{event} of script {self._name}:')
+                          f'{event} of {self}:')
                     error(format_exc())
 
             result: Any = None
@@ -445,13 +487,6 @@ class Script:
 
     def _detach(self) -> None:
         self._detach_event.set()
-
-    def __eq__(self, other: object) -> bool:
-        return (isinstance(other, Script)
-                and self.name == other.name)
-
-    def __hash__(self) -> int:
-        return hash((self.name,))
 
     async def list_script(self) -> dict[str, Script]:
         '''List registered scripts.'''
@@ -688,8 +723,7 @@ class Script:
             except ResponseError:
                 raise
             except Exception:  # pylint: disable=broad-except
-                error(f'Error occurred while running main callback of '
-                      f'script {self._name}:')
+                error(f'Error occurred while running main callback of {self}:')
                 error(format_exc())
                 return 0
             else:
@@ -716,11 +750,20 @@ class Script:
                 if args_wanted[0].annotation == Optional[UUID]:
                     args_wanted = args_wanted[1:]
                     args.append(uuid)
-                if len(args_wanted) != len(run_args):
+                if len(args_wanted) == len(run_args):
+                    zipped: Iterable[tuple] = zip(args_wanted, run_args)
+                elif args_wanted[-1].kind == Parameter.VAR_POSITIONAL:
+                    if len(args_wanted) - 1 > len(run_args):
+                        continue
+                    zipped = zip_longest(
+                        args_wanted, run_args,
+                        fillvalue=args_wanted[-1])
+                else:
                     continue
-                for wanted, provided in zip(args_wanted, run_args):
-                    if (wanted.annotation == wanted.empty
-                            or wanted.annotation == dict_to_type(provided)):
+                for wanted, provided in zipped:
+                    union_args = get_union_args(wanted.annotation)
+                    if (len(union_args) == 0
+                            or dict_to_type(provided) in union_args):
                         args.append(dict_to_arg(provided))
                     else:
                         break
@@ -755,18 +798,28 @@ class Script:
             signature = inspect.signature(callback)
             params = list(signature.parameters.values())
             if len(params) > 0:
-                if params[0].annotation == UUID:
-                    raise TypeError(
-                        f'inappropriate parameter {params[0]} for main '
-                        f'function, use Optional[UUID] instead')
-                elif params[0].annotation == Optional[UUID]:
-                    params = params[1:]
+                param0 = params[0]
+                if param0.kind in (Parameter.POSITIONAL_OR_KEYWORD,
+                                   Parameter.POSITIONAL_ONLY):
+                    if param0.annotation == UUID:
+                        raise TypeError(
+                            f'inappropriate parameter {params[0]} for main '
+                            f'function, use Optional[UUID] instead')
+                    elif param0.annotation == Optional[UUID]:
+                        params = params[1:]
                 for param in params:
-                    for anno in get_union_args(param.annotation):
-                        if anno not in (str, Interface, Script):
-                            raise TypeError(
-                                f'Inappropriate parameter {param} for '
-                                f'main function')
+                    if param.kind in (Parameter.POSITIONAL_OR_KEYWORD,
+                                      Parameter.POSITIONAL_ONLY,
+                                      Parameter.VAR_POSITIONAL):
+                        for anno in get_union_args(param.annotation):
+                            if anno not in (str, Interface, Script):
+                                raise TypeError(
+                                    f'Inappropriate parameter {param} for '
+                                    f'main function')
+                    else:
+                        raise TypeError(
+                            f'Inappropriate parameter {param} for main'
+                            f'function, use positional argument instead')
             for anno in get_union_args(signature.return_annotation):
                 if anno not in (int, None, NoneType, NoReturn):
                     raise TypeError(
@@ -920,12 +973,11 @@ async def run_async(host: str, port: int) -> None:
             try:
                 await script._register()  # pylint: disable=protected-access
             except Exception:  # pylint: disable=broad-except
-                error(f'Error occurred while registering script '
-                      f'{script.name}')
+                error(f'Error occurred while registering {script}')
                 error(format_exc())
             else:
                 success_count += 1
-                info(f'Script {script.name} is registered')
+                info(f'{script} is registered')
         info(f'Registered {success_count}/{scripts_len} script(s)')
     if success_count == 0:
         raise KeyboardInterrupt()

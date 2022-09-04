@@ -66,7 +66,7 @@ public class ScriptManager {
             nameScript.remove(script.name);
             authKeyScript.remove(script.authKey);
             ScriptEventCallback.deregisterAllCallbacks(script);
-            Log.info("Script {} is deregistered due to disconnection", script.name);
+            Log.info("script:{} is deregistered due to disconnection", script.name);
         }
         clientAddressScript.removeAll(clientAddress);
     }
