@@ -54,18 +54,16 @@ public class ScriptApi {
                 }
                 return scripts;
             }
-            case "registerCallback":
-            case "deregisterCallback": {
+            case "registerCallback": {
                 var event = Event.fromRequest(params.get("event").getAsJsonObject());
                 var callback = params.get("callback").getAsString();
-                switch (method) {
-                    case "registerCallback":
-                        registerCallback(script, event, callback);
-                        return null;
-                    case "deregisterCallback":
-                        deregisterCallback(script, event);
-                        return null;
-                }
+                registerCallback(script, event, callback);
+                return null;
+            }
+            case "deregisterCallback": {
+                var event = Event.fromRequest(params.get("event").getAsJsonObject());
+                deregisterCallback(script, event);
+                return null;
             }
             case "invokeScript":
             case "listCallback":
