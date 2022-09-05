@@ -42,7 +42,7 @@ class ResponseError(Exception):
         result = self.copy()
         result.__cause__ = cause
         return result
-    
+
     def copy(self) -> ResponseError:
         return ResponseError(self._code, self._message, self._id)
 
