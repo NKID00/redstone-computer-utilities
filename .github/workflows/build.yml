@@ -6,26 +6,33 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - name: checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-      - name: setup jdk
+      - name: Setup Java
         uses: actions/setup-java@v1
         with:
-          java-version: 16
-      - name: make gradle wrapper executable
-        run: chmod +x ./gradlew
-      - name: build
+          java-version: 17
+      - name: Validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1
+      - name: Build
         run: ./gradlew build
-      - name: find artifact
-        run: echo "artifact=$( find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar )" >> $GITHUB_ENV
-      - name: upload artifact
+      - name: Locate artifacts
+        run: |
+          echo "ARTIFACT_JAVA=$( find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar )" >> $GITHUB_ENV
+          echo "ARTIFACT_PYTHON=$( find ./dist/ -name *.whl )" >> $GITHUB_ENV
+      - name: Upload Java artifact
         uses: actions/upload-artifact@v2
         with:
-          path: ${{ env.artifact }}
-      - name: release artifact
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: softprops/action-gh-release@2d72d869af3bf23602f9593a1e3fd739b80ac1eb
+          path: |
+            ${{ env.ARTIFACT_JAVA }}
+      - name: Upload Python artifact
+        uses: actions/upload-artifact@v2
         with:
-          files: ${{ env.artifact }}
+          path: |
+            ${{ env.ARTIFACT_PYTHON }}

@@ -2,9 +2,10 @@
   "required": true,
   "minVersion": "0.8",
   "package": "name.nkid00.rcutil.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "LanguageMixin"
+    "MinecraftServerMixin",
+    "AbstractBlockMixin"
   ],
   "client": [
   ],

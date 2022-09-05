@@ -1,47 +1,50 @@
 package name.nkid00.rcutil;
 
-import java.io.File;
-import java.util.HashMap;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
-
+import name.nkid00.rcutil.helper.GametimeHelper;
+import name.nkid00.rcutil.io.ScriptServerIO;
+import name.nkid00.rcutil.manager.CommandManager;
+import name.nkid00.rcutil.manager.StorageManager;
+import name.nkid00.rcutil.manager.WandManager;
+import name.nkid00.rcutil.script.ScriptEventCallback;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-
-import name.nkid00.rcutil.enumeration.Status;
-import name.nkid00.rcutil.fileram.FileRam;
-import name.nkid00.rcutil.fileram.FileRamBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class RCUtil implements ModInitializer {
-    public static final int requiredPermissionLevel = 4;  // operations on files are dangerous
-    public static final Item wandItem = Items.PINK_DYE;
-    public static final Text wandItemHoverableText = new ItemStack(wandItem).toHoverableText();
-    public static Status status = Status.Idle;
-    public static FileRamBuilder fileRamBuilder = null;
-    public static File baseDirectory = null;
-    public static File fileRamBaseDirectory = null;
-    // TODO: save & load
-    public static HashMap<String, FileRam> fileRams = new HashMap<>();
+    public static boolean isDedicatedServer = false;
 
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
-            baseDirectory = new File(server.getRunDirectory(), "rcutil/");
-            baseDirectory.mkdirs();
-            fileRamBaseDirectory = new File(baseDirectory, "fileram/");
-            fileRamBaseDirectory.mkdirs();
+        var loader = FabricLoader.getInstance();
+        isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
+
+        ServerLifecycleEvents.SERVER_STARTING.register(Options::init);
+
+        // worlds is required to load selections
+        ServerLifecycleEvents.SERVER_STARTED.register(StorageManager::init);
+
+        ServerTickEvents.START_SERVER_TICK.register(server -> {
+            if (!GametimeHelper.isFrozen(server)) {
+                // before next gametick start, equivalent to this gametick end
+                ScriptEventCallback.onGametickEnd();
+                GametimeHelper.updateGametime(server);
+                ScriptServerIO.sync();
+                ScriptEventCallback.onGametickStart();
+            }
         });
-        // handle realtime input
-        ServerTickEvents.START_WORLD_TICK.register(Tick::register);
-        // handle wand
-        UseBlockCallback.EVENT.register(Wand::register);
-        // handle commands
-        CommandRegistrationCallback.EVENT.register(Command::register);
+
+        AttackBlockCallback.EVENT.register(WandManager::onAttack);
+        UseBlockCallback.EVENT.register(WandManager::onUse);
+
+        CommandRegistrationCallback.EVENT.register(CommandManager::init);
+
+        ServerLifecycleEvents.SERVER_STARTING.register(ScriptServerIO::init);
+        ServerLifecycleEvents.SERVER_STARTED.register(ScriptServerIO::start);
+        ServerLifecycleEvents.SERVER_STOPPING.register(ScriptServerIO::stop);
     }
 }

@@ -1,3 +1,36 @@
 package name.nkid00.rcutil.exception;
 
-public class RCUtilException extends Exception { }
+import net.minecraft.text.Text;
+
+public class RCUtilException extends Exception {
+    private Text text = null;
+
+    public RCUtilException() {
+    }
+
+    public RCUtilException(String message) {
+        super(message);
+    }
+
+    public RCUtilException(Text message) {
+        super(message.toString());
+        text = message;
+    }
+
+    public RCUtilException(Throwable cause) {
+        super(cause);
+    }
+
+    public RCUtilException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public RCUtilException(Text message, Throwable cause) {
+        super(message.toString(), cause);
+        text = message;
+    }
+
+    public Text text() {
+        return text;
+    }
+}

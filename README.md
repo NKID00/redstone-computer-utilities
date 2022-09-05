@@ -1,60 +1,89 @@
+<img src="./src/main/resources/assets/rcutil/icon.png" alt="icon" align="right" height="175">
+
 # Redstone Computer Utilities
 
-> Simple debug tools for redstone computers.
+>  Lightweight and Modular Redstone Computer Debugging Tools. 
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 
-## Features
+## Highlights
 
-- Use easy-to-debug files outside the game as RAMs for your redstone computers
-- Adjustable bus sizes from 1 to 64 bits and shapes from horizontal, vertical ~~to even sloping lines~~(WIP)
-- Different RAM types (read-only and write-only) as well as different clock types (positive, negative and dual edge triggering)
-- Set-up instructions that are user-friendly
-- Built-in English and 简体中文 (Simplified Chinese) translation
+- Empowers programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
+  - Specially, a Python library is provided to simplify development
+    - The Python library uses asynchronous network communication, features high-level APIs and a user-friendly CLI and supports static typing.
+- Supports redstone wires in any sizes and shapes from horizontal, vertical to even diagonal ones
+- Completions and suggestions for every argument of all commands
+- Server-side-only implementation, fully compatible with vanilla clients
+- Compatibility with tick speed controlling, stepping and pausing implemented by other mods
+- Built-in English and Simplified Chinese translations
 
-## Install
+## Installation
 
-This mod supports Minecraft 1.16.5 and relies on the latest Fabric Loader & Fabric API.
+This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fabric API.
 
-This mod is mostly a server-side mod but has to be installed both on server-side and client-side in order to display translations correctly.
+Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
 
-## Usage
+Python 3.7.2 or newer (CPython or PyPy) is required to use the provided Python library.
 
-All the commands listed here requires permission level 4 or higher (because operations on files are dangerous), which means command blocks cannot run these commands.
+## Basic Usage
 
-- `/rcu`
-  - Stop running command if there is any, otherwise give command source player a wand item (pink dye).
+1. Execute `/rcu` to receive a wand item (or pick a pink dye by yourself).
+2. Attach target blocks to redstone wires of your redstone mechanics to be debugged.
+3. Left click with the wand item to select the most significant bit, right click to select the least significant bit.
+4. Execute `/rcu new <interface name>` to create an interface.
+5. Write debugging program and wrap it as a script.
+6. Start up the script.
+7. Execute `/rcu run <script name> <interface name>` to run the script.
 
-- `/rcu fileram`
-  - Same as `/rcu fileram info`.
+You may also accelerate tick speed if it takes too long.
 
-- `/rcu fileram info [<name>]`
-  - List all file RAMs if `<name>` is not specified, otherwise display the detail of the file RAM named `<name>`.
+See [docs/Details.md](./docs/Details.md) for details.
 
-- `/rcu fileram new <type> <clock triggering edge> <name> <file> [<byte order>]`
-  - Create a new file RAM named `<name>` with type `<type>` (`ro` for read-only, `wo` for write-only), clock triggering edge `<clock triggering edge>` (`pos` for positive edge triggering, `neg` for negative edge triggering, `dual` for dual edge triggering) and connect it with the file name `<file>`* (with file byte order `<byte order>`, `le` for little-endian, `be` for big-endian). After running this command, several instructions displayed on the screen will tell you what to do next.
+## Development
 
-- `/rcu fileram remove <name>`
-  - Remove the file RAM named `<name>`.
+Java sources are located in `src/main/java/`. Python sources are located in `src/redstone_computer_utilities/`.
 
-- `/rcu fileram start <name>`
-  - Start running the file RAM named `<name>`.
+To build the mod, Java 17 or newer, Python 3.7.2 or newer (CPython or PyPy) and Poetry are required. Run the following command:
 
-- `/rcu fileram stop <name>`
-  - Stop running the file RAM named `<name>`.
+```sh
+$ ./gradlew build
+```
 
-- `/rcu fileram newfile <file> <length in bytes>`
-  - Create a file named `<file>`* and fill it with `<length in bytes>` bytes of 0.
+Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
 
-- `/rcu fileram removefile <file>`
-  - Remove the file named `<file>`*.
+To install the Python library into the current virtual environment, run the following command:
 
-*Files of file RAMs are stored in the directory `rcutil/fileram/` (or `.minecraft/rcutil/fileram/` when playing single player mode).
+```sh
+$ poetry install
+```
 
-Note: File RAMs configurations only stores in memory and file RAMs will be removed after a server restart (or a client restart when playing single player mode).
+To extract translation keys, Java and GNU gettext are required. Run the following command:
+
+```sh
+$ ./gradlew extract
+```
+
+Extracted translation keys are located in `build/messages.po`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities).
+
+To convert translations to or from Minecraft-compatible json format, run the following command:
+
+```sh
+$ python po2minecraft.py path/to/messages.po path/to/messages.json
+$ python minecraft2po.py path/to/messages.json path/to/messages.po
+```
+
+## Credits
+
+- [Fabric Loader](https://github.com/FabricMC/fabric-loader), distributed under [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE).
+- [Fabric API](https://github.com/FabricMC/fabric), distributed under [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE).
+- [GSON](https://github.com/google/gson), distributed under [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE).
+- [netty](https://github.com/netty/netty), distributed under [Apache-2.0](https://github.com/netty/netty/blob/4.1/LICENSE.txt).
+- [Guava](https://github.com/google/guava), distributed under [Apache-2.0](https://github.com/google/guava/blob/master/COPYING).
+- [colorama](https://github.com/tartley/colorama), distributed under [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt).
+- [typing-extensions](https://github.com/python/typing_extensions), distributed under [PSF-2.0](https://github.com/python/typing_extensions/blob/main/LICENSE).
 
 ## Copyright
 
-Copyright © 2021 NKID00
+Copyright © 2021-2022 NKID00
 
-Licensed under [the MIT license](./LICENSE).
+Distributed under [MPL-2.0](./LICENSE).

@@ -1,60 +1,89 @@
+<img src="./src/main/resources/assets/rcutil/icon.png" alt="icon" align="right" height="175">
+
 # Redstone Computer Utilities
 
-> 一些简单的红石计算机调试工具。
+>  轻量级模块化红石计算机调试工具。
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 
-## 特性
+## 亮点
 
-- 使用易于调试的游戏外文件充当红石计算机的内存
-- 可使用 1 到 64 位之间各种宽度的水平、竖直~~甚至斜着~~（尚未实现）的各种形状的总线
-- 不同的内存类型（只读和只写）以及不同的时钟（上升沿、下降沿和双边沿触发）
-- 对用户友好的设置步骤提示
-- 内置简体中文和英文翻译
+- 可以用任何编程语言（只要它支持 JSON 和 TCP）编写的程序来调试红石计算机
+  - 特别地，用 Python 编写外部程序时可以使用提供的库来简化开发
+    - Python 库使用异步网络通信，提供高阶 API 和友好的控制台界面，支持静态类型检查
+- 支持各种位宽和水平、竖直甚至倾斜的各种形状的红石排线
+- 全部命令的所有参数都拥有自动补全和提示
+- 纯服务端实现，完全兼容原版客户端
+- 兼容其他模组实现的游戏刻调速，步进和暂停
+- 内置简体中文和英文翻译（执行 `/rcu lang zh_cn` 来设置显示语言为简体中文）
 
 ## 安装
 
-此模组支持 Minecraft 1.16.5，需要最新的 Fabric Loader 和 Fabric API。
+支持 Minecraft 1.19.2，需要安装最新的 Fabric Loader 和 Fabric API。
 
-此模组大部分是服务器侧的，但必须同时在服务器和客户端安装才能正确显示翻译文本。
+多人游戏只需要安装在服务器侧，单人游戏需要安装在客户端侧。
 
-## 用法
+需要安装 Python 3.7.2 或更新版本（CPython 或 PyPy）来使用提供的 Python 库。
 
-下列所有命令均需要权限等级 4 或以上（因为文件操作较危险），这意味着命令方块将无法执行这些命令。
+## 基础用法
 
-- `/rcu`
-  - 如果有正在运行的命令则停止它，否则给予执行者一个辅助物品（粉红色染料）。
+1. 执行 `/rcu` 来获取一个魔杖物品（也可以直接拿一个粉红色染料）。
+2. 将需要调试的红石排线连接上标靶方块。
+3. 使用魔杖物品左键选择最高有效位，右键选择最低有效位。
+4. 执行 `/rcu new <接口名>` 来创建一个接口。
+5. 编写调试程序并将其封装为外部程序。
+6. 运行外部程序。
+7. 执行 `/rcu run <外部程序名> <接口名>` 来运行调试程序。
 
-- `/rcu fileram`
-  - 与 `/rcu fileram info` 相同。
+如果调试程序耗时太久也可以尝试加快游戏刻速度。
 
-- `/rcu fileram info [<name>]`
-  - 如果不指定 `<name>` 则列出所有的文件内存信息，否则显示 `<name>` 指定的文件内存信息。
+详见 [docs/Details.zh_cn.md](./docs/Details.zh_cn.md)。
 
-- `/rcu fileram new <type> <clock triggering edge> <name> <file> [<byte order>]`
-  - 创建一个新的名为 `<name>` 的类型为 `<type>` (`ro` 代表只读, `wo` 代表只写）且时钟类型为 `<clock triggering edge>`（`pos` 代表上升沿触发, `neg` 代表下降沿触发，`dual` 代表双边沿触发）的文件内存并将其和名为 `<file>`* 的文件关联（文件使用字节序 `<byte order>`，`le` 代表小端序，`be` 代表大端序）。运行这条指令后，屏幕上会显示一些提示步骤来引导你进行下一步操作。
+## 开发
 
-- `/rcu fileram remove <name>`
-  - 移除名为 `<name>` 的文件内存。
+Java 源代码文件位于 `src/main/java/`。Python 源代码文件位于 `src/redstone_computer_utilities/`。
 
-- `/rcu fileram start <name>`
-  - 开始运行名为 `<name>` 的文件内存。
+要构建模组，需要安装 Java 17 或更新版本，Python 3.7.2 或更新版本（CPython 或 PyPy）和 Poetry。运行以下命令：
 
-- `/rcu fileram stop <name>`
-  - 停止运行名为 `<name>` 的文件内存。
+```sh
+$ ./gradlew build
+```
 
-- `/rcu fileram newfile <file> <length in bytes>`
-  - 创建名为 `<file>`* 的文件并使用 `<length in bytes>` 字节的 0 填充。
+构建出的 jar 文件位于 `build/libs/`。构建出的 wheel 文件位于 `dist/`。
 
-- `/rcu fileram removefile <file>`
-  - 移除名为 `<file>`* 的文件。
+要安装 Python 库到当前的虚拟环境，运行以下命令：
 
-*文件内存对应的文件存储于目录 `rcutil/fileram/` 下（在单人模式下是 `.minecraft/rcutil/fileram/`）。
+```sh
+$ poetry install
+```
 
-提示：文件内存相关配置仅存储于内存中，服务器重启后会移除所有文件内存（在单人模式下是客户端重启后）。
+要提取翻译键，需要安装 Java 和 GNU gettext。运行以下命令：
+
+```sh
+$ ./gradlew extract
+```
+
+提取的翻译键位于 `build/messages.po`。翻译使用 [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities) 托管。
+
+要将翻译转换为 Minecraft 兼容的格式或从 Minecraft 兼容的格式转换，运行以下命令：
+
+```sh
+$ python po2minecraft.py 文件路径/messages.po 文件路径/messages.json
+$ python minecraft2po.py 文件路径/messages.json 文件路径/messages.po
+```
+
+## 鸣谢
+
+- [Fabric Loader](https://github.com/FabricMC/fabric-loader)，使用 [Apache-2.0](https://github.com/FabricMC/fabric-loader/blob/master/LICENSE) 许可证分发。
+- [Fabric API](https://github.com/FabricMC/fabric)，使用 [Apache-2.0](https://github.com/FabricMC/fabric/blob/master/LICENSE) 许可证分发。
+- [GSON](https://github.com/google/gson)，使用 [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE) 许可证分发。
+- [netty](https://github.com/netty/netty)，使用 [Apache-2.0](https://github.com/netty/netty/blob/4.1/LICENSE.txt) 许可证分发。
+- [Guava](https://github.com/google/guava)，使用 [Apache-2.0](https://github.com/google/guava/blob/master/COPYING) 许可证分发。
+- [colorama](https://github.com/tartley/colorama)，使用 [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt) 许可证分发。
+- [typing-extensions](https://github.com/python/typing_extensions)，使用 [PSF-2.0](https://github.com/python/typing_extensions/blob/main/LICENSE) 许可证分发。
 
 ## 版权
 
-版权所有 © 2021 NKID00
+版权所有 © 2021-2022 NKID00
 
-使用 [MIT 许可证](./LICENSE)进行许可。
+使用 [MPL-2.0](./LICENSE) 许可证分发。
