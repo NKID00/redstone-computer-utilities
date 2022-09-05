@@ -146,6 +146,7 @@ public class ScriptApi {
                     incrementJsonArray.add(increment.getY());
                     incrementJsonArray.add(increment.getZ());
                     interfaceJsonObject.add("increment", incrementJsonArray);
+                    interfaceJsonObject.addProperty("size", interfazeTarget.size());
                     interfaces.add(interfazeTarget.name(), interfaceJsonObject);
                 }
                 return interfaces;
