@@ -1,7 +1,7 @@
 from __future__ import annotations
 from collections import deque
 from itertools import zip_longest
-from traceback import format_exc
+from traceback import format_exc, format_exception
 import asyncio
 from typing import (Any, Callable, Coroutine, Iterable, NoReturn, Optional,
                     Type, TypeVar, Union, cast)
@@ -220,10 +220,11 @@ def dict_to_type(v: dict[str, str]) -> Type:
         return str
 
 
-def dict_to_arg(v: dict[str, str]) -> Union[str, Interface, Script]:
+def dict_to_arg(v: dict[str, str], script: Script
+                ) -> Union[str, Interface, Script]:
     type_, value = v['type'], v['value']
     if type_ == 'interface':
-        return Interface(value)
+        return Interface(value).with_script(script)
     elif type_ == 'script':
         return Script(value)
     else:  # literal
@@ -410,9 +411,22 @@ class Script:
             event={'name': event.name,
                    'param': event.serializable_param})
 
-    async def _deregister_event_callback(self, event: Event) -> None:
+    async def _deregister_event_callbacks(self, event: Event) -> None:
         self._remove_event_callback(event)
         await self._deregister_event(event)
+
+    async def _deregister_callback(self, callback: Union[AnyCallback, Timer]
+                                   ) -> None:
+        for event, callback_list in list(self._event_callbacks.items()):
+            if callback in callback_list:
+                callback_list.remove(callback)
+                if len(callback_list) == 0:
+                    await self._deregister_event_callbacks(event)
+        if not isinstance(callback, Timer):
+            if callback in self._main_callbacks:
+                self._main_callbacks.remove(callback)
+                if len(self._main_callbacks) == 0:
+                    await self._deregister_callback(self._dispatch_main)
 
     def _callback_registerer(self, event: Event
                              ) -> CallbackRegisterer[AnyCallback]:
@@ -449,8 +463,13 @@ class Script:
             async def call_suppress(callback, **kwargs) -> Any:
                 try:
                     return await callback(**kwargs)
-                except ResponseError:
-                    raise
+                except ResponseError as exc:
+                    if exc.get_id() is None:
+                        raise
+                    else:
+                        # `raise from` will modify the exception
+                        raise (ResponseErrors.SCRIPT_INTERNAL_ERROR
+                               .with_cause(exc))
                 except Exception:  # pylint: disable=broad-except
                     error(f'Error occurred while running event callback '
                           f'{event} of {self}:')
@@ -458,6 +477,7 @@ class Script:
 
             result: Any = None
             response_error: Optional[ResponseError] = None
+            last_detach_task = self._detach_task
             for callback in self._event_callbacks[event].copy():
                 self._detach_event.clear()
                 if isinstance(callback, Timer):
@@ -474,9 +494,15 @@ class Script:
                     try:
                         result = self._detach_task.result()
                     except ResponseError as exc:
+                        if exc == ResponseErrors.SCRIPT_INTERNAL_ERROR:
+                            error(f'Script internal error occurred while '
+                                  f'running event callback {event} of {self}:')
+                            error(''.join(format_exception(
+                                type(exc), exc, exc.__traceback__)))
                         response_error = exc
                 else:
                     self._task_manager.add_task(self._detach_task)
+            self._detach_task = last_detach_task
             if response_error is not None:
                 raise response_error
             return result
@@ -505,6 +531,11 @@ class Script:
 
     def _detach(self) -> None:
         self._detach_event.set()
+
+    async def deregister_callback(self, callback: AnyCallback) -> AnyCallback:
+        '''Deregister registered event callback.'''
+        await self._deregister_callback(callback)
+        return callback
 
     async def list_script(self) -> dict[str, Script]:
         '''List registered scripts.'''
@@ -753,6 +784,7 @@ class Script:
         result: int = 0
         called = False
         response_error: Optional[ResponseError] = None
+        last_detach_task = self._detach_task
         for callback in self._main_callbacks.copy():
             signature = inspect.signature(callback)
             args_wanted = list(signature.parameters.values())
@@ -782,7 +814,7 @@ class Script:
                     union_args = get_union_args(wanted.annotation)
                     if (len(union_args) == 0
                             or dict_to_type(provided) in union_args):
-                        args.append(dict_to_arg(provided))
+                        args.append(dict_to_arg(provided, self))
                     else:
                         break
                 else:
@@ -805,6 +837,7 @@ class Script:
                 self._task_manager.add_task(self._detach_task)
         if not called:
             raise ResponseErrors.ILLEGAL_ARGUMENT
+        self._detach_task = last_detach_task
         if response_error is not None:
             raise response_error
         return result

@@ -1,12 +1,12 @@
 import asyncio
 from collections import deque
-from typing import Coroutine, Iterable
+from typing import Coroutine, Iterable, Deque
 
 
 class TaskManager:
     def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
         self.loop = loop
-        self.tasks: deque[asyncio.Task] = deque()
+        self.tasks: Deque[asyncio.Task] = deque()
         self.task_added_event = self.event()
 
     def event(self) -> asyncio.Event:

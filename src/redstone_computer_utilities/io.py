@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 import json
-from typing import Any, Awaitable, Callable, Coroutine, NoReturn, Optional
+from typing import Any, Callable, Coroutine, NoReturn, Optional
 
 from .task import TaskManager
 
@@ -13,6 +13,13 @@ class ResponseError(Exception):
         self._code = code
         self._message = message
         self._id = id_
+
+    def __eq__(self, other: object) -> bool:
+        return (isinstance(other, ResponseError)
+                and self._code == other._code)
+
+    def __hash__(self) -> int:
+        return hash((self._code,))
 
     @classmethod
     def from_response(cls, response: dict[str, Any]) -> ResponseError:
@@ -30,6 +37,14 @@ class ResponseError(Exception):
 
     def with_id(self, id_: str) -> ResponseError:
         return ResponseError(self._code, self._message, id_)
+
+    def with_cause(self, cause: Exception) -> ResponseError:
+        result = self.copy()
+        result.__cause__ = cause
+        return result
+    
+    def copy(self) -> ResponseError:
+        return ResponseError(self._code, self._message, self._id)
 
     def get_code(self) -> int:
         '''Get code.'''
@@ -112,10 +127,7 @@ class JsonRpcIO:
             result = await self._request_handler(
                 request['method'], request['params'])
         except ResponseError as exc:
-            if exc.get_id() is None:
-                response = exc.to_response(request['id'])
-            else:
-                raise
+            response = exc.to_response(request['id'])
         except MethodNotFoundError:
             response = ResponseErrors.METHOD_NOT_FOUND.with_id(
                 request['id']).to_response()
