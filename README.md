@@ -27,12 +27,12 @@ Python 3.7.2 or newer (CPython or PyPy) is required to use the provided Python l
 
 ## Basic Usage
 
-1. Execute `/rcu` to receive a wand item (or get a pink dye by yourself).
+1. Execute `/rcu` to receive a wand item (or pick a pink dye by yourself).
 2. Attach target blocks to redstone wires of your redstone mechanics to be debugged.
 3. Left click with the wand item to select the most significant bit, right click to select the least significant bit.
 4. Execute `/rcu new <interface name>` to create an interface.
 5. Write debugging program and wrap it as a script.
-6. Start up Minecraft and the script.
+6. Start up the script.
 7. Execute `/rcu run <script name> <interface name>` to run the script.
 
 You may also accelerate tick speed if it takes too long.
