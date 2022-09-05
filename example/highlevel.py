@@ -1,5 +1,3 @@
-# WIP, not a operational example
-
 import redstone_computer_utilities as rcu
 
 script = rcu.create_script("highlevel")
@@ -26,7 +24,6 @@ async def _(target: rcu.Interface, result: rcu.Interface):
 async def _():
     while True:
         # class Interval: rcu.gametick, rcu.redstonetick, rcu.second
-        # or Literal[0]
         await script.wait(rcu.gametick(20))  # different time units
         print(f'Current gametime is: {await script.gametime()}')
 
