@@ -25,6 +25,17 @@
 
 需要安装 Python 3.7.2 或更新版本（CPython 或 PyPy）来使用提供的 Python 库。
 
+```sh
+$ pip install redstone-computer-utilities
+```
+
+或者
+
+```toml
+# pyproject.toml
+redstone-computer-utilities = "^0.2.0"
+```
+
 ## 基础用法
 
 1. 执行 `/rcu` 来获取一个魔杖物品（也可以直接拿一个粉红色染料）。

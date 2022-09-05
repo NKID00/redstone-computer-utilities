@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "redstone-computer-utilities"
-version = "0.2.0"
-description = "Simple debug tools for redstone computers."
+version = "0.2.0.post3"
+description = "Lightweight and Modular Redstone Computer Debugging Tools."
 authors = ["NKID00 <nkid00@pm.me>"]
+readme = "docs/PyPI.md"
 license = "MPL-2.0"
+homepage = "https://github.com/NKID00/redstone-computer-utilities"
 
 [tool.poetry.dependencies]
 python = "^3.7.2"
