@@ -19,7 +19,7 @@ public class RcuInfoInterface {
 
     public static int executeDetail(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
-        var player = s.getPlayer();
+        var player = CommandHelper.playerOrNull(s);
         var uuid = CommandHelper.uuidOrNull(s);
         var args = ArgumentHelper.getMulti(c, "interface name...");
         int result = 0;
