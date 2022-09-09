@@ -19,7 +19,7 @@
 
 ## Installation
 
-This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fabric API.
+This mod supports Minecraft 1.16-1.19.2 and requires Java 17, the latest Fabric Loader and the latest Fabric API.
 
 Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
 
