@@ -12,7 +12,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-mc1.19.1-1.19.2+${buildMetadata()}"
+version = "${project.mod_version}-mc1.18-1.18.2+${buildMetadata()}"
 group = project.maven_group
 
 def buildMetadata() {
@@ -40,7 +40,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     Set<String> apiModules = [
-        "fabric-command-api-v2",
+        "fabric-command-api-v1",
         "fabric-events-interaction-v0",
         "fabric-lifecycle-events-v1",
         "fabric-particles-v1"

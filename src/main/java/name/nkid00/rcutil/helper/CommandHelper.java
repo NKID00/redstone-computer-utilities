@@ -41,15 +41,19 @@ public class CommandHelper {
     }
 
     public static UUID uuidOrNull(ServerCommandSource s) {
-        var player = s.getPlayer();
-        if (player == null) {
+        try {
+            return s.getPlayer().getUuid();
+        } catch (CommandSyntaxException e) {
             return null;
         }
-        return player.getUuid();
     }
 
     public static ServerPlayerEntity playerOrNull(ServerCommandSource s) throws CommandSyntaxException {
-        return s.getPlayer();
+        try {
+            return s.getPlayer();
+        } catch (CommandSyntaxException e) {
+            return null;
+        }
     }
 
     public static ServerPlayerEntity requirePlayer(ServerCommandSource s) throws CommandSyntaxException {

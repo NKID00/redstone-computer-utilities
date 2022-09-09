@@ -51,7 +51,7 @@ public class I18n {
     }
 
     public static void send(ServerPlayerEntity player, Text message) {
-        player.sendMessage(message);
+        player.sendMessage(message, false);
     }
 
     public static void send(ServerPlayerEntity player, String key, Object... args) {

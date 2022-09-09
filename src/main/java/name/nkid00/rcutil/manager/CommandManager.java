@@ -17,14 +17,10 @@ import name.nkid00.rcutil.command.RcuRemove;
 import name.nkid00.rcutil.command.RcuRun;
 import name.nkid00.rcutil.command.RcuInfoScript;
 import name.nkid00.rcutil.helper.ArgumentHelper;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class CommandManager {
-    public static void init(CommandDispatcher<ServerCommandSource> dispatcher,
-            CommandRegistryAccess registryAccess,
-            RegistrationEnvironment environment) {
+    public static void init(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         // /rcu
         dispatcher.register(literal("rcu")
                 .requires((s) -> s.hasPermissionLevel(Options.requiredPermissionLevel()))

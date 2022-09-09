@@ -1,7 +1,9 @@
 package name.nkid00.rcutil.helper;
 
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class TextHelper {
@@ -10,15 +12,15 @@ public class TextHelper {
     }
 
     public static MutableText empty() {
-        return Text.empty();
+        return literal("");
     }
 
     public static MutableText literal(String string) {
-        return Text.literal(string);
+        return new LiteralText(string);
     }
 
     public static MutableText translatable(String key, Object... args) {
-        return Text.translatable(key, args);
+        return new TranslatableText(key, args);
     }
 
     public static MutableText formatted(Text text, Formatting formatting) {

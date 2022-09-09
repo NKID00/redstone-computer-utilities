@@ -48,14 +48,14 @@ public class Log {
     public static void broadcastToPlayers(MinecraftServer server, String message) {
         var makeCompilerHappy = BRAND_TEXT.copy().append(message);
         server.getPlayerManager().getPlayerList().forEach(player -> {
-            player.sendMessage(makeCompilerHappy);
+            player.sendMessage(makeCompilerHappy, false);
         });
     }
 
     public static void broadcastToPlayers(MinecraftServer server, Text message) {
         var makeCompilerHappy = BRAND_TEXT.copy().append(message);
         server.getPlayerManager().getPlayerList().forEach(player -> {
-            player.sendMessage(makeCompilerHappy);
+            player.sendMessage(makeCompilerHappy, false);
         });
     }
 
@@ -71,7 +71,7 @@ public class Log {
         var makeCompilerHappy = BRAND_TEXT.copy().append(message);
         server.getPlayerManager().getPlayerList().forEach(player -> {
             if (player.hasPermissionLevel(permissionLevel)) {
-                player.sendMessage(makeCompilerHappy);
+                player.sendMessage(makeCompilerHappy, false);
             }
         });
     }
@@ -80,7 +80,7 @@ public class Log {
         var makeCompilerHappy = BRAND_TEXT.copy().append(message);
         server.getPlayerManager().getPlayerList().forEach(player -> {
             if (player.hasPermissionLevel(permissionLevel)) {
-                player.sendMessage(makeCompilerHappy);
+                player.sendMessage(makeCompilerHappy, false);
             }
         });
     }
