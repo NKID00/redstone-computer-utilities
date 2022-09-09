@@ -48,8 +48,12 @@ public class CommandHelper {
         return player.getUuid();
     }
 
+    public static ServerPlayerEntity playerOrNull(ServerCommandSource s) throws CommandSyntaxException {
+        return s.getPlayer();
+    }
+
     public static ServerPlayerEntity requirePlayer(ServerCommandSource s) throws CommandSyntaxException {
-        var player = s.getPlayer();
+        var player = playerOrNull(s);
         if (player == null) {
             throw NOT_PLAYER_ENTITY_EXCEPTION.create();
         }

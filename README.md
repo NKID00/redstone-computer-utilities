@@ -2,7 +2,7 @@
 
 # Redstone Computer Utilities
 
->  Lightweight and Modular Redstone Computer Debugging Tools. 
+>  Lightweight and Modular Redstone Computer Debugging Tools.
 
 [English README](./README.md) | [简体中文简介](./README.zh_cn.md)
 
@@ -19,11 +19,22 @@
 
 ## Installation
 
-This mod supports Minecraft 1.19.2 and requires the latest Fabric Loader and Fabric API.
+This mod supports Minecraft 1.16-1.19.2 and requires Java 17, the latest Fabric Loader and the latest Fabric API.
 
 Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
 
 Python 3.7.2 or newer (CPython or PyPy) is required to use the provided Python library.
+
+```sh
+$ pip install redstone-computer-utilities
+```
+
+or
+
+```toml
+# pyproject.toml
+redstone-computer-utilities = "^0.2.0"
+```
 
 ## Basic Usage
 

@@ -1,32 +1,32 @@
 {
-  "schemaVersion": 1,
-  "id": "rcutil",
-  "version": "${version}",
-  "name": "Redstone Computer Utilities",
-  "description": "Simple debug tools for redstone computers.",
-  "authors": [
-    "NKID00"
-  ],
-  "contact": {
-    "homepage": "https://github.com/NKID00/redstone-computer-utilities",
-    "sources": "https://github.com/NKID00/redstone-computer-utilities",
-    "issues": "https://github.com/NKID00/redstone-computer-utilities"
-  },
-  "license": "MIT",
-  "icon": "assets/rcutil/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "name.nkid00.rcutil.RCUtil"
-    ]
-  },
-  "mixins": [
-    "rcutil.mixins.json"
-  ],
-  "accessWidener" : "rcutil.accesswidener",
-  "depends": {
-    "fabricloader": ">=0.12",
-    "fabric": "*",
-    "minecraft": "1.19.2"
-  }
+    "schemaVersion": 1,
+    "id": "rcutil",
+    "version": "${version}",
+    "name": "Redstone Computer Utilities",
+    "description": "Simple debug tools for redstone computers.",
+    "authors": [
+        "NKID00"
+    ],
+    "contact": {
+        "homepage": "https://github.com/NKID00/redstone-computer-utilities",
+        "sources": "https://github.com/NKID00/redstone-computer-utilities",
+        "issues": "https://github.com/NKID00/redstone-computer-utilities/issues"
+    },
+    "license": "MIT",
+    "icon": "assets/rcutil/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "name.nkid00.rcutil.RCUtil"
+        ]
+    },
+    "mixins": [
+        "rcutil.mixins.json"
+    ],
+    "accessWidener": "rcutil.accesswidener",
+    "depends": {
+        "fabricloader": ">=0.12",
+        "fabric": "*",
+        "minecraft": "~1.19"
+    }
 }

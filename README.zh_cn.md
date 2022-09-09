@@ -19,11 +19,22 @@
 
 ## 安装
 
-支持 Minecraft 1.19.2，需要安装最新的 Fabric Loader 和 Fabric API。
+支持 Minecraft 1.16-1.19.2，需要安装 Java 17、最新的 Fabric Loader 和最新的 Fabric API。
 
 多人游戏只需要安装在服务器侧，单人游戏需要安装在客户端侧。
 
 需要安装 Python 3.7.2 或更新版本（CPython 或 PyPy）来使用提供的 Python 库。
+
+```sh
+$ pip install redstone-computer-utilities
+```
+
+或者
+
+```toml
+# pyproject.toml
+redstone-computer-utilities = "^0.2.0"
+```
 
 ## 基础用法
 
