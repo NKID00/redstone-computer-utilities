@@ -23,7 +23,7 @@ public class ParticleHelper {
 
     public static void highlight(
             ServerWorld world, ServerPlayerEntity viewer, Vec3f color, float scale, BlockPos pos) {
-        highlight(world, viewer, new DustParticleEffect(color, scale), pos);
+        highlight(world, viewer, new DustParticleEffect(color.getX(), color.getY(), color.getZ(), scale), pos);
     }
 
     public static void highlight(

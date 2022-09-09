@@ -1,7 +1,6 @@
 package name.nkid00.rcutil.helper;
 
 import name.nkid00.rcutil.exception.BlockNotTargetException;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
@@ -9,6 +8,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 public class TargetBlockHelper {
+    private static final int NOTIFY_ALL = 3;
+
     public static boolean is(ServerWorld world, BlockPos pos) {
         return world.getBlockState(pos).isOf(Blocks.TARGET);
     }
@@ -68,7 +69,7 @@ public class TargetBlockHelper {
         if (!is(world, pos)) {
             throw new BlockNotTargetException();
         }
-        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), Block.NOTIFY_ALL);
+        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), NOTIFY_ALL);
     }
 
     public static void writeDigital(ServerWorld world, BlockPos pos, boolean power)
@@ -80,7 +81,7 @@ public class TargetBlockHelper {
         if (!is(world, pos)) {
             return;
         }
-        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), Block.NOTIFY_ALL);
+        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), NOTIFY_ALL);
     }
 
     public static void writeDigitalSuppress(ServerWorld world, BlockPos pos, boolean power) {
@@ -88,7 +89,7 @@ public class TargetBlockHelper {
     }
 
     public static void writeUnsafe(ServerWorld world, BlockPos pos, int power) {
-        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), Block.NOTIFY_ALL);
+        world.setBlockState(pos, world.getBlockState(pos).with(Properties.POWER, power), NOTIFY_ALL);
     }
 
     public static void writeDigitalUnsafe(ServerWorld world, BlockPos pos, boolean power) {

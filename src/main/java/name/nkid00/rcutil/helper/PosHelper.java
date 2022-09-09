@@ -90,7 +90,7 @@ public class PosHelper {
         if (factor == 1) {
             return copy(v);
         }
-        return v.multiply(factor);
+        return new Vec3i(v.getX() * factor, v.getY() * factor, v.getZ() * factor);
     }
 
     public static Vec3i divide(Vec3i v, int divisor) {

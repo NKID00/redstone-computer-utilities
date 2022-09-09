@@ -26,8 +26,9 @@ import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 
 public class LanguageManager {
+    private static final String DEFAULT_LANGUAGE_CODE = "en_us";
     private static Language DEFAULT_LANGUAGE = null;
-    public static final List<String> LANGUAGES = Arrays.asList(Language.DEFAULT_LANGUAGE, "zh_cn");
+    public static final List<String> LANGUAGES = Arrays.asList(DEFAULT_LANGUAGE_CODE, "zh_cn");
 
     private static ConcurrentHashMap<String, Language> languages = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<UUID, String> playerLanguages = new ConcurrentHashMap<>();
@@ -35,7 +36,7 @@ public class LanguageManager {
     public static Language defaultLanguage() {
         if (DEFAULT_LANGUAGE == null) {
             try {
-                DEFAULT_LANGUAGE = language(Language.DEFAULT_LANGUAGE);
+                DEFAULT_LANGUAGE = language(DEFAULT_LANGUAGE_CODE);
             } catch (LanguageNotFoundException e) {
                 throw new CrashException(new CrashReport("Failed to load default language", e));
             }
@@ -54,7 +55,7 @@ public class LanguageManager {
         var map = new ConcurrentHashMap<String, String>();
         Language.load(inputStream, map::put);
         Language language;
-        if (langCode.equals(Language.DEFAULT_LANGUAGE)) {
+        if (langCode.equals(DEFAULT_LANGUAGE_CODE)) {
             language = new Language() {
                 @Override
                 public String get(String key) {
@@ -121,9 +122,9 @@ public class LanguageManager {
 
     public static String langCode(UUID uuid) {
         if (uuid == null) {
-            return Language.DEFAULT_LANGUAGE;
+            return DEFAULT_LANGUAGE_CODE;
         }
-        return playerLanguages.computeIfAbsent(uuid, _uuid -> Language.DEFAULT_LANGUAGE);
+        return playerLanguages.computeIfAbsent(uuid, _uuid -> DEFAULT_LANGUAGE_CODE);
     }
 
     public static void setLangCode(UUID uuid, String langCode) throws LanguageNotFoundException {

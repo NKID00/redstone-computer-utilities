@@ -17,15 +17,13 @@ import net.minecraft.util.registry.Registry;
 
 public class GsonHelper {
     public static GsonBuilder gsonBuilder(MinecraftServer server) {
-        var registryManager = server.getRegistryManager();
         return new GsonBuilder()
                 .registerTypeAdapter(BlockPos.class, new BlockPosAdapter())
                 .registerTypeAdapter(Vec3i.class, new Vec3iAdapter())
                 .registerTypeAdapter(ServerWorld.class, new ServerWorldAdapter(server))
                 .registerTypeAdapter(BitSet.class, new BitSetAdapter())
-                .registerTypeAdapterFactory(
-                        new RegistryAdapterFactory<>(registryManager.get(Registry.ITEM_KEY)) {
-                        })
+                .registerTypeAdapterFactory(new RegistryAdapterFactory<>(Registry.ITEM) {
+                })
                 .setLenient()
                 .disableHtmlEscaping();
     }

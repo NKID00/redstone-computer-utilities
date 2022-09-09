@@ -14,7 +14,7 @@ public class Rcu {
         var s = c.getSource();
         var player = CommandHelper.requirePlayer(s);
         var uuid = player.getUuid();
-        if (player.getInventory().insertStack(new ItemStack(Options.wandItem()))) {
+        if (player.inventory.insertStack(new ItemStack(Options.wandItem()))) {
             s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu.success", Options.wandItemHoverableText()),
                     true);
             return 1;

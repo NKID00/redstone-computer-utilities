@@ -9,10 +9,10 @@ loom {
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-mc1.17-1.17.1+${buildMetadata()}"
+version = "${project.mod_version}-mc1.16-1.16.5+${buildMetadata()}"
 group = project.maven_group
 
 def buildMetadata() {
@@ -60,10 +60,6 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
 }
 
 java {

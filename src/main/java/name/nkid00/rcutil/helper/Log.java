@@ -1,7 +1,7 @@
 package name.nkid00.rcutil.helper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import name.nkid00.rcutil.Options;
 import net.minecraft.server.MinecraftServer;
@@ -9,7 +9,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class Log {
-    public static final Logger LOGGER = LoggerFactory.getLogger("rcutil");
+    public static final Logger LOGGER = LogManager.getLogger("rcutil");
     private static final String BRAND = "[rcutil] ";
     private static final Text BRAND_TEXT = TextHelper.literal(BRAND);
 

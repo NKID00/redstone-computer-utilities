@@ -18,7 +18,7 @@ public class WandManager {
     // select msb
     public static ActionResult onAttack(PlayerEntity player, World world, Hand hand, BlockPos pos,
             Direction direction) {
-        if (world.isClient || player.isSpectator() || !player.getStackInHand(hand).isOf(Options.wandItem())) {
+        if (world.isClient || player.isSpectator() || player.getStackInHand(hand).getItem() != Options.wandItem()) {
             return ActionResult.PASS;
         }
         var uuid = player.getUuid();
@@ -35,7 +35,7 @@ public class WandManager {
 
     // select lsb
     public static ActionResult onUse(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
-        if (world.isClient || player.isSpectator() || !player.getStackInHand(hand).isOf(Options.wandItem())) {
+        if (world.isClient || player.isSpectator() || player.getStackInHand(hand).getItem() != Options.wandItem()) {
             return ActionResult.PASS;
         }
         var pos = hitResult.getBlockPos();
