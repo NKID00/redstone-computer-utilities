@@ -310,7 +310,7 @@ class Script:
         :param description: Description of the script, SHOULD be any unicode
         string that can be displayed as plain text in Minecraft.
         :param permission_level: Permission level required to run the script,
-        SHOULD be a integer in [2, 4].'''
+        SHOULD be an integer in [2, 4].'''
         self._name: str = name
         self._description: str = description
         self._permission_level: int = permission_level
@@ -942,7 +942,7 @@ def create_script(name: str, description: str = '',
     :param description: Description of the script. SHOULD be any unicode
     string that can be displayed as plain text in Minecraft.
     :param permission_level: Permission level required to run the script.
-    SHOULD be a integer >= 2 and <= 4.'''
+    SHOULD be an integer >= 2 and <= 4.'''
     script = Script(name, description, permission_level)
     register_script(script)
     return script

@@ -831,7 +831,7 @@
             "permissionLevel": {
                 "name": "permissionLevel",
                 "summary": "Permission level required to run the script.",
-                "description": "MUST be a integer >= 2 and <= 4.",
+                "description": "MUST be an integer >= 2 and <= 4.",
                 "required": true,
                 "schema": {
                     "type": "integer",
