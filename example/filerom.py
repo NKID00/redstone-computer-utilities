@@ -13,6 +13,7 @@ def main() -> None:
     addr_size: int = 0
     file: Optional[BinaryIO] = None
 
+    # called when addr interface is updated
     async def callback() -> None:
         addr = await addr_interface.read()
         if file is not None:
@@ -20,6 +21,7 @@ def main() -> None:
             if file.readable():
                 await data_interface.write(file.read(math.ceil(data_size / 8)))
 
+    # /rcu run filerom <filename> <data interface> <addr interface>
     @script.main
     async def _(filename: str, data: rcu.Interface,
                 addr: rcu.Interface) -> None:
@@ -38,7 +40,7 @@ def main() -> None:
         await script.on_interface_update_immediate(addr_interface)(callback)
 
     rcu.run()
-    # script is stopped
+    # after script is stopped
     if file is not None:
         file.close()
 

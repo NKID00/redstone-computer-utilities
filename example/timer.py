@@ -33,11 +33,13 @@ async def _():
     print('[on_gametick_end_delay] 1s later')
 
 
+# called at the start of the gametick for every 2 rt
 @script.on_gametick_start_clock(rcu.redstonetick(2))
 async def _():
     print(f'[on_gametick_start_clock] {await script.gametime()}')
 
 
+# called at the end of the gametick for every 2 rt
 @script.on_gametick_end_clock(rcu.redstonetick(2))
 async def _():
     print(f'[on_gametick_end_clock] {await script.gametime()}')

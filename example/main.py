@@ -8,7 +8,7 @@ script = rcu.create_script('main')
 
 
 @script.main
-# one argument
+# one argument, without optional the uuid argument
 async def _(interface: rcu.Interface) -> int:
     print(f'{interface} @ without uuid')
     return 0  # return value may be int or None
@@ -27,7 +27,7 @@ async def _(uuid: Optional[UUID], interface: rcu.Interface) -> Optional[int]:
 
 
 @script.main
-# zero arguments
+# zero arguments (obviously without the optional uuid argument)
 async def _() -> None:
     print('called with no arguments')
     # returns None (which is treated as 0)

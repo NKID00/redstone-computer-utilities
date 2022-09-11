@@ -11,6 +11,7 @@ async def callback():
 @script.main
 async def _(command: str):
     if command == 'register':
+        # await is required to register event callbacks at runtime
         await script.on_gametick_start(callback)
         print('event callback added')
     elif command == 'deregister':
