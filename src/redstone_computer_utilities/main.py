@@ -950,9 +950,10 @@ def create_script(name: str, description: str = '',
 
 
 def run(host: str = 'localhost', port: int = 37265,
-        enable_builtins=False) -> None:
+        enable_uvloop=True, enable_builtins=False) -> None:
     '''Try to connect with script server and enter the main loop.'''
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    if enable_uvloop:
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     cli_init()
     info('  Use Ctrl-C to exit')
     if enable_builtins:

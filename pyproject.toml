@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "redstone-computer-utilities"
-version = "0.2.0.post3"
+version = "0.2.1"
 description = "Lightweight and Modular Redstone Computer Debugging Tools."
 authors = ["NKID00 <nkid00@pm.me>"]
 readme = "docs/PyPI.md"
