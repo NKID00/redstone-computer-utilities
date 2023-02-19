@@ -1,4 +1,4 @@
-# WIP, not a operational example
+# WIP, not an operational example
 
 import redstone_computer_utilities as rcu
 

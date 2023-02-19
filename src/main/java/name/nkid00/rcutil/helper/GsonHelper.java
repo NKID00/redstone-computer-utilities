@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 
 public class GsonHelper {
     public static GsonBuilder gsonBuilder(MinecraftServer server) {
@@ -24,7 +24,7 @@ public class GsonHelper {
                 .registerTypeAdapter(ServerWorld.class, new ServerWorldAdapter(server))
                 .registerTypeAdapter(BitSet.class, new BitSetAdapter())
                 .registerTypeAdapterFactory(
-                        new RegistryAdapterFactory<>(registryManager.get(Registry.ITEM_KEY)) {
+                        new RegistryAdapterFactory<>(registryManager.get(RegistryKeys.ITEM)) {
                         })
                 .setLenient()
                 .disableHtmlEscaping();

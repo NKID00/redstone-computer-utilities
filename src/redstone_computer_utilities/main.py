@@ -16,6 +16,7 @@ except ImportError:  # Python < 3.10
 
 import typing_extensions
 from typing_extensions import Protocol
+import uvloop
 
 from .interval import Interval
 from .timer import Timer
@@ -310,7 +311,7 @@ class Script:
         :param description: Description of the script, SHOULD be any unicode
         string that can be displayed as plain text in Minecraft.
         :param permission_level: Permission level required to run the script,
-        SHOULD be a integer in [2, 4].'''
+        SHOULD be an integer in [2, 4].'''
         self._name: str = name
         self._description: str = description
         self._permission_level: int = permission_level
@@ -942,19 +943,21 @@ def create_script(name: str, description: str = '',
     :param description: Description of the script. SHOULD be any unicode
     string that can be displayed as plain text in Minecraft.
     :param permission_level: Permission level required to run the script.
-    SHOULD be a integer >= 2 and <= 4.'''
+    SHOULD be an integer >= 2 and <= 4.'''
     script = Script(name, description, permission_level)
     register_script(script)
     return script
 
 
 def run(host: str = 'localhost', port: int = 37265,
-        enable_builtins=False) -> None:
+        enable_uvloop=True, enable_builtins=False) -> None:
     '''Try to connect with script server and enter the main loop.'''
+    if enable_uvloop:
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     cli_init()
     info('  Use Ctrl-C to exit')
     if enable_builtins:
-        from . import builtins  # pylint: disable=unused-import
+        from . import builtins  # pylint: disable=unused-import,import-outside-toplevel
     while True:
         try:
             asyncio.run(run_async(host, port))

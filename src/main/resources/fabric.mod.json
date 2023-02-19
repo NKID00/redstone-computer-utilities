@@ -26,7 +26,7 @@
     "accessWidener": "rcutil.accesswidener",
     "depends": {
         "fabricloader": ">=0.12",
-        "fabric": "*",
-        "minecraft": "~1.19"
+        "fabric-api": "*",
+        "minecraft": "1.19.3"
     }
 }

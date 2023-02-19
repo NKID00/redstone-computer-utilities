@@ -9,7 +9,7 @@ import com.google.gson.stream.JsonWriter;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 
 public class RegistryAdapter<T> extends TypeAdapter<T> {
     private final Registry<T> registry;

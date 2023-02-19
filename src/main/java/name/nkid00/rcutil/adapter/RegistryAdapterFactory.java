@@ -7,7 +7,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 
 public class RegistryAdapterFactory<T> implements TypeAdapterFactory {
     private Class<T> clazz;
