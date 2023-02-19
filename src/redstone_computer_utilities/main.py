@@ -16,6 +16,7 @@ except ImportError:  # Python < 3.10
 
 import typing_extensions
 from typing_extensions import Protocol
+import uvloop
 
 from .interval import Interval
 from .timer import Timer
@@ -951,10 +952,11 @@ def create_script(name: str, description: str = '',
 def run(host: str = 'localhost', port: int = 37265,
         enable_builtins=False) -> None:
     '''Try to connect with script server and enter the main loop.'''
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     cli_init()
     info('  Use Ctrl-C to exit')
     if enable_builtins:
-        from . import builtins  # pylint: disable=unused-import
+        from . import builtins  # pylint: disable=unused-import,import-outside-toplevel
     while True:
         try:
             asyncio.run(run_async(host, port))

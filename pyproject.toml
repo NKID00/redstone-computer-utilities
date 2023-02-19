@@ -11,6 +11,7 @@ homepage = "https://github.com/NKID00/redstone-computer-utilities"
 python = "^3.7.2"
 colorama = "^0.4.5"
 typing-extensions = "^4.3.0"
+uvloop = "^0.17.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.14.5"
