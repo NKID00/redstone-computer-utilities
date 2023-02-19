@@ -19,7 +19,7 @@
 
 ## 安装
 
-支持 Minecraft 1.16-1.19.2，需要安装 Java 17、最新的 Fabric Loader 和最新的 Fabric API。
+支持 Minecraft 1.16-1.19.3，需要安装 Java 17、最新的 Fabric Loader 和最新的 Fabric API。
 
 多人游戏只需要安装在服务器侧，单人游戏需要安装在客户端侧。
 
