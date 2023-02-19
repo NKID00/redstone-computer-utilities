@@ -2,7 +2,7 @@ package name.nkid00.rcutil.helper;
 
 import java.util.BitSet;
 
-import net.minecraft.util.math.Vec3f;
+import name.nkid00.rcutil.util.Vec3f;
 
 public class DataHelper {
     public static boolean isFloatIntegral(float v) {

@@ -1,5 +1,7 @@
 package name.nkid00.rcutil.helper;
 
+import org.joml.Vector3f;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -7,8 +9,9 @@ import name.nkid00.rcutil.util.Blocks;
 import name.nkid00.rcutil.util.TargetBlockPos;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Vec3i;
+
+import name.nkid00.rcutil.util.Vec3f;
 
 public class PosHelper {
     public static Vec3i toVec3i(BlockPos v) {
@@ -37,6 +40,14 @@ public class PosHelper {
             return null;
         }
         return new Vec3f(v.getX(), v.getY(), v.getZ());
+    }
+
+    public static Vec3f toVec3f(Vec3f v) {
+        return v;
+    }
+
+    public static Vec3f toVec3f(Vector3f v) {
+        return new Vec3f(v);
     }
 
     public static Vec3i fromJson(JsonElement v) {

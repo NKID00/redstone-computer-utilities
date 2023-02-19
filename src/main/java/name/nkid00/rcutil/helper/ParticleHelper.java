@@ -6,7 +6,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
+
+import name.nkid00.rcutil.util.Vec3f;
 
 public class ParticleHelper {
     public static <T extends ParticleEffect> void highlight(
@@ -14,7 +15,8 @@ public class ParticleHelper {
         var centerPos = PosHelper.center(pos);
         for (var direction : Direction.values()) {
             var deltaVector = PosHelper.scale(PosHelper.getPerpendicularVector(direction), 0.15f);
-            var particlePos = PosHelper.applyOffset(centerPos, PosHelper.scale(direction.getUnitVector(), 0.65f));
+            var particlePos = PosHelper.applyOffset(centerPos,
+                    PosHelper.scale(PosHelper.toVec3f(direction.getUnitVector()), 0.65f));
             world.spawnParticles(viewer, particle, true,
                     particlePos.getX(), particlePos.getY(), particlePos.getZ(), 10,
                     deltaVector.getX(), deltaVector.getY(), deltaVector.getZ(), 0);
