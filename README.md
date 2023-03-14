@@ -9,8 +9,7 @@
 ## Highlights
 
 - Empowers programs in any programming language (as long as it supports JSON and TCP) to debug redstone computers
-  - Specially, a Python library is provided to simplify development
-    - The Python library uses asynchronous network communication, features high-level APIs and a user-friendly CLI and supports static typing.
+  - Specially, [a Python library](https://github.com/NKID00/redstone-computer-utilities-python) is provided to facilitate development
 - Supports redstone wires in any sizes and shapes from horizontal, vertical to even diagonal ones
 - Completions and suggestions for every argument of all commands
 - Server-side-only implementation, fully compatible with vanilla clients
@@ -22,19 +21,6 @@
 This mod supports Minecraft 1.16-1.19.3 and requires Java 17, the latest Fabric Loader and the latest Fabric API.
 
 Only server-side installation is required for multiplayer and client-side installation is required for singleplayer.
-
-Python 3.7.2 or newer (CPython or PyPy) is required to use the provided Python library.
-
-```sh
-$ pip install redstone-computer-utilities
-```
-
-or
-
-```toml
-# pyproject.toml
-redstone-computer-utilities = "^0.2.0"
-```
 
 ## Basic Usage
 
@@ -52,35 +38,27 @@ See [docs/Details.md](./docs/Details.md) for details.
 
 ## Development
 
-Java sources are located in `src/main/java/`. Python sources are located in `src/redstone_computer_utilities/`.
-
-To build the mod, Java 17 or newer, Python 3.7.2 or newer (CPython or PyPy) and Poetry are required. Run the following command:
+To build the mod, Java 17 or newer is required,
 
 ```sh
-$ ./gradlew build
+./gradlew build
 ```
 
-Built jars are located in `build/libs/`. Built wheels are located in `dist/`.
+Built jars are in `build/libs/`.
 
-To install the Python library into the current virtual environment, run the following command:
-
-```sh
-$ poetry install
-```
-
-To extract translation keys, Java and GNU gettext are required. Run the following command:
+To extract translation keys, Java and GNU gettext are required,
 
 ```sh
-$ ./gradlew extract
+./gradlew extract
 ```
 
 Extracted translation keys are located in `build/messages.po`. Translations are hosted on [transifex](https://www.transifex.com/nkid00/redstone-computer-utilities).
 
-To convert translations to or from Minecraft-compatible json format, run the following command:
+To convert translations to or from Minecraft-compatible json format,
 
 ```sh
-$ python po2minecraft.py path/to/messages.po path/to/messages.json
-$ python minecraft2po.py path/to/messages.json path/to/messages.po
+python po2minecraft.py path/to/messages.po path/to/messages.json
+python minecraft2po.py path/to/messages.json path/to/messages.po
 ```
 
 ## Credits
@@ -90,11 +68,9 @@ $ python minecraft2po.py path/to/messages.json path/to/messages.po
 - [GSON](https://github.com/google/gson), distributed under [Apache-2.0](https://github.com/google/gson/blob/master/LICENSE).
 - [netty](https://github.com/netty/netty), distributed under [Apache-2.0](https://github.com/netty/netty/blob/4.1/LICENSE.txt).
 - [Guava](https://github.com/google/guava), distributed under [Apache-2.0](https://github.com/google/guava/blob/master/COPYING).
-- [colorama](https://github.com/tartley/colorama), distributed under [BSD-3-Clause](https://github.com/tartley/colorama/blob/master/LICENSE.txt).
-- [typing-extensions](https://github.com/python/typing_extensions), distributed under [PSF-2.0](https://github.com/python/typing_extensions/blob/main/LICENSE).
 
 ## Copyright
 
-Copyright © 2021-2022 NKID00
+Copyright © 2021-2023 NKID00
 
 Distributed under [MPL-2.0](./LICENSE).
