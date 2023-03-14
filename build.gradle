@@ -88,18 +88,6 @@ publishing {
     }
 }
 
-task buildPython {
-    doLast {
-        exec {
-            workingDir "${projectDir}"
-            executable 'poetry'
-            args 'build'
-        }
-    }
-}
-
-tasks.findByName('build').dependsOn 'buildPython'
-
 task extract() {
     doLast {
         exec {
