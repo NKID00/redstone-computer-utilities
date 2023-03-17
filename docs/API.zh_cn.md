@@ -22,7 +22,7 @@ Redstone Computer Utilities 的 API 与事件文档。
 > 
 > `ws://localhost:37265/?name=script1`
 > 
-> `ws://localhost:37265/?name=script2&description=An%20example%20script&key=SECRET_VERIFICATION_KEY`
+> `ws://localhost:37265/?name=script2&description=An+example+script&key=SECRET_VERIFICATION_KEY`
 
 ## 消息
 
