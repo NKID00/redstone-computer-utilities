@@ -30,7 +30,7 @@ import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
 import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Interface;
-import name.nkid00.rcutil.script.ScriptEventCallback;
+import name.nkid00.rcutil.script.ScriptEvent;
 import name.nkid00.rcutil.util.Enumerate;
 import name.nkid00.rcutil.util.IndexedObject;
 import name.nkid00.rcutil.util.TargetBlockPos;
@@ -38,6 +38,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
 
 public class InterfaceManager {
     private static ConcurrentHashMap<String, Interface> interfaces = new ConcurrentHashMap<>();
@@ -65,7 +66,7 @@ public class InterfaceManager {
         return interfaces.containsKey(name);
     }
 
-    public static Interface tryCreate(String name, UUID uuid, Collection<String> options)
+    public static Interface tryCreate(String name, UUID uuid, Collection<String> option)
             throws BlockNotTargetException, IllegalArgumentException {
         var selection = SelectionManager.selection(uuid);
         var world = selection.world;
@@ -73,6 +74,11 @@ public class InterfaceManager {
         var msb = selection.msb;
         TargetBlockHelper.check(world, lsb, I18n.t(uuid, "rcutil.command.rcu_new.fail.selection_incomplete"));
         TargetBlockHelper.check(world, msb, I18n.t(uuid, "rcutil.command.rcu_new.fail.selection_incomplete"));
+        return tryCreate(name, uuid, world, lsb, msb, option);
+    }
+
+    public static Interface tryCreate(String name, UUID uuid, ServerWorld world, BlockPos lsb, BlockPos msb, Collection<String> option)
+            throws BlockNotTargetException, IllegalArgumentException {
         var interfaze = Interface.resolve(uuid, name, world, lsb, msb);
         if (interfaze == null) {
             return null;
@@ -80,21 +86,9 @@ public class InterfaceManager {
         return register(name, interfaze);
     }
 
-    public static Interface tryCreate(String name, ServerWorld world, BlockPos lsb, Vec3i increment, int size,
-            JsonObject args) throws BlockNotTargetException, IllegalArgumentException {
-        var interfaze = new Interface(name, world, lsb, increment, size);
-        if (!interfaze.valid()) {
-            throw new BlockNotTargetException();
-        }
-        return register(name, interfaze);
-    }
-
     private static Interface register(String name, Interface interfaze) {
         interfaces.put(name, interfaze);
         registerBlocks(interfaze);
-        var eventArgs = new JsonObject();
-        eventArgs.addProperty("interface", interfaze.name());
-        ScriptEventCallback.broadcast(Event.ON_INTERFACE_NEW, eventArgs);
         return interfaze;
     }
 
@@ -105,7 +99,7 @@ public class InterfaceManager {
     }
 
     public static Interface remove(String name) {
-        ScriptEventCallback.broadcast(Event.ON_INTERFACE_REMOVE.withInterface(interfaceByName(name)));
+        ScriptEvent.broadcast(Event.ON_INTERFACE_REMOVE.withInterface(interfaceByName(name)));
         var interfaze = interfaces.remove(name);
         for (var ipos : new Enumerate<>(interfaze)) {
             blocks.remove(ipos.object(), new IndexedObject<>(ipos.index(), interfaze));

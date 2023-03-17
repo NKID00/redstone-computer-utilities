@@ -13,7 +13,7 @@ import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.ParticleHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
 import name.nkid00.rcutil.manager.InterfaceManager;
-import name.nkid00.rcutil.script.ScriptEventCallback;
+import name.nkid00.rcutil.script.ScriptEvent;
 import name.nkid00.rcutil.util.Blocks;
 import name.nkid00.rcutil.util.Enumerate;
 import name.nkid00.rcutil.util.TargetBlockPos;
@@ -121,7 +121,7 @@ public class Interface implements Iterable<TargetBlockPos> {
         var newBit = TargetBlockHelper.readDigitalUnsafe(world, pos);
         if (lastBit != newBit) {
             lastValue = readSuppress();
-            ScriptEventCallback.broadcast(Event.ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(this));
+            ScriptEvent.broadcast(Event.ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(this));
             InterfaceManager.markUpdated(this);
         }
     }

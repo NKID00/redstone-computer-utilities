@@ -1,106 +1,109 @@
 package name.nkid00.rcutil.model;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import name.nkid00.rcutil.exception.ResponseException;
-import name.nkid00.rcutil.manager.InterfaceManager;
+import name.nkid00.rcutil.util.BlockPosWithWorld;
 
-public abstract class Event {
+public class Event {
     private final String name;
-    private final Object param;
+    private final JsonObject param;
 
-    public static final SimpleEvent ON_SCRIPT_RELOAD = new SimpleEvent("onScriptReload");
-    public static final SimpleEvent ON_SCRIPT_RUN = new SimpleEvent("onScriptRun");
-    public static final SimpleEvent ON_SCRIPT_INVOKE = new SimpleEvent("onScriptInvoke");
-    public static final SimpleEvent ON_GAMETICK_START = new SimpleEvent("onGametickStart");
-    public static final SimpleEvent ON_GAMETICK_END = new SimpleEvent("onGametickEnd");
-    public static final SimpleEvent ON_INTERFACE_NEW = new SimpleEvent("onInterfaceNew");
-    public static final TimedEvent ON_GAMETICK_START_DELAY = new TimedEvent("onGametickStartDelay");
-    public static final TimedEvent ON_GAMETICK_END_DELAY = new TimedEvent("onGametickEndDelay");
-    public static final TimedEvent ON_GAMETICK_START_CLOCK = new TimedEvent("onGametickStartClock");
-    public static final TimedEvent ON_GAMETICK_END_CLOCK = new TimedEvent("onGametickEndClock");
-    public static final InterfaceEvent ON_INTERFACE_UPDATE = new InterfaceEvent("onInterfaceUpdate");
-    public static final InterfaceEvent ON_INTERFACE_UPDATE_IMMEDIATE = new InterfaceEvent("onInterfaceUpdateImmediate");
-    public static final InterfaceEvent ON_INTERFACE_READ = new InterfaceEvent("onInterfaceRead");
-    public static final InterfaceEvent ON_INTERFACE_WRITE = new InterfaceEvent("onInterfaceWrite");
-    public static final InterfaceEvent ON_INTERFACE_REMOVE = new InterfaceEvent("onInterfaceRemove");
+    private static final Event SCRIPT_INITIALIZE = new Event("scriptInitialize");
+    private static final Event SCRIPT_RUN = new Event("scriptRun");
+    private static final Event INTERFACE_CHANGE = new Event("interfaceChange");
+    private static final Event REDSTONE_CHANGE = new Event("redstoneChange");
+    private static final Event BLOCK_CHANGE = new Event("blockChange");
+    private static final Event BLOCK_UPDATE = new Event("blockUpdate");
+    private static final Event ALARM = new Event("alarm");
 
-    public Event(String name, Object param) {
+    private Event(String name) {
+        this.name = name;
+        this.param = new JsonObject();
+    }
+
+    public Event(String name, JsonObject param) {
         this.name = name;
         this.param = param;
     }
 
-    public static Event fromRequest(JsonObject event) throws ResponseException {
-        var name = event.get("name").getAsString();
-        var param = event.get("param");
-        return Event.fromRequest(name, param);
+    private Event withParam(JsonObject param) {
+        return new Event(name, param);
     }
 
-    public static Event fromRequest(String name, JsonElement param) throws ResponseException {
-        switch (name) {
-            case "onScriptReload":
-                return ON_SCRIPT_RELOAD;
-            case "onScriptRun":
-                return ON_SCRIPT_RUN;
-            case "onScriptInvoke":
-                return ON_SCRIPT_INVOKE;
-            case "onGametickStart":
-                return ON_GAMETICK_START;
-            case "onGametickEnd":
-                return ON_GAMETICK_END;
-            case "onInterfaceNew":
-                return ON_INTERFACE_NEW;
-            case "onGametickStartDelay":
-            case "onGametickEndDelay":
-            case "onGametickStartClock":
-            case "onGametickEndClock":
-                long interval;
-                try {
-                    interval = param.getAsLong();
-                } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
-                    throw ResponseException.EVENT_NOT_FOUND;
-                }
-                switch (name) {
-                    case "onGametickStartDelay":
-                        return ON_GAMETICK_START_DELAY.withInterval(interval);
-                    case "onGametickEndDelay":
-                        return ON_GAMETICK_END_DELAY.withInterval(interval);
-                    case "onGametickStartClock":
-                        return ON_GAMETICK_START_CLOCK.withInterval(interval);
-                    case "onGametickEndClock":
-                        return ON_GAMETICK_END_CLOCK.withInterval(interval);
-                }
-            case "onInterfaceUpdate":
-            case "onInterfaceUpdateImmediate":
-            case "onInterfaceRead":
-            case "onInterfaceWrite":
-            case "onInterfaceRemove":
-                String interfaceName;
-                try {
-                    interfaceName = param.getAsString();
-                } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
-                    throw ResponseException.EVENT_NOT_FOUND;
-                }
-                if (InterfaceManager.nameExists(interfaceName)) {
-                    var interfaze = InterfaceManager.interfaceByName(interfaceName);
-                    switch (name) {
-                        case "onInterfaceUpdate":
-                            return ON_INTERFACE_UPDATE.withInterface(interfaze);
-                        case "onInterfaceUpdateImmediate":
-                            return ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(interfaze);
-                        case "onInterfaceRead":
-                            return ON_INTERFACE_READ.withInterface(interfaze);
-                        case "onInterfaceWrite":
-                            return ON_INTERFACE_WRITE.withInterface(interfaze);
-                        case "onInterfaceRemove":
-                            return ON_INTERFACE_REMOVE.withInterface(interfaze);
-                    }
-                } else {
-                    throw ResponseException.INTERFACE_NOT_FOUND;
-                }
-            default:
-                throw ResponseException.EVENT_NOT_FOUND;
+    public static Event scriptInitialize() {
+        return SCRIPT_INITIALIZE;
+    }
+
+    public static Event scriptRun(JsonObject[] argument) {
+        var param = new JsonObject();
+        var argumentArray = new JsonArray();
+        for (var arg : argument) {
+            argumentArray.add(arg);
+        }
+        param.add("argument", argumentArray);
+        return SCRIPT_RUN.withParam(param);
+    }
+
+    public static Event interfaceChange(Interface interfaze) {
+        var param = new JsonObject();
+        param.addProperty("name", interfaze.name());
+        return INTERFACE_CHANGE.withParam(param);
+    }
+
+    public static Event redstoneChange(BlockPosWithWorld pos) {
+        var param = new JsonObject();
+        param.add("pos", pos.toJson());
+        return REDSTONE_CHANGE.withParam(param);
+    }
+
+    public static Event blockChange(BlockPosWithWorld pos) {
+        var param = new JsonObject();
+        param.add("pos", pos.toJson());
+        return BLOCK_CHANGE.withParam(param);
+    }
+
+    public static Event blockUpdate(BlockPosWithWorld pos, BlockUpdateType type) {
+        var param = new JsonObject();
+        param.add("pos", pos.toJson());
+        param.addProperty("type", type.toString());
+        return BLOCK_UPDATE.withParam(param);
+    }
+
+    public enum BlockUpdateType {
+        NeighborUpdate, PostPlacement;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                default:
+                case NeighborUpdate:
+                    return "neighborUpdate";
+                case PostPlacement:
+                    return "postPlacement";
+            }
+        }
+    }
+
+    public static Event alarm(long gametime, alarmAt at) {
+        var param = new JsonObject();
+        param.addProperty("gametime", gametime);
+        param.addProperty("at", at.toString());
+        return ALARM.withParam(param);
+    }
+
+    public enum alarmAt {
+        Start, End;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                default:
+                case Start:
+                    return "start";
+                case End:
+                    return "end";
+            }
         }
     }
 
@@ -108,12 +111,105 @@ public abstract class Event {
         return name;
     }
 
-    public Object param() {
+    public JsonObject param() {
         return param;
     }
 
-    public JsonElement jsonParam() {
-        return null;
+    public boolean isValid() {
+        // TODO: verify event param
+        switch (name) {
+            case "scriptInitialize": {
+                return true;
+            }
+            case "scriptRun": {
+                return true;
+            }
+            case "interfaceChange": {
+                return true;
+            }
+            case "redstoneChange": {
+                return true;
+            }
+            case "blockChange": {
+                return true;
+            }
+            case "blockUpdate": {
+                return true;
+            }
+            case "alarm": {
+                return true;
+            }
+            default:
+                return false;
+        }
+    }
+
+
+
+    public static JsonElement call(Script script, String method, JsonObject args) throws ApiException {
+        try {
+            return ApiServer.publishEvent(method, args, script.clientAddress);
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            Log.error("Exception encountered while calling event callback", e);
+            return null;
+        }
+    }
+
+    public static JsonElement callSuppress(Script script, String method, JsonObject args) {
+        try {
+            return call(script, method, args);
+        } catch (ApiException e) {
+            return null;
+        }
+    }
+
+    public static JsonElement call(Script script, String method) throws ApiException {
+        return call(script, method, new JsonObject());
+    }
+
+    public static JsonElement callSuppress(Script script, String method) {
+        return callSuppress(script, method, new JsonObject());
+    }
+
+    public static JsonElement call(Script script, Event event, JsonObject args) throws ApiException {
+        if (script.callbackExists(event)) {
+            return call(script, script.callback(event), args);
+        }
+        throw ApiException.EVENT_CALLBACK_NOT_REGISTERED;
+    }
+
+    public static JsonElement callSuppress(Script script, Event event, JsonObject args) {
+        try {
+            return call(script, event, args);
+        } catch (ApiException e) {
+            return null;
+        }
+    }
+
+    public static JsonElement call(Script script, Event event) throws ApiException {
+        return call(script, event, new JsonObject());
+    }
+
+    public static JsonElement callSuppress(Script script, Event event) {
+        return callSuppress(script, event, new JsonObject());
+    }
+
+    public void broadcast(JsonObject content) {
+        try {
+            for (var script : registeredNonTimedEventScript.get(event)) {
+                callSuppress(script, event, args);
+                result++;
+            }
+        } catch (Exception e) {
+            Log.error("Exception encountered while broadcasting event", e);
+        }
+        return result;
+    }
+
+    public void broadcast() {
+        broadcast(new JsonObject());
     }
 
     @Override
@@ -150,7 +246,7 @@ public abstract class Event {
         if (param == null) {
             return name;
         } else {
-            return "%s(%s)".formatted(name, param);
+            return "%s %s".formatted(name, param);
         }
     }
 }

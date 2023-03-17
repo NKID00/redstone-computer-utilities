@@ -7,9 +7,8 @@ import com.google.common.collect.SetMultimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import name.nkid00.rcutil.exception.ResponseException;
+import name.nkid00.rcutil.exception.ApiException;
 import name.nkid00.rcutil.helper.Log;
-import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.TimerManager;
 import name.nkid00.rcutil.model.Clock;
@@ -17,8 +16,9 @@ import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Script;
 import name.nkid00.rcutil.model.TimedEvent;
 import name.nkid00.rcutil.model.Timer;
+import name.nkid00.rcutil.server.ApiServer;
 
-public class ScriptEventCallback {
+public class ScriptEvent {
     private static SetMultimap<Event, Script> registeredNonTimedEventScript = Multimaps
             .synchronizedSetMultimap(HashMultimap.create());
 
@@ -45,10 +45,10 @@ public class ScriptEventCallback {
         }
     }
 
-    public static JsonElement call(Script script, String method, JsonObject args) throws ResponseException {
+    public static JsonElement call(Script script, String method, JsonObject args) throws ApiException {
         try {
-            return ScriptServerIO.send(method, args, script.clientAddress);
-        } catch (ResponseException e) {
+            return ApiServer.publishEvent(method, args, script.clientAddress);
+        } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
             Log.error("Exception encountered while calling event callback", e);
@@ -59,12 +59,12 @@ public class ScriptEventCallback {
     public static JsonElement callSuppress(Script script, String method, JsonObject args) {
         try {
             return call(script, method, args);
-        } catch (ResponseException e) {
+        } catch (ApiException e) {
             return null;
         }
     }
 
-    public static JsonElement call(Script script, String method) throws ResponseException {
+    public static JsonElement call(Script script, String method) throws ApiException {
         return call(script, method, new JsonObject());
     }
 
@@ -72,22 +72,22 @@ public class ScriptEventCallback {
         return callSuppress(script, method, new JsonObject());
     }
 
-    public static JsonElement call(Script script, Event event, JsonObject args) throws ResponseException {
+    public static JsonElement call(Script script, Event event, JsonObject args) throws ApiException {
         if (script.callbackExists(event)) {
             return call(script, script.callback(event), args);
         }
-        throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
+        throw ApiException.EVENT_CALLBACK_NOT_REGISTERED;
     }
 
     public static JsonElement callSuppress(Script script, Event event, JsonObject args) {
         try {
             return call(script, event, args);
-        } catch (ResponseException e) {
+        } catch (ApiException e) {
             return null;
         }
     }
 
-    public static JsonElement call(Script script, Event event) throws ResponseException {
+    public static JsonElement call(Script script, Event event) throws ApiException {
         return call(script, event, new JsonObject());
     }
 

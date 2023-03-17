@@ -1,11 +1,12 @@
 package name.nkid00.rcutil;
 
 import name.nkid00.rcutil.helper.GametimeHelper;
-import name.nkid00.rcutil.io.ScriptServerIO;
+import name.nkid00.rcutil.helper.WorldHelper;
 import name.nkid00.rcutil.manager.CommandManager;
 import name.nkid00.rcutil.manager.StorageManager;
 import name.nkid00.rcutil.manager.WandManager;
-import name.nkid00.rcutil.script.ScriptEventCallback;
+import name.nkid00.rcutil.script.ScriptEvent;
+import name.nkid00.rcutil.server.ApiServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -23,6 +24,7 @@ public class RCUtil implements ModInitializer {
         var loader = FabricLoader.getInstance();
         isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
 
+        ServerLifecycleEvents.SERVER_STARTING.register(WorldHelper::init);
         ServerLifecycleEvents.SERVER_STARTING.register(Options::init);
 
         // worlds is required to load selections
@@ -30,11 +32,10 @@ public class RCUtil implements ModInitializer {
 
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             if (!GametimeHelper.isFrozen(server)) {
-                // before next gametick start, equivalent to this gametick end
-                ScriptEventCallback.onGametickEnd();
+                // before this gametick start, equivalent to previous gametick end
+                ScriptEvent.onGametickEnd();
                 GametimeHelper.updateGametime(server);
-                ScriptServerIO.sync();
-                ScriptEventCallback.onGametickStart();
+                ScriptEvent.onGametickStart();
             }
         });
 
@@ -43,8 +44,8 @@ public class RCUtil implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register(CommandManager::init);
 
-        ServerLifecycleEvents.SERVER_STARTING.register(ScriptServerIO::init);
-        ServerLifecycleEvents.SERVER_STARTED.register(ScriptServerIO::start);
-        ServerLifecycleEvents.SERVER_STOPPING.register(ScriptServerIO::stop);
+        ServerLifecycleEvents.SERVER_STARTING.register(ApiServer::init);
+        ServerLifecycleEvents.SERVER_STARTED.register(ApiServer::start);
+        ServerLifecycleEvents.SERVER_STOPPING.register(ApiServer::stop);
     }
 }

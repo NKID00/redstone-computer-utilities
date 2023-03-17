@@ -1,12 +1,15 @@
 package name.nkid00.rcutil.script;
 
+import java.math.BigInteger;
+import java.util.Map;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import name.nkid00.rcutil.exception.BlockNotTargetException;
-import name.nkid00.rcutil.exception.ResponseException;
+import name.nkid00.rcutil.exception.ApiException;
 import name.nkid00.rcutil.helper.BitSetHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.GametimeHelper;
@@ -14,18 +17,19 @@ import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.PosHelper;
 import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.helper.WorldHelper;
-import name.nkid00.rcutil.io.ScriptServerIO;
 import name.nkid00.rcutil.manager.InterfaceManager;
 import name.nkid00.rcutil.manager.ScriptManager;
 import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Interface;
 import name.nkid00.rcutil.model.Script;
+import name.nkid00.rcutil.server.ApiServer;
+import name.nkid00.rcutil.util.BlockPosWithWorld;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.Vec3i;
 
 public class ScriptApi {
     public static JsonElement dispatch(String method, JsonObject params, String clientAddress, MinecraftServer server)
-            throws ResponseException {
+            throws ApiException {
         if (method.equals("registerScript")) {
             registerScript(params.get("script").getAsString(),
                     params.get("description").getAsString(),
@@ -36,7 +40,7 @@ public class ScriptApi {
         }
         var authKey = params.get("authKey").getAsString();
         if (!ScriptManager.authKeyValid(authKey)) {
-            throw ResponseException.INVALID_AUTH_KEY;
+            throw ApiException.INVALID_AUTH_KEY;
         }
         if (method.equals("deregisterScript")) {
             deregisterScript(authKey);
@@ -70,12 +74,12 @@ public class ScriptApi {
             case "invokeCallback": {
                 var scriptTarget = ScriptManager.scriptByName(params.get("script").getAsString());
                 if (scriptTarget == null) {
-                    throw ResponseException.SCRIPT_NOT_FOUND;
+                    throw ApiException.SCRIPT_NOT_FOUND;
                 }
                 switch (method) {
                     case "invokeScript": {
                         var args = params.get("args").getAsJsonObject();
-                        return ScriptEventCallback.call(scriptTarget, Event.ON_SCRIPT_INVOKE, args);
+                        return ScriptEvent.call(scriptTarget, Event.ON_SCRIPT_INVOKE, args);
                     }
                     case "listCallback": {
                         var events = new JsonArray(scriptTarget.callbacks.size());
@@ -90,42 +94,42 @@ public class ScriptApi {
                     case "invokeCallback": {
                         var event = Event.fromRequest(params.get("event").getAsJsonObject());
                         var args = params.get("args").getAsJsonObject();
-                        return ScriptEventCallback.call(scriptTarget, event, args);
+                        return ScriptEvent.call(scriptTarget, event, args);
                     }
                 }
             }
             case "newInterface": {
                 var name = params.get("interface").getAsString();
                 if (!CommandHelper.isLetterDigitUnderline(name)) {
-                    throw ResponseException.ILLEGAL_NAME;
+                    throw ApiException.ILLEGAL_NAME;
                 }
                 if (InterfaceManager.nameExists(name)) {
-                    throw ResponseException.NAME_EXISTS;
+                    throw ApiException.NAME_EXISTS;
                 }
                 var world = WorldHelper.fromString(server, params.get("world").getAsString());
                 if (world == null) {
-                    throw ResponseException.WORLD_NOT_FOUND;
+                    throw ApiException.WORLD_NOT_FOUND;
                 }
                 var lsb = PosHelper.toBlockPos(PosHelper.fromJson(params.get("lsb")));
                 var increment = PosHelper.fromJson(params.get("increment"));
                 var size = params.get("size").getAsInt();
                 if (size < 1) {
-                    throw ResponseException.INVALID_SIZE;
+                    throw ApiException.INVALID_SIZE;
                 }
                 if (size != 1 && increment.equals(Vec3i.ZERO)) {
-                    throw ResponseException.INVALID_SIZE;
+                    throw ApiException.INVALID_SIZE;
                 }
                 var args = params.get("args").getAsJsonObject();
                 Interface interfaze;
                 try {
                     interfaze = InterfaceManager.tryCreate(name, world, lsb, increment, size, args);
                 } catch (BlockNotTargetException e) {
-                    throw ResponseException.BLOCK_NOT_TARGET;
+                    throw ApiException.BLOCK_NOT_TARGET;
                 } catch (IllegalArgumentException e) {
-                    throw ResponseException.ILLEGAL_ARGUMENT;
+                    throw ApiException.ILLEGAL_ARGUMENT;
                 }
                 if (interfaze == null) {
-                    throw ResponseException.ILLEGAL_ARGUMENT;
+                    throw ApiException.ILLEGAL_ARGUMENT;
                 }
                 return null;
             }
@@ -156,7 +160,7 @@ public class ScriptApi {
             case "writeInterface": {
                 var interfaze = InterfaceManager.interfaceByName(params.get("interface").getAsString());
                 if (interfaze == null) {
-                    throw ResponseException.INTERFACE_NOT_FOUND;
+                    throw ApiException.INTERFACE_NOT_FOUND;
                 }
                 var args = new JsonObject();
                 args.addProperty("script", script.name);
@@ -165,10 +169,10 @@ public class ScriptApi {
                         InterfaceManager.remove(interfaze.name());
                         return null;
                     case "readInterface":
-                        ScriptEventCallback.broadcast(Event.ON_INTERFACE_READ.withInterface(interfaze), args);
+                        ScriptEvent.broadcast(Event.ON_INTERFACE_READ.withInterface(interfaze), args);
                         return new JsonPrimitive(BitSetHelper.toBase64(interfaze.readSuppress()));
                     case "writeInterface":
-                        ScriptEventCallback.broadcast(Event.ON_INTERFACE_WRITE.withInterface(interfaze), args);
+                        ScriptEvent.broadcast(Event.ON_INTERFACE_WRITE.withInterface(interfaze), args);
                         interfaze.writeSuppress(BitSetHelper.fromBase64(params.get("data").getAsString()));
                         return null;
                 }
@@ -214,7 +218,7 @@ public class ScriptApi {
                 var uuid = params.get("uuid").getAsString();
                 var player = server.getPlayerManager().getPlayer(uuid);
                 if (player == null) {
-                    throw ResponseException.PLAYER_NOT_FOUND;
+                    throw ApiException.PLAYER_NOT_FOUND;
                 }
                 var message = params.get("message").getAsString();
                 switch (method) {
@@ -232,26 +236,26 @@ public class ScriptApi {
                 }
             }
         }
-        throw ResponseException.METHOD_NOT_FOUND;
+        throw ApiException.METHOD_NOT_FOUND;
     }
 
     public static void registerScript(String script, String description, int permissionLevel, String callback,
-            String clientAddress) throws ResponseException {
+            String clientAddress) throws ApiException {
         if (!CommandHelper.isLetterDigitUnderline(script)) {
-            throw ResponseException.ILLEGAL_NAME;
+            throw ApiException.ILLEGAL_NAME;
         }
         if (permissionLevel > 4 || permissionLevel < 2) {
-            throw ResponseException.INVALID_PERMISSION_LEVEL;
+            throw ApiException.INVALID_PERMISSION_LEVEL;
         }
         if (ScriptManager.nameExists(script)) {
-            throw ResponseException.NAME_EXISTS;
+            throw ApiException.NAME_EXISTS;
         }
         var authKey = ScriptManager.createScript(script, description, permissionLevel, clientAddress);
         var params = new JsonObject();
         params.addProperty("authKey", authKey);
         try {
-            ScriptServerIO.send(callback, params, clientAddress);
-        } catch (ResponseException e) {
+            ApiServer.publishEvent(callback, params, clientAddress);
+        } catch (ApiException e) {
             ScriptManager.deregisterScript(authKey);
             throw e;
         } catch (Exception e) {
@@ -261,26 +265,5 @@ public class ScriptApi {
         if (ScriptManager.nameExists(script)) {
             Log.info("script:{} is registered", script);
         }
-    }
-
-    public static void deregisterScript(String authKey) throws ResponseException {
-        var name = ScriptManager.scriptByAuthKey(authKey).name;
-        ScriptManager.deregisterScript(authKey);
-        Log.info("script:{} is deregistered", name);
-    }
-
-    public static void registerCallback(Script script, Event event, String callback)
-            throws ResponseException {
-        if (script.callbackExists(event)) {
-            throw ResponseException.EVENT_CALLBACK_ALREADY_REGISTERED;
-        }
-        ScriptEventCallback.registerCallback(script, event, callback);
-    }
-
-    public static void deregisterCallback(Script script, Event event) throws ResponseException {
-        if (!script.callbackExists(event)) {
-            throw ResponseException.EVENT_CALLBACK_NOT_REGISTERED;
-        }
-        ScriptEventCallback.deregisterCallback(script, event);
     }
 }

@@ -39,7 +39,9 @@ public class Options {
     @Expose
     private boolean localhostOnly = true;
     @Expose
-    private long timeoutMillis = 1000;
+    private long timeoutMillis = 2000;
+    @Expose
+    private String key = "";
 
     public static String host() {
         return instance.host;
@@ -69,6 +71,10 @@ public class Options {
         return instance.timeoutMillis;
     }
 
+    public static String key() {
+        return instance.key;
+    }
+
     public static void init(MinecraftServer server) {
         var loader = FabricLoader.getInstance();
         file = loader.getConfigDir().resolve("rcutil.json").toFile();
@@ -79,7 +85,7 @@ public class Options {
         } catch (IOException e) {
             instance = new Options();
         } catch (JsonParseException e) {
-            Log.error("Error occurred while loading options, generating empty record", e);
+            Log.error("Error occurred while loading options, resetting", e);
             instance = new Options();
         }
         instance.wandItemHoverableText = new ItemStack(wandItem()).toHoverableText();

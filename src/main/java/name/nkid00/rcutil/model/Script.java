@@ -1,66 +1,75 @@
 package name.nkid00.rcutil.model;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.channel.ChannelHandlerContext;
 import name.nkid00.rcutil.helper.I18n;
-import name.nkid00.rcutil.manager.TimerManager;
+// import name.nkid00.rcutil.manager.TimerManager;
 import net.minecraft.text.Text;
 
 public class Script {
     public final String name;
     public final String description;
-    public final int permissionLevel;
-    public final String authKey;
-    public final String clientAddress;
-    public final ConcurrentHashMap<Event, String> callbacks = new ConcurrentHashMap<>();
-    public final ConcurrentHashMap<Event, Timer> timers = new ConcurrentHashMap<>();
+    public final String addr;
+    public final AtomicBoolean alive = new AtomicBoolean(true);
+    public final Set<Event> events = ConcurrentHashMap.newKeySet();
+    // message id
+    private final AtomicLong id = new AtomicLong(0);
+    public final ChannelHandlerContext ctx;
 
-    public Script(String name, String description, int permissionLevel, String authKey, String clientAddress) {
+    public Script(String name, String description, String address, ChannelHandlerContext ctx) {
         this.name = name;
         this.description = description;
-        this.permissionLevel = permissionLevel;
-        this.authKey = authKey;
-        this.clientAddress = clientAddress;
+        this.addr = address;
+        this.ctx = ctx;
     }
 
     public Text info(UUID uuid) {
-        if (description.isBlank()) {
+        if (description.isEmpty()) {
             return I18n.t(uuid, "rcutil.info.script.detail", name,
-                    I18n.t(uuid, "rcutil.info.script.no_description"), this.permissionLevel,
-                    String.join(", ", callbacks.keySet().stream()
+                    I18n.t(uuid, "rcutil.info.script.no_description"),
+                    String.join(", ", events.stream()
                             .map(event -> event.toString())
                             .toList().toArray(new String[0])));
         } else {
-            return I18n.t(uuid, "rcutil.info.script.detail", name, description, permissionLevel,
-                    String.join(", ", callbacks.keySet().stream()
+            return I18n.t(uuid, "rcutil.info.script.detail", name, description,
+                    String.join(", ", events.stream()
                             .map(event -> event.toString())
                             .toList().toArray(new String[0])));
         }
     }
 
-    public String callback(Event event) {
-        return callbacks.get(event);
+    public boolean eventExists(Event event) {
+        return events.contains(event);
     }
 
-    public boolean callbackExists(Event event) {
-        return callbacks.containsKey(event);
+    public void subscribe(Event event) {
+        events.add(event);
+        // if (event instanceof TimedEvent) {
+        //     var timer = Timer.create((TimedEvent) event, this);
+        //     timers.put(event, timer);
+        //     TimerManager.register(timer);
+        // }
     }
 
-    public void registerCallback(Event event, String callback) {
-        callbacks.put(event, callback);
-        if (event instanceof TimedEvent) {
-            var timer = Timer.create((TimedEvent) event, this);
-            timers.put(event, timer);
-            TimerManager.register(timer);
-        }
+    public void unsubscribe(Event event) {
+        events.remove(event);
+        // if (event instanceof TimedEvent) {
+        //     TimerManager.deregister(timers.remove(event));
+        // }
     }
 
-    public void deregisterCallback(Event event) {
-        callbacks.remove(event);
-        if (event instanceof TimedEvent) {
-            TimerManager.deregister(timers.remove(event));
-        }
+    public boolean isAddr(String addr) {
+        return this.addr.equals(addr);
+    }
+
+    // get next
+    public long id() {
+        return id.incrementAndGet();
     }
 
     @Override

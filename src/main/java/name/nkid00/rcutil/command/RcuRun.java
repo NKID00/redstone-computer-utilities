@@ -6,13 +6,13 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import name.nkid00.rcutil.exception.ResponseException;
+import name.nkid00.rcutil.exception.ApiException;
 import name.nkid00.rcutil.helper.ArgumentHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.manager.ScriptManager;
 import name.nkid00.rcutil.model.Event;
-import name.nkid00.rcutil.script.ScriptEventCallback;
+import name.nkid00.rcutil.script.ScriptEvent;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuRun {
@@ -37,20 +37,20 @@ public class RcuRun {
         }
         eventArgs.add("runArgs", argsJsonArray);
         try {
-            var result = ScriptEventCallback.call(script, Event.ON_SCRIPT_RUN, eventArgs).getAsInt();
+            var result = ScriptEvent.call(script, Event.ON_SCRIPT_RUN, eventArgs).getAsInt();
             s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_run.success", script.name), true);
             return result;
         } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.invalid_response"));
             return 0;
-        } catch (ResponseException e) {
-            if (e.equals(ResponseException.EVENT_CALLBACK_NOT_REGISTERED)) {
+        } catch (ApiException e) {
+            if (e.equals(ApiException.EVENT_CALLBACK_NOT_REGISTERED)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.script_not_runnable"));
-            } else if (e.equals(ResponseException.ILLEGAL_ARGUMENT)) {
+            } else if (e.equals(ApiException.ILLEGAL_ARGUMENT)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.illegal_argument"));
-            } else if (e.equals(ResponseException.SCRIPT_INTERNAL_ERROR)) {
+            } else if (e.equals(ApiException.SCRIPT_INTERNAL_ERROR)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.script_internal_error"));
-            } else if (e.equals(ResponseException.ACCESS_DENIED)) {
+            } else if (e.equals(ApiException.ACCESS_DENIED)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.access_denied"));
             } else {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.invalid_response"));

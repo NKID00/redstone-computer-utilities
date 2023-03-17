@@ -12,77 +12,69 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import io.netty.channel.ChannelHandlerContext;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.model.Script;
-import name.nkid00.rcutil.script.ScriptEventCallback;
+import name.nkid00.rcutil.script.ScriptEvent;
 import net.minecraft.text.Text;
 
 public class ScriptManager {
-    private static ConcurrentHashMap<String, Script> nameScript = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Script> authKeyScript = new ConcurrentHashMap<>();
-    private static SetMultimap<String, Script> clientAddressScript = Multimaps
-            .synchronizedSetMultimap(HashMultimap.create());
+    private static ConcurrentHashMap<String, Script> nameScriptMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Script> addrScriptMap = new ConcurrentHashMap<>();
 
     public static Script scriptByName(String name) {
-        return nameScript.get(name);
-    }
-
-    public static Script scriptByAuthKey(String authKey) {
-        return authKeyScript.get(authKey);
+        return nameScriptMap.get(name);
     }
 
     public static boolean nameExists(String name) {
-        return nameScript.containsKey(name);
+        return nameScriptMap.containsKey(name);
     }
 
-    public static boolean authKeyValid(String authKey) {
-        return authKeyScript.containsKey(authKey);
+    public static Script scriptByAddr(String address) {
+        return addrScriptMap.get(address);
     }
 
-    public static String createScript(String name, String description, int permissionLevel, String clientAddress) {
-        String authKey;
-        do {
-            authKey = UUID.randomUUID().toString();
-        } while (authKeyValid(authKey)); // avoid auth key collision
-        var script = new Script(name, description, permissionLevel, authKey, clientAddress);
-        nameScript.put(name, script);
-        authKeyScript.put(authKey, script);
-        clientAddressScript.get(clientAddress).add(script);
-        return authKey;
-    }
-
-    public static void deregisterScript(String authKey) {
-        var script = scriptByAuthKey(authKey);
-        nameScript.remove(script.name);
-        authKeyScript.remove(script.authKey);
-        ScriptEventCallback.deregisterAllCallbacks(script);
-        clientAddressScript.remove(script.clientAddress, script);
-    }
-
-    public static void deregisterClientAddress(String clientAddress) {
-        for (var script : clientAddressScript.get(clientAddress)) {
-            nameScript.remove(script.name);
-            authKeyScript.remove(script.authKey);
-            ScriptEventCallback.deregisterAllCallbacks(script);
-            Log.info("script:{} is deregistered due to disconnection", script.name);
+    public static void register(String name, String description, String addr, ChannelHandlerContext ctx) {
+        if (name == null) {
+            return;
         }
-        clientAddressScript.removeAll(clientAddress);
+        if (!CommandHelper.isLetterDigitUnderline(script)) {
+            throw ApiException.ILLEGAL_NAME;
+        }
+        if (permissionLevel > 4 || permissionLevel < 2) {
+            throw ApiException.INVALID_PERMISSION_LEVEL;
+        }
+        if (ScriptManager.nameExists(script)) {
+            throw ApiException.NAME_EXISTS;
+        }
+        var script = new Script(name, description, addr, ctx);
+        nameScriptMap.put(name, script);
+        addrScriptMap.put(addr, script);
+        Log.info("script {} registered", script.name);
+    }
+
+    public static void deregister(String addr) {
+        var script = scriptByAddr(addr);
+        nameScriptMap.remove(script.name);
+        ScriptEvent.deregisterAllCallbacks(script);
+        addrScriptMap.remove(script.addr);
+        Log.info("script {} deregistered", script.name);
     }
 
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
             final SuggestionsBuilder builder) throws CommandSyntaxException {
-        MapHelper.forEachKeySynchronized(nameScript, builder::suggest);
+        MapHelper.forEachKeySynchronized(nameScriptMap, builder::suggest);
         return builder.buildFuture();
     }
 
     public static Iterable<Script> iterable() {
-        return nameScript.values();
+        return nameScriptMap.values();
     }
 
     public static int size() {
-        return nameScript.size();
+        return nameScriptMap.size();
     }
 
     public static Text info(UUID uuid) {
@@ -91,7 +83,7 @@ public class ScriptManager {
         } else {
 
             return I18n.t(uuid, "rcutil.info.script", size(),
-                    String.join(", ", nameScript.keySet().toArray(new String[0])));
+                    String.join(", ", nameScriptMap.keySet().toArray(new String[0])));
         }
     }
 }
