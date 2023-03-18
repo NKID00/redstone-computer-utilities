@@ -1,6 +1,7 @@
 package name.nkid00.rcutil.adapter;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -8,6 +9,9 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import name.nkid00.rcutil.model.Interface;
+import name.nkid00.rcutil.util.BlockPosWithWorld;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
 
 public class InterfaceAdapter extends TypeAdapter<Interface> {
     private static final BlockPosWithWorldAdapter BLOCK_POS_WITH_WORLD_ADAPTER = new BlockPosWithWorldAdapter();
@@ -43,8 +47,36 @@ public class InterfaceAdapter extends TypeAdapter<Interface> {
             in.nextNull();
             return null;
         } else {
-            // TODO: deserialize Interface
-            return null;
+            String name = "";
+            BlockPosWithWorld lsb = new BlockPosWithWorld(null, null);
+            Vec3i increment = new Vec3i(0, 0, 0);
+            int size = 0;
+            LinkedList<String> option = new LinkedList<>();
+            in.beginObject();
+            while (in.hasNext()) {
+                switch (in.nextName()) {
+                    case "name":
+                        name = in.nextString();
+                        break;
+                    case "lsb":
+                        lsb = BLOCK_POS_WITH_WORLD_ADAPTER.read(in);
+                        break;
+                    case "increment":
+                        increment = VEC3I_ADAPTER.read(in);
+                        break;
+                    case "size":
+                        size = in.nextInt();
+                        break;
+                    case "option":
+                        in.beginArray();
+                        while (in.hasNext()) {
+                            option.add(in.nextString());
+                        }
+                        in.endArray();
+                }
+            }
+            in.endObject();
+            return new Interface(name, lsb.world(), lsb.pos(), increment, size, option);
         }
     }
 }
