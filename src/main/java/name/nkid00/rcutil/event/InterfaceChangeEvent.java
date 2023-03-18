@@ -40,7 +40,7 @@ public class InterfaceChangeEvent extends Event {
         var content = new JsonObject();
         content.addProperty("previous", BitSetHelper.toBase64(previous));
         content.addProperty("current", BitSetHelper.toBase64(current));
-        super.broadcast(new JsonObject());
+        super.broadcast(content);
     }
 
     @Override

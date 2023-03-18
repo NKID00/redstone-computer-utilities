@@ -103,7 +103,8 @@ public class ApiServerHandler extends SimpleChannelInboundHandler<JsonElement> {
                     .map(param -> Arrays.stream(param.split("="))
                             .map(s -> URLDecoder.decode(s, StandardCharsets.UTF_8))
                             .toArray(String[]::new))
-                    .collect(Collectors.toMap(pair -> pair[0], pair -> pair[1]));
+                    .filter(a -> a.length >= 2)
+                    .collect(Collectors.toMap(a -> a[0], a -> a[1]));
             if (!Options.key().isEmpty() && !Options.key().equals(queryMap.get("key"))) {
                 Log.error("Incorrect key in handshake, disconnecting");
                 ctx.close();

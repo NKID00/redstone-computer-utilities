@@ -135,6 +135,8 @@ public class ApiServer {
                 ctx.close();
                 return null;
             } else if (reply.isApiCall()) {
+                promise = ctx.executor().newPromise();
+                blockingPromise = promise;
                 JsonObject result = new JsonObject();
                 try {
                     result.add("result", dispatchApiCall(reply.msg(), script));
