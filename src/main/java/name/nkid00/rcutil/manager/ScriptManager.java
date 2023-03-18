@@ -1,28 +1,29 @@
 package name.nkid00.rcutil.manager;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import io.netty.channel.ChannelHandlerContext;
+import name.nkid00.rcutil.event.ScriptInitializeEvent;
+import name.nkid00.rcutil.exception.ApiException;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.model.Script;
-import name.nkid00.rcutil.script.ScriptEvent;
 import net.minecraft.text.Text;
 
 public class ScriptManager {
-    private static ConcurrentHashMap<String, Script> nameScriptMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<String, Script> addrScriptMap = new ConcurrentHashMap<>();
+    private final static ConcurrentLinkedQueue<Script> uninitialized = new ConcurrentLinkedQueue<>();
+    private final static ConcurrentHashMap<String, Script> nameScriptMap = new ConcurrentHashMap<>();
+    private final static ConcurrentHashMap<String, Script> addrScriptMap = new ConcurrentHashMap<>();
 
     public static Script scriptByName(String name) {
         return nameScriptMap.get(name);
@@ -36,31 +37,43 @@ public class ScriptManager {
         return addrScriptMap.get(address);
     }
 
-    public static void register(String name, String description, String addr, ChannelHandlerContext ctx) {
-        if (name == null) {
-            return;
-        }
-        if (!CommandHelper.isLetterDigitUnderline(script)) {
-            throw ApiException.ILLEGAL_NAME;
-        }
-        if (permissionLevel > 4 || permissionLevel < 2) {
-            throw ApiException.INVALID_PERMISSION_LEVEL;
-        }
-        if (ScriptManager.nameExists(script)) {
-            throw ApiException.NAME_EXISTS;
-        }
+    public static void add(String name, String description, String addr, ChannelHandlerContext ctx) {
         var script = new Script(name, description, addr, ctx);
-        nameScriptMap.put(name, script);
-        addrScriptMap.put(addr, script);
-        Log.info("script {} registered", script.name);
+        uninitialized.add(script);
     }
 
-    public static void deregister(String addr) {
+    public static void initializeScripts() {
+        while (true) {
+            Script script;
+            try {
+                script = uninitialized.remove();
+            } catch (NoSuchElementException e) {
+                return;
+            }
+            nameScriptMap.put(script.name, script);
+            addrScriptMap.put(script.addr, script);
+            try {
+                new ScriptInitializeEvent().publish(script);
+            } catch (ApiException e) {
+                Log.error("Failed to initialize, disconnecting");
+                script.ctx.close();
+                continue;
+            }
+            if (script.alive.get()) {
+                Log.info("Script {} initialized", script.name);
+            }
+        }
+    }
+
+    public static void remove(String addr) {
         var script = scriptByAddr(addr);
+        if (script == null) {
+            return;
+        }
+        script.alive.set(false);
         nameScriptMap.remove(script.name);
-        ScriptEvent.deregisterAllCallbacks(script);
         addrScriptMap.remove(script.addr);
-        Log.info("script {} deregistered", script.name);
+        Log.info("Script {} removed", script.name);
     }
 
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,

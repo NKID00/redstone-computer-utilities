@@ -1,11 +1,11 @@
 package name.nkid00.rcutil;
 
-import name.nkid00.rcutil.helper.GametimeHelper;
+import name.nkid00.rcutil.helper.GsonHelper;
 import name.nkid00.rcutil.helper.WorldHelper;
 import name.nkid00.rcutil.manager.CommandManager;
+import name.nkid00.rcutil.manager.GametimeManager;
 import name.nkid00.rcutil.manager.StorageManager;
 import name.nkid00.rcutil.manager.WandManager;
-import name.nkid00.rcutil.script.ScriptEvent;
 import name.nkid00.rcutil.server.ApiServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -24,20 +24,13 @@ public class RCUtil implements ModInitializer {
         var loader = FabricLoader.getInstance();
         isDedicatedServer = loader.getEnvironmentType() == EnvType.SERVER;
 
+        ServerLifecycleEvents.SERVER_STARTING.register(GsonHelper::init);
         ServerLifecycleEvents.SERVER_STARTING.register(WorldHelper::init);
         ServerLifecycleEvents.SERVER_STARTING.register(Options::init);
-
         // worlds is required to load selections
         ServerLifecycleEvents.SERVER_STARTED.register(StorageManager::init);
 
-        ServerTickEvents.START_SERVER_TICK.register(server -> {
-            if (!GametimeHelper.isFrozen(server)) {
-                // before this gametick start, equivalent to previous gametick end
-                ScriptEvent.onGametickEnd();
-                GametimeHelper.updateGametime(server);
-                ScriptEvent.onGametickStart();
-            }
-        });
+        ServerTickEvents.START_SERVER_TICK.register(GametimeManager::gametickStart);
 
         AttackBlockCallback.EVENT.register(WandManager::onAttack);
         UseBlockCallback.EVENT.register(WandManager::onUse);

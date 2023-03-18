@@ -16,7 +16,6 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import name.nkid00.rcutil.manager.InterfaceManager;
-import name.nkid00.rcutil.manager.ScriptManager;
 import name.nkid00.rcutil.util.TypedArgument;
 import name.nkid00.rcutil.util.TypedArgumentType;
 import net.minecraft.util.Identifier;
@@ -148,8 +147,6 @@ public class ArgumentHelper {
             } else if (CommandHelper.isLetterDigitUnderline(s)) {
                 if (InterfaceManager.nameExists(s)) {
                     result.add(new TypedArgument(TypedArgumentType.Interface, s));
-                } else if (ScriptManager.nameExists(s)) {
-                    result.add(new TypedArgument(TypedArgumentType.Script, s));
                 } else {
                     result.add(new TypedArgument(TypedArgumentType.Literal, s));
                 }

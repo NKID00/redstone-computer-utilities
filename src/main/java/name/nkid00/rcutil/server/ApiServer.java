@@ -1,9 +1,7 @@
 package name.nkid00.rcutil.server;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteOrder;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -18,25 +16,23 @@ import io.netty.channel.MultithreadEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.util.concurrent.Promise;
 import name.nkid00.rcutil.Options;
+import name.nkid00.rcutil.event.Event;
 import name.nkid00.rcutil.exception.ApiException;
 import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.BitSetHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
+import name.nkid00.rcutil.helper.GametimeHelper;
 import name.nkid00.rcutil.helper.Log;
-import name.nkid00.rcutil.helper.MapHelper;
-import name.nkid00.rcutil.helper.WorldHelper;
+import name.nkid00.rcutil.helper.TextHelper;
 import name.nkid00.rcutil.manager.InterfaceManager;
-import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Interface;
 import name.nkid00.rcutil.model.Script;
-import name.nkid00.rcutil.script.ScriptApi;
 import name.nkid00.rcutil.util.BlockPosWithWorld;
 import net.minecraft.server.MinecraftServer;
 
@@ -169,25 +165,19 @@ public class ApiServer {
         switch (api) {
             case "subscribe": {
                 // TODO: check whether event name exists
-                // TODO: check whether event is already subscribed
-                var event = new Event(
+                var event = Event.fromJson(
                         param.get("name").getAsString(),
                         param.get("param").getAsJsonObject());
-                if (!event.isValid()) {
-                    throw ApiException.ARGUMENT_INVALID;
-                }
+                // TODO: check whether event is already subscribed
                 script.subscribe(event);
                 return result;
             }
             case "unsubscribe": {
                 // TODO: check whether event name exists
-                // TODO: check whether event is already subscribed
-                var event = new Event(
+                var event = Event.fromJson(
                         param.get("name").getAsString(),
                         param.get("param").getAsJsonObject());
-                if (!event.isValid()) {
-                    throw ApiException.ARGUMENT_INVALID;
-                }
+                // TODO: check whether event is subscribed
                 script.unsubscribe(event);
                 return result;
             }
@@ -257,13 +247,34 @@ public class ApiServer {
                 return result;
             }
             case "queryGametime": {
+                // TODO: check for unnecessary arguments
+                result.addProperty("gametime", GametimeHelper.gametime());
                 return result;
             }
             case "executeCommand": {
+                // TODO: implement executeCommand
                 return result;
             }
             case "log": {
-                return result;
+                var message = param.get("message").getAsString();
+                switch (param.get("level").getAsString()) {
+                    case "info":
+                        Log.info("({}) {}", script.name, message);
+                        Log.broadcastToOps(server, "(%s/INFO) %s".formatted(script.name, message));
+                        return result;
+                    case "warn":
+                        Log.warn("({}) {}", script.name, message);
+                        Log.broadcastToOps(server, TextHelper.warn(TextHelper.literal(
+                                "(%s/WARN) %s".formatted(script.name, message))));
+                        return result;
+                    case "error":
+                        Log.error("({}) {}", script.name, message);
+                        Log.broadcastToOps(server, TextHelper.error(TextHelper.literal(
+                                "(%s/ERROR) %s".formatted(script.name, message))));
+                        return result;
+                    default:
+                        throw ApiException.ARGUMENT_INVALID;
+                }
             }
             default: {
                 Log.error("invalid api, disconnecting");

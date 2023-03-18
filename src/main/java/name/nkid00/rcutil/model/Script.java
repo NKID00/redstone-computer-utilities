@@ -4,11 +4,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import io.netty.channel.ChannelHandlerContext;
+import name.nkid00.rcutil.event.Event;
 import name.nkid00.rcutil.helper.I18n;
-// import name.nkid00.rcutil.manager.TimerManager;
 import net.minecraft.text.Text;
 
 public class Script {
@@ -17,8 +16,6 @@ public class Script {
     public final String addr;
     public final AtomicBoolean alive = new AtomicBoolean(true);
     public final Set<Event> events = ConcurrentHashMap.newKeySet();
-    // message id
-    private final AtomicLong id = new AtomicLong(0);
     public final ChannelHandlerContext ctx;
 
     public Script(String name, String description, String address, ChannelHandlerContext ctx) {
@@ -49,27 +46,14 @@ public class Script {
 
     public void subscribe(Event event) {
         events.add(event);
-        // if (event instanceof TimedEvent) {
-        //     var timer = Timer.create((TimedEvent) event, this);
-        //     timers.put(event, timer);
-        //     TimerManager.register(timer);
-        // }
     }
 
     public void unsubscribe(Event event) {
         events.remove(event);
-        // if (event instanceof TimedEvent) {
-        //     TimerManager.deregister(timers.remove(event));
-        // }
     }
 
     public boolean isAddr(String addr) {
         return this.addr.equals(addr);
-    }
-
-    // get next
-    public long id() {
-        return id.incrementAndGet();
     }
 
     @Override

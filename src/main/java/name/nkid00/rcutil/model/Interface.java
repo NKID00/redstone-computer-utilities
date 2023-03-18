@@ -2,18 +2,18 @@ package name.nkid00.rcutil.model;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import name.nkid00.rcutil.event.InterfaceChangeEvent;
 import name.nkid00.rcutil.exception.BlockNotTargetException;
 import name.nkid00.rcutil.helper.PosHelper;
 import name.nkid00.rcutil.helper.DataHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.ParticleHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
-import name.nkid00.rcutil.manager.InterfaceManager;
-import name.nkid00.rcutil.script.ScriptEvent;
 import name.nkid00.rcutil.util.Blocks;
 import name.nkid00.rcutil.util.Enumerate;
 import name.nkid00.rcutil.util.TargetBlockPos;
@@ -27,35 +27,41 @@ public class Interface implements Iterable<TargetBlockPos> {
     private final String name;
     private final ServerWorld world;
     private final Blocks blocks;
+    private final Collection<String> option;
     private BitSet lastValue;
 
-    public Interface(String name, ServerWorld world, BlockPos lsb, Vec3i increment, int size) {
+    public Interface(String name, ServerWorld world, BlockPos lsb, Vec3i increment, int size,
+            Collection<String> option) {
         this.name = name;
         this.world = world;
         blocks = new Blocks(lsb, increment, size);
+        this.option = option;
         lastValue = readSuppress();
     }
 
-    public Interface(String name, ServerWorld world, Blocks blocks) {
+    public Interface(String name, ServerWorld world, Blocks blocks, Collection<String> option) {
         this.name = name;
         this.world = world;
         this.blocks = PosHelper.copy(blocks);
+        this.option = option;
         lastValue = readSuppress();
     }
 
-    public static Interface singleBit(UUID uuid, String name, ServerWorld world, BlockPos pos)
+    public static Interface singleBit(UUID uuid, String name, ServerWorld world, BlockPos pos,
+            Collection<String> option)
             throws BlockNotTargetException {
-        var result = new Interface(name, world, Blocks.singleBlock(pos));
+        var result = new Interface(name, world, Blocks.singleBlock(pos), option);
         if (!result.valid()) {
             throw new BlockNotTargetException(I18n.t(uuid, "rcutil.command.rcu_new.fail.selection_incomplete"));
         }
         return result;
     }
 
-    public static Interface resolve(UUID uuid, String name, ServerWorld world, BlockPos lsb, BlockPos msb)
+    public static Interface resolve(UUID uuid, String name, ServerWorld world, BlockPos lsb, BlockPos msb,
+            Collection<String> option)
             throws BlockNotTargetException {
         if (lsb.equals(msb)) {
-            return Interface.singleBit(uuid, name, world, lsb);
+            return Interface.singleBit(uuid, name, world, lsb, option);
         }
         var blocks = new Blocks(lsb, msb);
         var targetBlockCount = 0;
@@ -72,7 +78,7 @@ public class Interface implements Iterable<TargetBlockPos> {
                 break;
             }
         }
-        var result = new Interface(name, world, new Blocks(lsb, second, msb));
+        var result = new Interface(name, world, new Blocks(lsb, second, msb), option);
         if ((!result.valid()) || result.size() != targetBlockCount) {
             throw new BlockNotTargetException(I18n.t(uuid, "rcutil.command.rcu_new.fail.selection_incomplete"));
         }
@@ -120,9 +126,10 @@ public class Interface implements Iterable<TargetBlockPos> {
         var lastBit = lastValue.get(index);
         var newBit = TargetBlockHelper.readDigitalUnsafe(world, pos);
         if (lastBit != newBit) {
-            lastValue = readSuppress();
-            ScriptEvent.broadcast(Event.ON_INTERFACE_UPDATE_IMMEDIATE.withInterface(this));
-            InterfaceManager.markUpdated(this);
+            var newValue = readSuppress();
+            var t = lastValue;
+            lastValue = newValue;
+            new InterfaceChangeEvent(name).broadcast(t, newValue);
         }
     }
 
@@ -167,6 +174,10 @@ public class Interface implements Iterable<TargetBlockPos> {
 
     public ServerWorld world() {
         return world;
+    }
+
+    public Collection<String> option() {
+        return option;
     }
 
     public List<TargetBlockPos> toList() {

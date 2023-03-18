@@ -124,4 +124,8 @@ public class TargetBlockPos extends BlockPos {
     public String toString() {
         return "%s, %s, %s, %s".formatted(getX(), getY(), getZ(), WorldHelper.toString(world));
     }
+
+    public BlockPosWithWorld toBlockPosWithWorld() {
+        return new BlockPosWithWorld(this, world);
+    }
 }

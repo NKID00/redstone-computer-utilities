@@ -1,18 +1,15 @@
 package name.nkid00.rcutil.command;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import name.nkid00.rcutil.event.ScriptRunEvent;
 import name.nkid00.rcutil.exception.ApiException;
 import name.nkid00.rcutil.helper.ArgumentHelper;
 import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.manager.ScriptManager;
-import name.nkid00.rcutil.model.Event;
-import name.nkid00.rcutil.script.ScriptEvent;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuRun {
@@ -25,33 +22,21 @@ public class RcuRun {
             s.sendError(I18n.t(uuid, "rcutil.command.fail.script_not_found", name));
             return 0;
         }
-        var args = ArgumentHelper.getTypedMulti(c, "argument...");
-        var eventArgs = new JsonObject();
-        eventArgs.addProperty("uuid", uuid == null ? null : uuid.toString());
-        var argsJsonArray = new JsonArray(args.size());
-        for (var arg : args) {
-            var argJsonObject = new JsonObject();
-            argJsonObject.addProperty("type", arg.type().toString());
-            argJsonObject.addProperty("value", arg.value());
-            argsJsonArray.add(argJsonObject);
-        }
-        eventArgs.add("runArgs", argsJsonArray);
+        var argument = ArgumentHelper.getTypedMulti(c, "argument...");
         try {
-            var result = ScriptEvent.call(script, Event.ON_SCRIPT_RUN, eventArgs).getAsInt();
+            var result = new ScriptRunEvent().publish(argument, script);
             s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_run.success", script.name), true);
             return result;
         } catch (ClassCastException | IllegalStateException | UnsupportedOperationException | NullPointerException e) {
             s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.invalid_response"));
             return 0;
         } catch (ApiException e) {
-            if (e.equals(ApiException.EVENT_CALLBACK_NOT_REGISTERED)) {
+            if (e.equals(ApiException.GENERAL_ERROR)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.script_not_runnable"));
-            } else if (e.equals(ApiException.ILLEGAL_ARGUMENT)) {
+            } else if (e.equals(ApiException.ARGUMENT_INVALID)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.illegal_argument"));
-            } else if (e.equals(ApiException.SCRIPT_INTERNAL_ERROR)) {
+            } else if (e.equals(ApiException.INTERNAL_ERROR)) {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.script_internal_error"));
-            } else if (e.equals(ApiException.ACCESS_DENIED)) {
-                s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.access_denied"));
             } else {
                 s.sendError(I18n.t(uuid, "rcutil.command.rcu_run.fail.invalid_response"));
             }

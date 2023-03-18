@@ -1,19 +1,15 @@
 package name.nkid00.rcutil.manager;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -28,23 +24,18 @@ import name.nkid00.rcutil.helper.I18n;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.helper.MapHelper;
 import name.nkid00.rcutil.helper.TargetBlockHelper;
-import name.nkid00.rcutil.model.Event;
 import name.nkid00.rcutil.model.Interface;
-import name.nkid00.rcutil.script.ScriptEvent;
 import name.nkid00.rcutil.util.Enumerate;
 import name.nkid00.rcutil.util.IndexedObject;
 import name.nkid00.rcutil.util.TargetBlockPos;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.World;
 
 public class InterfaceManager {
     private static ConcurrentHashMap<String, Interface> interfaces = new ConcurrentHashMap<>();
     private static SetMultimap<TargetBlockPos, IndexedObject<Interface>> blocks = Multimaps
             .synchronizedSetMultimap(HashMultimap.create());
-    private static Set<Interface> updated = Collections.synchronizedSet(new HashSet<>());
 
     public static Interface interfaceByName(String name) {
         return interfaces.get(name);
@@ -79,7 +70,7 @@ public class InterfaceManager {
 
     public static Interface tryCreate(String name, UUID uuid, ServerWorld world, BlockPos lsb, BlockPos msb, Collection<String> option)
             throws BlockNotTargetException, IllegalArgumentException {
-        var interfaze = Interface.resolve(uuid, name, world, lsb, msb);
+        var interfaze = Interface.resolve(uuid, name, world, lsb, msb, option);
         if (interfaze == null) {
             return null;
         }
@@ -99,12 +90,10 @@ public class InterfaceManager {
     }
 
     public static Interface remove(String name) {
-        ScriptEvent.broadcast(Event.ON_INTERFACE_REMOVE.withInterface(interfaceByName(name)));
         var interfaze = interfaces.remove(name);
         for (var ipos : new Enumerate<>(interfaze)) {
             blocks.remove(ipos.object(), new IndexedObject<>(ipos.index(), interfaze));
         }
-        updated.remove(interfaze);
         return interfaze;
     }
 
@@ -120,16 +109,6 @@ public class InterfaceManager {
 
     public static int size() {
         return interfaces.size();
-    }
-
-    public static void markUpdated(Interface interfaze) {
-        updated.add(interfaze);
-    }
-
-    public static Iterable<Interface> resetUpdated() {
-        var result = ImmutableSet.copyOf(updated);
-        updated.clear();
-        return result;
     }
 
     public static Text info(UUID uuid) {

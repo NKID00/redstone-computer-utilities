@@ -15,6 +15,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.HandshakeComplete;
 import name.nkid00.rcutil.Options;
+import name.nkid00.rcutil.helper.CommandHelper;
 import name.nkid00.rcutil.helper.Log;
 import name.nkid00.rcutil.manager.ScriptManager;
 
@@ -35,11 +36,6 @@ public class ApiServerHandler extends SimpleChannelInboundHandler<JsonElement> {
             return;
         }
         var msg = msg0.getAsJsonObject();
-        if (!msg.has("id")) {
-            Log.error("Invalid message received, disconnecting");
-            ctx.close();
-            return;
-        }
         if (msg.has("api")) { // api call
             if (ApiServer.eventScopeStack.isEmpty() || !ApiServer.eventScopeStack.getFirst().isAddr(addr)) {
                 Log.error("API call outside event scope, disconnecting");
@@ -62,7 +58,7 @@ public class ApiServerHandler extends SimpleChannelInboundHandler<JsonElement> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ScriptManager.deregister(addr);
+        ScriptManager.remove(addr);
         Log.info("{} disconnected", addr);
     }
 
@@ -108,17 +104,17 @@ public class ApiServerHandler extends SimpleChannelInboundHandler<JsonElement> {
                             .map(s -> URLDecoder.decode(s, StandardCharsets.UTF_8))
                             .toArray(String[]::new))
                     .collect(Collectors.toMap(pair -> pair[0], pair -> pair[1]));
-            if (queryMap.get("name") == null) {
-                Log.error("Illegal name in handshake, disconnecting");
-                ctx.close();
-                return;
-            }
             if (!Options.key().isEmpty() && !Options.key().equals(queryMap.get("key"))) {
                 Log.error("Incorrect key in handshake, disconnecting");
                 ctx.close();
                 return;
             }
-            ScriptManager.register(queryMap.get("name"), queryMap.getOrDefault("description", ""), addr, ctx);
+            if (queryMap.get("name") == null || !CommandHelper.isLetterDigitUnderline(queryMap.get("name"))) {
+                Log.error("Illegal name in handshake, disconnecting");
+                ctx.close();
+                return;
+            }
+            ScriptManager.add(queryMap.get("name"), queryMap.getOrDefault("description", ""), addr, ctx);
         }
         ctx.fireUserEventTriggered(evt);
     }

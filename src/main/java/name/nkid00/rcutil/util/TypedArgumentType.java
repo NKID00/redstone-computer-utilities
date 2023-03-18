@@ -2,8 +2,7 @@ package name.nkid00.rcutil.util;
 
 public enum TypedArgumentType {
     Literal,
-    Interface,
-    Script;
+    Interface;
 
     public static TypedArgumentType fromString(String s) {
         switch (s) {
@@ -12,8 +11,6 @@ public enum TypedArgumentType {
                 return Literal;
             case "interface":
                 return Interface;
-            case "script":
-                return Script;
         }
     }
 
@@ -25,8 +22,6 @@ public enum TypedArgumentType {
                 return "literal";
             case Interface:
                 return "interface";
-            case Script:
-                return "script";
         }
     }
 }
