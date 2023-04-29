@@ -19,7 +19,7 @@ jobs:
         run: ./gradlew build
       - name: Locate artifacts
         run: |
-          echo "ARTIFACT=$(find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar)" >> $GITHUB_ENV
+          echo "ARTIFACT=$(find ./build/libs/ -name *.jar -not -name *-dev.jar -not -name *-sources.jar -not -name *-all.jar)" >> $GITHUB_ENV
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
