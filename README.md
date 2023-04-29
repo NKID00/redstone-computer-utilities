@@ -38,7 +38,9 @@ See [docs/Details.md](./docs/Details.md) for details.
 
 ## Development
 
-To build the mod, Java 17 or newer is required,
+JDK 17 or newer, GNU gettext and Python 3.10 or newer is required.
+
+To build the mod,
 
 ```sh
 ./gradlew build
@@ -46,7 +48,7 @@ To build the mod, Java 17 or newer is required,
 
 Built jars are in `build/libs/`.
 
-To extract translation keys, Java and GNU gettext are required,
+To extract translation keys,
 
 ```sh
 ./gradlew extract
@@ -59,6 +61,12 @@ To convert translations to or from Minecraft-compatible json format,
 ```sh
 python po2minecraft.py path/to/messages.po path/to/messages.json
 python minecraft2po.py path/to/messages.json path/to/messages.po
+```
+
+To determine which versions of dependencies are compatible with Minecraft,
+
+```sh
+python determine_deps.py
 ```
 
 ## Credits

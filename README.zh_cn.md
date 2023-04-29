@@ -38,7 +38,9 @@
 
 ## 开发
 
-要构建模组，需要安装 Java 17 或更新版本，
+需要安装 Java 17 或更新版本，GNU gettext 和 Python 3.10 或更新版本。
+
+要构建模组，
 
 ```sh
 ./gradlew build
@@ -46,7 +48,7 @@
 
 构建出的 jar 文件位于 `build/libs/`。
 
-要提取翻译键，需要安装 Java 和 GNU gettext，
+要提取翻译键，
 
 ```sh
 ./gradlew extract
@@ -59,6 +61,12 @@
 ```sh
 python po2minecraft.py 文件路径/messages.po 文件路径/messages.json
 python minecraft2po.py 文件路径/messages.json 文件路径/messages.po
+```
+
+要确定和 Minecraft 兼容的依赖版本，
+
+```sh
+python determine_deps.py
 ```
 
 ## 鸣谢

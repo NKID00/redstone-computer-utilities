@@ -6,7 +6,7 @@ plugins {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/rcutil.accesswidener")
+    accessWidenerPath = file('src/main/resources/rcutil.accesswidener')
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -17,7 +17,7 @@ version = "${project.mod_version}-mc1.19.3+${buildMetadata()}"
 group = project.maven_group
 
 def buildMetadata() {
-    def ci_build = System.getenv("GITHUB_RUN_NUMBER")
+    def ci_build = System.getenv('GITHUB_RUN_NUMBER')
     if (ci_build != null) {
         return "build.${ci_build}"
     } else if (grgit != null) {
@@ -32,6 +32,11 @@ def buildMetadata() {
     }
 }
 
+tasks.withType(AbstractArchiveTask) {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
 repositories {
 }
 
@@ -41,26 +46,28 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     Set<String> apiModules = [
-        "fabric-command-api-v2",
-        "fabric-events-interaction-v0",
-        "fabric-lifecycle-events-v1",
-        "fabric-particles-v1"
+        'fabric-command-api-v2',
+        'fabric-events-interaction-v0',
+        'fabric-lifecycle-events-v1',
+        'fabric-particles-v1'
     ]
     apiModules.forEach {
-        include(modImplementation(fabricApi.module(it, "${project.fabric_version}")))
+        modImplementation fabricApi.module(it, project.fabric_version)
     }
 
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'io.netty:netty-all:4.1.89.Final'
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation "com.google.code.gson:gson:${project.gson_version}"
+    implementation "com.google.guava:guava:${project.guava_version}"
+    implementation "io.netty:netty-all:${project.netty_version}"
 }
 
 processResources {
-    inputs.property "version", project.version
+    inputs.property 'version', project.version
 
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
     }
+
+    exclude '**/*.po'
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -73,8 +80,25 @@ java {
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${archivesBaseName}"}
+        rename { "${it}-${archivesBaseName}" }
     }
+}
+
+shadowJar {
+    from("LICENSE") {
+        rename { "${it}-${archivesBaseName}" }
+    }
+
+    dependencies {
+        include(dependency('io.netty:netty-codec-http:.*'))
+    }
+
+    exclude 'mappings/**'
+    minimize()
+}
+
+remapJar {
+    inputFile = shadowJar.archiveFile
 }
 
 // configure the maven publication
