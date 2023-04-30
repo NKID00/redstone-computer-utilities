@@ -13,14 +13,21 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-mc1.19.3+${buildMetadata()}"
+version = "${project.mod_version}-mc${project.compatible_mc_version}+${buildMetadata()}"
+def reproducibleVersion = "${project.mod_version}-mc${project.compatible_mc_version}+${commitHash()}"
 group = project.maven_group
 
 def buildMetadata() {
     def ci_build = System.getenv('GITHUB_RUN_NUMBER')
     if (ci_build != null) {
         return "build.${ci_build}"
-    } else if (grgit != null) {
+    } else {
+        return commitHash()
+    }
+}
+
+def commitHash() {
+    if (grgit != null) {
         def commit_hash = grgit.head().abbreviatedId
         if (grgit.status().clean) {
             return "rev.${commit_hash}"
@@ -61,10 +68,10 @@ dependencies {
 }
 
 processResources {
-    inputs.property 'version', project.version
+    inputs.property 'version', reproducibleVersion
 
     filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+        expand 'version': reproducibleVersion, 'detailed_mc_version': project.detailed_mc_version
     }
 
     exclude '**/*.po'
