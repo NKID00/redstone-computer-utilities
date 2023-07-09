@@ -32,7 +32,7 @@ public class PosHelper {
         if (v == null) {
             return null;
         }
-        return new Vec3i(v.getX(), v.getY(), v.getZ());
+        return new Vec3i((int) v.getX(), (int) v.getY(), (int) v.getZ());
     }
 
     public static Vec3f toVec3f(Vec3i v) {

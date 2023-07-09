@@ -57,8 +57,8 @@ public class LanguageManager {
         if (langCode.equals(Language.DEFAULT_LANGUAGE)) {
             language = new Language() {
                 @Override
-                public String get(String key) {
-                    return map.getOrDefault(key, key);
+                public String get(String key, String fallback) {
+                    return map.getOrDefault(key, fallback);
                 }
     
                 @Override
@@ -79,11 +79,11 @@ public class LanguageManager {
         } else {
             language = new Language() {
                 @Override
-                public String get(String key) {
+                public String get(String key, String fallback) {
                     if (map.containsKey(key)) {
                         return map.get(key);
                     } else {
-                        return defaultLanguage().get(key);
+                        return defaultLanguage().get(key, fallback);
                     }
                 }
     

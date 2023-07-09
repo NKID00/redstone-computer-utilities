@@ -11,7 +11,6 @@ import com.google.gson.stream.JsonWriter;
 import name.nkid00.rcutil.model.Interface;
 import name.nkid00.rcutil.util.BlockPosWithWorld;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.World;
 
 public class InterfaceAdapter extends TypeAdapter<Interface> {
     private static final BlockPosWithWorldAdapter BLOCK_POS_WITH_WORLD_ADAPTER = new BlockPosWithWorldAdapter();

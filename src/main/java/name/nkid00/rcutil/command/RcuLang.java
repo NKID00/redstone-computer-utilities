@@ -14,9 +14,8 @@ public class RcuLang {
     public static int executeGet(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
         var player = CommandHelper.requirePlayer(s);
-        var uuid = player.getUuid();
-        s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_lang.success.display",
-                LanguageManager.langCode(player.getUuid())), false);
+        I18n.sendFeedback(s, false, "rcutil.command.rcu_lang.success.display",
+                LanguageManager.langCode(player.getUuid()));
         return 1;
     }
 
@@ -27,17 +26,17 @@ public class RcuLang {
         var currentLangCode = LanguageManager.langCode(uuid);
         var langCode = StringArgumentType.getString(c, "language");
         if (langCode.equals(currentLangCode)) {
-            s.sendError(I18n.t(uuid, "rcutil.command.rcu_lang.fail.already_set", currentLangCode));
+            I18n.sendError(s, "rcutil.command.rcu_lang.fail.already_set", currentLangCode);
             return 0;
         }
         try {
             LanguageManager.setLangCode(uuid, langCode);
         } catch (LanguageNotFoundException e) {
-            s.sendError(I18n.t(uuid, "rcutil.command.rcu_lang.fail.invalid_language", langCode,
-                    LanguageManager.languages()));
+            I18n.sendError(s, "rcutil.command.rcu_lang.fail.invalid_language", langCode,
+                    LanguageManager.languages());
             return 0;
         }
-        s.sendFeedback(I18n.t(uuid, "rcutil.command.rcu_lang.success.set", langCode), false);
+        I18n.sendFeedback(s, false, "rcutil.command.rcu_lang.success.set", langCode);
         return 1;
     }
 }

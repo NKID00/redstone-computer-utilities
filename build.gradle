@@ -1,22 +1,15 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'fabric-loom' version '1.3-SNAPSHOT'
     id 'maven-publish'
-    id 'org.ajoberstar.grgit' version '5.0.0'
+    id 'org.ajoberstar.grgit' version '5.2.0'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-loom {
-    accessWidenerPath = file('src/main/resources/rcutil.accesswidener')
-}
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-mc${project.compatible_mc_version}+${buildMetadata()}"
-group = project.maven_group
-
 def buildMetadata() {
+    def build_metadata = System.getenv('BUILD_METADATA')
+    if (build_metadata != null) {
+        return build_metadata
+    }
     def ci_build = System.getenv('GITHUB_RUN_NUMBER')
     if (ci_build != null) {
         return "build.${ci_build}"
@@ -30,6 +23,17 @@ def buildMetadata() {
     } else {
         return "unknown"
     }
+}
+
+version = "${project.mod_version}-mc${project.compatible_mc_version}+${buildMetadata()}"
+group = project.maven_group
+
+base {
+    archivesBaseName = project.archives_base_name
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/rcutil.accesswidener')
 }
 
 tasks.withType(AbstractArchiveTask) {
@@ -76,17 +80,20 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
     from("LICENSE") {
-        rename { "${it}-${archivesBaseName}" }
+        rename { "${it}-${base.archivesBaseName}" }
     }
 }
 
 shadowJar {
     from("LICENSE") {
-        rename { "${it}-${archivesBaseName}" }
+        rename { "${it}-${base.archivesBaseName}" }
     }
 
     dependencies {
@@ -101,7 +108,6 @@ remapJar {
     inputFile = shadowJar.archiveFile
 }
 
-// configure the maven publication
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -113,6 +119,7 @@ publishing {
     }
 }
 
+// extract I18n keys
 task extract() {
     doLast {
         exec {

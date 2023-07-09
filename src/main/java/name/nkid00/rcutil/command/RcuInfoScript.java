@@ -13,7 +13,7 @@ public class RcuInfoScript {
     public static int execute(CommandContext<ServerCommandSource> c) throws CommandSyntaxException {
         var s = c.getSource();
         var uuid = CommandHelper.uuidOrNull(s);
-        s.sendFeedback(ScriptManager.info(uuid), false);
+        I18n.sendFeedback(s, false, ScriptManager.info(uuid));
         return ScriptManager.size();
     }
 
@@ -25,9 +25,9 @@ public class RcuInfoScript {
         for (String name : args) {
             var script = ScriptManager.scriptByName(name);
             if (script == null) {
-                s.sendError(I18n.t(uuid, "rcutil.command.fail.script_not_found", name));
+                I18n.sendError(s, "rcutil.command.fail.script_not_found", name);
             } else {
-                s.sendFeedback(script.info(uuid), false);
+                I18n.sendFeedback(s, false, script.info(uuid));
                 result++;
             }
         }
