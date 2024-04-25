@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     `java-library`
     id("fabric-loom") version "1.6-SNAPSHOT"
@@ -67,19 +69,17 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 java {
-    withSourcesJar()
-
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.jar {
-    from("LICENSE") {
-        rename { "${it}-${base.archivesName}" }
-    }
+    enabled = false
 }
 
 tasks.shadowJar {
+    archiveClassifier = ""
+
     from("LICENSE") {
         rename { "${it}-${base.archivesName}" }
     }
@@ -93,6 +93,7 @@ tasks.shadowJar {
 }
 
 tasks.remapJar {
+    dependsOn(tasks.shadowJar)
     inputFile = file(tasks.shadowJar.get().archiveFile)
 }
 
