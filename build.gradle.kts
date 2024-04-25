@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     `java-library`
     id("fabric-loom") version "1.6-SNAPSHOT"
@@ -78,8 +76,6 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    archiveClassifier = ""
-
     from("LICENSE") {
         rename { "${it}-${base.archivesName}" }
     }
