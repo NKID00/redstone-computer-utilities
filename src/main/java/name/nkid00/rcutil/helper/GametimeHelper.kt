@@ -1,20 +1,26 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.MinecraftServer
 
-public class GametimeHelper {
-    private static long gametime;
+object GametimeHelper {
+    private var gametime: Long = 0
 
-    public static synchronized boolean isFrozen(MinecraftServer server) {
-        return gametime == server.getOverworld().getTime() + 1;
+    @JvmStatic
+    @Synchronized
+    fun isFrozen(server: MinecraftServer): Boolean {
+        return gametime == server.overworld.time + 1
     }
 
-    public static synchronized void updateGametime(MinecraftServer server) {
+    @JvmStatic
+    @Synchronized
+    fun updateGametime(server: MinecraftServer) {
         // START_SERVER_TICK is called before world time increases
-        gametime = server.getOverworld().getTime() + 1;
+        gametime = server.overworld.time + 1
     }
 
-    public static synchronized long gametime() {
-        return gametime;
+    @JvmStatic
+    @Synchronized
+    fun gametime(): Long {
+        return gametime
     }
 }

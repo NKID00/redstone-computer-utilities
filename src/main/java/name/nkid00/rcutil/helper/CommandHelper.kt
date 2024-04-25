@@ -1,77 +1,75 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import java.util.UUID;
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.rcon.RconCommandOutput
+import java.util.*
+import java.util.function.Predicate
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+object CommandHelper {
+    private val NOT_PLAYER_ENTITY_EXCEPTION = SimpleCommandExceptionType(
+            I18n.t("rcutil.command.fail.not_player_entity"))
 
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.rcon.RconCommandOutput;
-
-public class CommandHelper {
-    private static final SimpleCommandExceptionType NOT_PLAYER_ENTITY_EXCEPTION = new SimpleCommandExceptionType(
-            I18n.t("rcutil.command.fail.not_player_entity"));
-
-    public static boolean isLetterDigitUnderline(char c) {
-        return Character.isLetterOrDigit(c) || c == '_';
+    fun isLetterDigitUnderline(c: Char): Boolean {
+        return Character.isLetterOrDigit(c) || c == '_'
     }
 
-    public static boolean isLetterDigitUnderline(String s) {
-        return s.chars().mapToObj(i -> (char) i).allMatch(CommandHelper::isLetterDigitUnderline);
+    @JvmStatic
+    fun isLetterDigitUnderline(s: String): Boolean {
+        return s.chars().mapToObj { it.toChar() }.allMatch { isLetterDigitUnderline(it) }
     }
 
-    public static boolean isAllowedInUnquotedString(char c) {
-        return !(Character.isWhitespace(c)
-                || c == '\\' || c == '\"' || c == '\''
-                || Character.isISOControl(c));
+    fun isAllowedInUnquotedString(c: Char): Boolean {
+        return !(Character.isWhitespace(c) || c == '\\' || c == '\"' || c == '\'' || Character.isISOControl(c))
     }
 
-    public static String getName(StringReader reader) {
-        var begin = reader.getCursor();
+    fun getName(reader: StringReader): String {
+        val begin = reader.cursor
         while (reader.canRead() && isLetterDigitUnderline(reader.peek())) {
-            reader.skip();
+            reader.skip()
         }
-        return reader.getString().substring(begin, reader.getCursor());
+        return reader.string.substring(begin, reader.cursor)
     }
 
-    public static boolean isConsole(ServerCommandSource s) {
-        return s.output == s.server || s.output instanceof RconCommandOutput;
+    fun isConsole(s: ServerCommandSource): Boolean {
+        return s.output === s.server || s.output is RconCommandOutput
     }
 
-    public static UUID uuidOrNull(ServerCommandSource s) {
-        var player = s.getPlayer();
-        if (player == null) {
-            return null;
-        }
-        return player.getUuid();
+    @JvmStatic
+    fun uuidOrNull(s: ServerCommandSource): UUID? {
+        val player = s.player ?: return null
+        return player.uuid
     }
 
-    public static ServerPlayerEntity playerOrNull(ServerCommandSource s) throws CommandSyntaxException {
-        return s.getPlayer();
+    @JvmStatic
+    @Throws(CommandSyntaxException::class)
+    fun playerOrNull(s: ServerCommandSource): ServerPlayerEntity? {
+        return s.player
     }
 
-    public static ServerPlayerEntity requirePlayer(ServerCommandSource s) throws CommandSyntaxException {
-        var player = playerOrNull(s);
-        if (player == null) {
-            throw NOT_PLAYER_ENTITY_EXCEPTION.create();
-        }
-        return player;
+    @JvmStatic
+    @Throws(CommandSyntaxException::class)
+    fun requirePlayer(s: ServerCommandSource): ServerPlayerEntity {
+        val player = playerOrNull(s) ?: throw NOT_PLAYER_ENTITY_EXCEPTION.create()
+        return player
     }
 
-    public static boolean isQuoted(String s) {
-        return (s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("\'") && s.endsWith("\'"));
+    fun isQuoted(s: String): Boolean {
+        return (s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("\'") && s.endsWith("\'"))
     }
 
-    public static String quoted(String s) {
-        return '"' + s.replace("\\", "\\\\").replace("\"", "\\\"") + '"';
+    fun quoted(s: String): String {
+        return '"'.toString() + s.replace("\\", "\\\\").replace("\"", "\\\"") + '"'
     }
 
-    public static String unquoted(String s) {
+    fun unquoted(s: String): String {
+        var s = s
         if (isQuoted(s)) {
-            s = s.substring(1, s.length() - 1);
+            s = s.substring(1, s.length - 1)
         }
-        return s.replace("\\\"", "\"").replace("\\\\", "\\");
+        return s.replace("\\\"", "\"").replace("\\\\", "\\")
     }
 }

@@ -1,318 +1,324 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
+import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import com.mojang.brigadier.suggestion.Suggestion
+import com.mojang.brigadier.suggestion.SuggestionProvider
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import name.nkid00.rcutil.manager.InterfaceManager
+import name.nkid00.rcutil.util.TypedArgument
+import name.nkid00.rcutil.util.TypedArgumentType
+import net.minecraft.util.Identifier
+import java.util.*
+import java.util.concurrent.ExecutionException
+import java.util.function.Consumer
+import java.util.function.Function
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestion;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
-import name.nkid00.rcutil.manager.InterfaceManager;
-import name.nkid00.rcutil.util.TypedArgument;
-import name.nkid00.rcutil.util.TypedArgumentType;
-import net.minecraft.util.Identifier;
-
-public class ArgumentHelper {
-    private static StringReader anyUnquotedStringReader(String s) {
-        return new StringReader(s) {
-            @Override
-            public String readUnquotedString() {
-                int begin = getCursor();
+object ArgumentHelper {
+    private fun anyUnquotedStringReader(s: String): StringReader {
+        return object : StringReader(s) {
+            override fun readUnquotedString(): String {
+                val begin = cursor
                 while (canRead() && CommandHelper.isAllowedInUnquotedString(peek())) {
-                    skip();
+                    skip()
                 }
-                return getString().substring(begin, getCursor());
+                return string.substring(begin, cursor)
             }
 
-            @Override
-            public String readString() throws CommandSyntaxException {
+            @Throws(CommandSyntaxException::class)
+            override fun readString(): String {
                 if (canRead()) {
-                    var c = peek();
+                    val c = peek()
                     if (isQuotedStringStart(c)) {
-                        skip();
-                        return readStringUntil(c);
+                        skip()
+                        return readStringUntil(c)
                     }
-                    var result = readUnquotedString();
+                    val result = readUnquotedString()
                     if ((!canRead()) || peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
-                        return result;
+                        return result
                     } else {
                         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
-                                .dispatcherExpectedArgumentSeparator().createWithContext(this);
+                                .dispatcherExpectedArgumentSeparator().createWithContext(this)
                     }
                 }
-                return "";
+                return ""
             }
-        };
-    }
-
-    private static LinkedList<String> parseMulti(String greedyString) throws CommandSyntaxException {
-        var reader = anyUnquotedStringReader(greedyString);
-        var result = new LinkedList<String>();
-        var watchdogCursor = -1;
-        while (reader.canRead()) {
-            if (reader.getCursor() == watchdogCursor) {
-                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
-                break;
-            } else {
-                watchdogCursor = reader.getCursor();
-            }
-            reader.skipWhitespace();
-            if (!reader.canRead()) {
-                break;
-            }
-            result.add(reader.readString());
-        }
-        return result;
-    }
-
-    public static <S> LinkedList<String> getMulti(CommandContext<S> context, String name)
-            throws CommandSyntaxException {
-        try {
-            return parseMulti(StringArgumentType.getString(context, name));
-        } catch (IllegalArgumentException e) {
-            return new LinkedList<>();
         }
     }
 
-    private static StringReader anyUnquotedKeepQuotationMarkStringReader(String s) {
-        return new StringReader(s) {
-            @Override
-            public String readUnquotedString() {
-                int begin = getCursor();
-                while (canRead() && CommandHelper.isAllowedInUnquotedString(peek())) {
-                    skip();
-                }
-                return getString().substring(begin, getCursor());
+    @Throws(CommandSyntaxException::class)
+    private fun parseMulti(greedyString: String): LinkedList<String> {
+        val reader = anyUnquotedStringReader(greedyString)
+        val result = LinkedList<String>()
+        var watchdogCursor = -1
+        while (reader.canRead()) {
+            if (reader.cursor == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor)
+                break
+            } else {
+                watchdogCursor = reader.cursor
             }
-
-            @Override
-            public String readString() throws CommandSyntaxException {
-                if (canRead()) {
-                    var c = peek();
-                    if (isQuotedStringStart(c)) {
-                        skip();
-                        return CommandHelper.quoted(readStringUntil(c));
-                    }
-                    var result = readUnquotedString();
-                    if ((!canRead()) || peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
-                        return result;
-                    } else {
-                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
-                                .dispatcherExpectedArgumentSeparator().createWithContext(this);
-                    }
-                }
-                return "";
+            reader.skipWhitespace()
+            if (!reader.canRead()) {
+                break
             }
-        };
+            result.add(reader.readString())
+        }
+        return result
     }
 
-    private static LinkedList<TypedArgument> parseTypedMulti(String greedyString) throws CommandSyntaxException {
-        var reader = anyUnquotedKeepQuotationMarkStringReader(greedyString);
-        var result = new LinkedList<TypedArgument>();
-        var watchdogCursor = -1;
+    @JvmStatic
+    @Throws(CommandSyntaxException::class)
+    fun <S> getMulti(context: CommandContext<S>?, name: String): LinkedList<String> {
+        return try {
+            parseMulti(StringArgumentType.getString(context, name))
+        } catch (e: IllegalArgumentException) {
+            LinkedList<String>()
+        }
+    }
+
+    private fun anyUnquotedKeepQuotationMarkStringReader(s: String): StringReader {
+        return object : StringReader(s) {
+            override fun readUnquotedString(): String {
+                val begin = cursor
+                while (canRead() && CommandHelper.isAllowedInUnquotedString(peek())) {
+                    skip()
+                }
+                return string.substring(begin, cursor)
+            }
+
+            @Throws(CommandSyntaxException::class)
+            override fun readString(): String {
+                if (canRead()) {
+                    val c = peek()
+                    if (isQuotedStringStart(c)) {
+                        skip()
+                        return CommandHelper.quoted(readStringUntil(c))
+                    }
+                    val result = readUnquotedString()
+                    if ((!canRead()) || peek() == CommandDispatcher.ARGUMENT_SEPARATOR_CHAR) {
+                        return result
+                    } else {
+                        throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
+                                .dispatcherExpectedArgumentSeparator().createWithContext(this)
+                    }
+                }
+                return ""
+            }
+        }
+    }
+
+    @Throws(CommandSyntaxException::class)
+    private fun parseTypedMulti(greedyString: String): LinkedList<TypedArgument> {
+        val reader = anyUnquotedKeepQuotationMarkStringReader(greedyString)
+        val result = LinkedList<TypedArgument>()
+        var watchdogCursor = -1
         while (reader.canRead()) {
-            if (reader.getCursor() == watchdogCursor) {
-                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
-                break;
+            if (reader.cursor == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor)
+                break
             } else {
-                watchdogCursor = reader.getCursor();
+                watchdogCursor = reader.cursor
             }
-            reader.skipWhitespace();
+            reader.skipWhitespace()
             if (!reader.canRead()) {
-                break;
+                break
             }
-            var s = reader.readString();
+            val s = reader.readString()
             if (CommandHelper.isQuoted(s)) {
-                result.add(new TypedArgument(TypedArgumentType.Literal, CommandHelper.unquoted(s)));
+                result.add(TypedArgument(TypedArgumentType.Literal, CommandHelper.unquoted(s)))
             } else if (s.contains(":")) {
-                var identifier = Identifier.tryParse(s);
+                val identifier = Identifier.tryParse(s)
                 if (identifier == null) {
-                    result.add(new TypedArgument(TypedArgumentType.Literal, s));
+                    result.add(TypedArgument(TypedArgumentType.Literal, s))
                 } else {
-                    var type = TypedArgumentType.fromString(identifier.getNamespace());
+                    val type = TypedArgumentType.fromString(identifier.namespace)
                     if (type == TypedArgumentType.Literal) {
-                        result.add(new TypedArgument(TypedArgumentType.Literal, s));
+                        result.add(TypedArgument(TypedArgumentType.Literal, s))
                     } else {
-                        result.add(new TypedArgument(type, identifier.getPath()));
+                        result.add(TypedArgument(type, identifier.path))
                     }
                 }
             } else if (CommandHelper.isLetterDigitUnderline(s)) {
                 if (InterfaceManager.nameExists(s)) {
-                    result.add(new TypedArgument(TypedArgumentType.Interface, s));
+                    result.add(TypedArgument(TypedArgumentType.Interface, s))
                 } else {
-                    result.add(new TypedArgument(TypedArgumentType.Literal, s));
+                    result.add(TypedArgument(TypedArgumentType.Literal, s))
                 }
             } else {
-                result.add(new TypedArgument(TypedArgumentType.Literal, s));
+                result.add(TypedArgument(TypedArgumentType.Literal, s))
             }
         }
-        return result;
+        return result
     }
 
-    public static <S> LinkedList<TypedArgument> getTypedMulti(CommandContext<S> context, String name)
-            throws CommandSyntaxException {
-        try {
-            return parseTypedMulti(StringArgumentType.getString(context, name));
-        } catch (IllegalArgumentException e) {
-            return new LinkedList<>();
+    @JvmStatic
+    @Throws(CommandSyntaxException::class)
+    fun <S> getTypedMulti(context: CommandContext<S>?, name: String): LinkedList<TypedArgument> {
+        return try {
+            parseTypedMulti(StringArgumentType.getString(context, name))
+        } catch (e: IllegalArgumentException) {
+            LinkedList<TypedArgument>()
         }
     }
 
-    private static LinkedList<String> parseMultiInternal(String greedyString) throws CommandSyntaxException {
-        var reader = anyUnquotedStringReader(greedyString);
-        var result = new LinkedList<String>();
-        var watchdogCursor = -1;
+    @Throws(CommandSyntaxException::class)
+    private fun parseMultiInternal(greedyString: String): LinkedList<String> {
+        val reader = anyUnquotedStringReader(greedyString)
+        val result = LinkedList<String>()
+        var watchdogCursor = -1
         while (reader.canRead()) {
-            if (reader.getCursor() == watchdogCursor) {
-                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
-                break;
+            if (reader.cursor == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor)
+                break
             } else {
-                watchdogCursor = reader.getCursor();
+                watchdogCursor = reader.cursor
             }
-            reader.skipWhitespace();
+            reader.skipWhitespace()
             if (!reader.canRead()) {
-                result.add("");
-                break;
+                result.add("")
+                break
             }
-            result.add(reader.readString());
+            result.add(reader.readString())
         }
-        return result;
+        return result
     }
 
-    private static LinkedList<String> parseMultiInternalSuppress(String greedyString) {
-        var reader = anyUnquotedStringReader(greedyString);
-        var result = new LinkedList<String>();
-        var watchdogCursor = -1;
+    private fun parseMultiInternalSuppress(greedyString: String): LinkedList<String> {
+        val reader = anyUnquotedStringReader(greedyString)
+        val result = LinkedList<String>()
+        var watchdogCursor = -1
         while (reader.canRead()) {
-            if (reader.getCursor() == watchdogCursor) {
-                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
-                break;
+            if (reader.cursor == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor)
+                break
             } else {
-                watchdogCursor = reader.getCursor();
+                watchdogCursor = reader.cursor
             }
-            reader.skipWhitespace();
+            reader.skipWhitespace()
             if (!reader.canRead()) {
-                result.add("");
-                break;
+                result.add("")
+                break
             }
-            var remaining = reader.getRemaining();
+            val remaining = reader.remaining
             try {
-                result.add(reader.readString());
-            } catch (CommandSyntaxException e) {
-                result.add(remaining);
-                break;
+                result.add(reader.readString())
+            } catch (e: CommandSyntaxException) {
+                result.add(remaining)
+                break
             }
         }
-        return result;
+        return result
     }
 
-    private static int splitLast(String greedyString) {
-        var reader = anyUnquotedStringReader(greedyString);
-        var cursor = 0;
-        var watchdogCursor = -1;
+    private fun splitLast(greedyString: String): Int {
+        val reader = anyUnquotedStringReader(greedyString)
+        var cursor = 0
+        var watchdogCursor = -1
         while (reader.canRead()) {
-            if (reader.getCursor() == watchdogCursor) {
-                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor);
-                break;
+            if (reader.cursor == watchdogCursor) {
+                Log.error("Dead loop encountered with {} at {}", greedyString, watchdogCursor)
+                break
             } else {
-                watchdogCursor = reader.getCursor();
+                watchdogCursor = reader.cursor
             }
-            cursor = reader.getCursor() + 1;
-            reader.skipWhitespace();
+            cursor = reader.cursor + 1
+            reader.skipWhitespace()
             if (!reader.canRead()) {
-                break;
+                break
             }
-            cursor = reader.getCursor();
+            cursor = reader.cursor
             try {
-                reader.readString();
-            } catch (CommandSyntaxException e) {
-                break;
+                reader.readString()
+            } catch (e: CommandSyntaxException) {
+                break
             }
         }
-        return cursor;
+        return cursor
     }
 
-    public static <S> List<Suggestion> fetch(CommandContext<S> context, SuggestionsBuilder builder,
-            SuggestionProvider<S> provider) throws CommandSyntaxException {
-        var emptyBuilder = new SuggestionsBuilder(builder.getInput(), builder.getStart());
-        try {
-            return provider.getSuggestions(context, emptyBuilder).get().getList();
-        } catch (InterruptedException | ExecutionException e) {
-            return Collections.emptyList();
+    @Throws(CommandSyntaxException::class)
+    fun <S> fetch(context: CommandContext<S>?, builder: SuggestionsBuilder,
+                  provider: SuggestionProvider<S>): List<Suggestion> {
+        val emptyBuilder = SuggestionsBuilder(builder.input, builder.start)
+        return try {
+            provider.getSuggestions(context, emptyBuilder).get().list
+        } catch (e: InterruptedException) {
+            emptyList()
+        } catch (e: ExecutionException) {
+            emptyList()
         }
     }
 
-    private static List<String> uniqueMulti(String greedyString, List<Suggestion> suggestions) {
-        LinkedList<String> arguments;
-        try {
-            arguments = parseMultiInternal(greedyString);
-        } catch (CommandSyntaxException e) {
-            arguments = parseMultiInternalSuppress(greedyString);
+    private fun uniqueMulti(greedyString: String, suggestions: List<Suggestion>): List<String> {
+        var arguments = try {
+            parseMultiInternal(greedyString)
+        } catch (e: CommandSyntaxException) {
+            parseMultiInternalSuppress(greedyString)
         }
-        if (arguments.size() == 0) {
+        if (arguments.size == 0) {
             return suggestions.stream()
-                    .map(s -> s.getText())
-                    .toList();
+                    .map { s: Suggestion -> s.text }
+                    .toList()
         }
-        arguments.removeLast();
-        var makeCompilerHappy = arguments;
-        var previousArguments = greedyString.substring(0, splitLast(greedyString));
+        arguments.removeLast()
+        val makeCompilerHappy = arguments
+        val previousArguments = greedyString.substring(0, splitLast(greedyString))
         return suggestions.stream()
-                .map(s -> s.getText())
-                .filter(s -> !makeCompilerHappy.contains(s))
-                .map(s -> previousArguments + s)
-                .toList();
+                .map { s: Suggestion -> s.text }
+                .filter { s: String -> !makeCompilerHappy.contains(s) }
+                .map { s: String -> previousArguments + s }
+                .toList()
     }
 
-    public static <S> SuggestionProvider<S> uniqueMulti(SuggestionProvider<S> provider) {
-        return (context, builder) -> {
-            uniqueMulti(builder.getRemaining(), fetch(context, builder, provider)).forEach(s -> {
-                builder.suggest(s);
-            });
-            return builder.buildFuture();
-        };
+    @JvmStatic
+    fun <S> uniqueMulti(provider: SuggestionProvider<S>): SuggestionProvider<S> {
+        return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
+            uniqueMulti(builder.remaining, fetch(context, builder, provider)).forEach(Consumer { s: String? ->
+                builder.suggest(s)
+            })
+            builder.buildFuture()
+        }
     }
 
-    public static <S> SuggestionProvider<S> repeatableMulti(SuggestionProvider<S> provider) {
-        return (context, builder) -> {
-            var remaining = builder.getRemaining();
-            var previousArguments = remaining.substring(0, splitLast(remaining));
-            fetch(context, builder, provider).forEach(s -> {
-                builder.suggest(previousArguments + s.getText());
-            });
-            return builder.buildFuture();
-        };
+    @JvmStatic
+    fun <S> repeatableMulti(provider: SuggestionProvider<S>): SuggestionProvider<S> {
+        return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
+            val remaining = builder.remaining
+            val previousArguments = remaining.substring(0, splitLast(remaining))
+            fetch(context, builder, provider).forEach(Consumer { s: Suggestion ->
+                builder.suggest(previousArguments + s.text)
+            })
+            builder.buildFuture()
+        }
     }
 
+    @JvmStatic
     @SafeVarargs
-    public static <S> SuggestionProvider<S> merge(SuggestionProvider<S> provider, SuggestionProvider<S>... providers) {
-        return (context, builder) -> {
-            fetch(context, builder, provider).forEach(s -> {
-                builder.suggest(s.getText());
-            });
-            for (SuggestionProvider<S> p : providers) {
-                fetch(context, builder, p).forEach(s -> {
-                    builder.suggest(s.getText());
-                });
+    fun <S> merge(provider: SuggestionProvider<S>, vararg providers: SuggestionProvider<S>): SuggestionProvider<S> {
+        return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
+            fetch(context, builder, provider).forEach(Consumer { s: Suggestion ->
+                builder.suggest(s.text)
+            })
+            for (p in providers) {
+                fetch(context, builder, p).forEach(Consumer { s: Suggestion ->
+                    builder.suggest(s.text)
+                })
             }
-            return builder.buildFuture();
-        };
+            builder.buildFuture()
+        }
     }
 
-    public static <S> SuggestionProvider<S> map(SuggestionProvider<S> provider, Function<String, String> callable) {
-        return (context, builder) -> {
-            fetch(context, builder, provider).forEach(s -> {
-                builder.suggest(callable.apply(s.getText()));
-            });
-            return builder.buildFuture();
-        };
+    @JvmStatic
+    fun <S> map(provider: SuggestionProvider<S>, callable: Function<String?, String?>): SuggestionProvider<S> {
+        return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
+            fetch(context, builder, provider).forEach(Consumer { s: Suggestion ->
+                builder.suggest(callable.apply(s.text))
+            })
+            builder.buildFuture()
+        }
     }
 }

@@ -1,24 +1,27 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.world.World;
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
+import net.minecraft.server.MinecraftServer
+import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.Identifier
+import net.minecraft.world.World
 
-public class WorldHelper {
-    private static MinecraftServer server;
+object WorldHelper {
+    private var server: MinecraftServer? = null
 
-    public static void init(MinecraftServer server) {
-        WorldHelper.server = server;
+    @JvmStatic
+    fun init(server: MinecraftServer?) {
+        WorldHelper.server = server
     }
 
-    public static String toString(World world) {
-        return world.getRegistryKey().getValue().toString();
+    @JvmStatic
+    fun toString(world: World): String {
+        return world.registryKey.value.toString()
     }
 
-    public static ServerWorld fromString(String s) {
-        return server.getWorld(RegistryKey.of(RegistryKeys.WORLD, new Identifier(s)));
+    @JvmStatic
+    fun fromString(s: String?): ServerWorld? {
+        return server!!.getWorld(RegistryKey.of(RegistryKeys.WORLD, Identifier(s)))
     }
 }

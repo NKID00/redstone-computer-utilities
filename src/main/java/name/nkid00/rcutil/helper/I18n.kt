@@ -1,107 +1,115 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import java.util.UUID;
+import name.nkid00.rcutil.helper.TextHelper.formatted
+import name.nkid00.rcutil.helper.TextHelper.translatable
+import name.nkid00.rcutil.manager.LanguageManager
+import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
+import net.minecraft.util.Language
+import java.util.*
 
-import name.nkid00.rcutil.manager.LanguageManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Language;
-
-public class I18n {
+object I18n {
     /**
      * Convenient method to construct a text with the language.
      */
-    public static MutableText t(Language language, String key, Object... args) {
-        return TextHelper.translatable(language.get(key), args);
+    fun t(language: Language, key: String?, vararg args: Any?): MutableText {
+        return translatable(language[key], *args)
     }
 
     /**
      * Convenient method to construct a text in the default language.
      */
-    public static MutableText t(String key, Object... args) {
-        return t(LanguageManager.defaultLanguage(), key, args);
+    fun t(key: String?, vararg args: Any?): MutableText {
+        return t(LanguageManager.defaultLanguage(), key, *args)
     }
 
     /**
      * Convenient method to construct a text for the player.
-     * 
+     *
      * @param uuid uuid of the player.
      */
-    public static MutableText t(UUID uuid, String key, Object... args) {
-        return t(LanguageManager.languageOrDefault(uuid), key, args);
+    @JvmStatic
+    fun t(uuid: UUID?, key: String?, vararg args: Any?): MutableText {
+        return t(LanguageManager.languageOrDefault(uuid), key, *args)
     }
 
     /**
      * Convenient method to construct a plain String with the language.
      */
-    public static String s(Language language, String key, Object... args) {
-        return TextHelper.translatable(language.get(key), args).toString();
+    fun s(language: Language, key: String?, vararg args: Any?): String {
+        return translatable(language[key], *args).toString()
     }
 
     /**
      * Convenient method to construct a plain String in the default language.
      */
-    public static String s(String key, Object... args) {
-        return s(LanguageManager.defaultLanguage(), key, args);
+    fun s(key: String?, vararg args: Any?): String {
+        return s(LanguageManager.defaultLanguage(), key, *args)
     }
 
     /**
      * Convenient method to construct a plain String for the player.
-     * 
+     *
      * @param uuid uuid of the player.
      */
-    public static String s(UUID uuid, String key, Object... args) {
-        return s(LanguageManager.languageOrDefault(uuid), key, args);
+    fun s(uuid: UUID?, key: String?, vararg args: Any?): String {
+        return s(LanguageManager.languageOrDefault(uuid), key, *args)
     }
 
-    public static void overlay(ServerPlayerEntity player, Text message) {
-        player.sendMessage(message, true);
+    fun overlay(player: ServerPlayerEntity, message: Text?) {
+        player.sendMessage(message, true)
     }
 
-    public static void overlay(ServerPlayerEntity player, String key, Object... args) {
-        overlay(player, t(player.getUuid(), key, args));
+    @JvmStatic
+    fun overlay(player: ServerPlayerEntity, key: String?, vararg args: Any?) {
+        overlay(player, t(player.uuid, key, *args))
     }
 
-    public static void overlayError(ServerPlayerEntity player, Text message) {
-        overlay(player, TextHelper.formatted(message, Formatting.RED));
+    fun overlayError(player: ServerPlayerEntity, message: Text?) {
+        overlay(player, formatted(message, Formatting.RED))
     }
 
-    public static void overlayError(ServerPlayerEntity player, String key, Object... args) {
-        overlayError(player, t(player.getUuid(), key, args));
+    @JvmStatic
+    fun overlayError(player: ServerPlayerEntity, key: String?, vararg args: Any?) {
+        overlayError(player, t(player.uuid, key, *args))
     }
 
-    public static void send(ServerPlayerEntity player, Text message) {
-        player.sendMessage(message);
+    fun send(player: ServerPlayerEntity, message: Text?) {
+        player.sendMessage(message)
     }
 
-    public static void send(ServerPlayerEntity player, String key, Object... args) {
-        send(player, t(player.getUuid(), key, args));
+    fun send(player: ServerPlayerEntity, key: String?, vararg args: Any?) {
+        send(player, t(player.uuid, key, *args))
     }
 
-    public static void sendError(ServerPlayerEntity player, Text message) {
-        send(player, TextHelper.formatted(message, Formatting.RED));
+    fun sendError(player: ServerPlayerEntity, message: Text?) {
+        send(player, formatted(message, Formatting.RED))
     }
 
-    public static void sendError(ServerPlayerEntity player, String key, Object... args) {
-        sendError(player, t(player.getUuid(), key, args));
+    fun sendError(player: ServerPlayerEntity, key: String?, vararg args: Any?) {
+        sendError(player, t(player.uuid, key, *args))
     }
 
-    public static void sendFeedback(ServerCommandSource s, boolean broadcastToOps, Text message) {
-        s.sendFeedback(() -> message, broadcastToOps);
+    @JvmStatic
+    fun sendFeedback(s: ServerCommandSource, broadcastToOps: Boolean, message: Text?) {
+        s.sendFeedback(message, broadcastToOps)
     }
 
-    public static void sendFeedback(ServerCommandSource s, boolean broadcastToOps, String key, Object... args) {
-        s.sendFeedback(() -> I18n.t(CommandHelper.uuidOrNull(s), key, args), broadcastToOps);
+    @JvmStatic
+    fun sendFeedback(s: ServerCommandSource, broadcastToOps: Boolean, key: String?, vararg args: Any?) {
+        s.sendFeedback(t(CommandHelper.uuidOrNull(s), key, *args), broadcastToOps)
     }
 
-    public static void sendError(ServerCommandSource s, Text message) {
-        s.sendError(message);
+    @JvmStatic
+    fun sendError(s: ServerCommandSource, message: Text?) {
+        s.sendError(message)
     }
 
-    public static void sendError(ServerCommandSource s, String key, Object... args) {
-        s.sendError(I18n.t(CommandHelper.uuidOrNull(s), key, args));
+    @JvmStatic
+    fun sendError(s: ServerCommandSource, key: String?, vararg args: Any?) {
+        s.sendError(t(CommandHelper.uuidOrNull(s), key, *args))
     }
 }

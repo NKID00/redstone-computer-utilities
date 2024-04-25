@@ -1,95 +1,98 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import name.nkid00.rcutil.Options
+import name.nkid00.rcutil.helper.TextHelper.literal
+import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.text.Text
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.util.function.Consumer
 
-import name.nkid00.rcutil.Options;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+object Log {
+    val LOGGER: Logger = LoggerFactory.getLogger("rcutil")
+    private const val BRAND = "[rcutil] "
+    private val BRAND_TEXT: Text = literal(BRAND)
 
-public class Log {
-    public static final Logger LOGGER = LoggerFactory.getLogger("rcutil");
-    private static final String BRAND = "[rcutil] ";
-    private static final Text BRAND_TEXT = TextHelper.literal(BRAND);
-
-    public static void info(String arg0) {
-        LOGGER.info(BRAND + arg0);
+    @JvmStatic
+    fun info(arg0: String) {
+        LOGGER.info(BRAND + arg0)
     }
 
-    public static void info(String arg0, Object... arg1) {
-        LOGGER.info(BRAND + arg0, arg1);
+    @JvmStatic
+    fun info(arg0: String, vararg arg1: Any?) {
+        LOGGER.info(BRAND + arg0, *arg1)
     }
 
-    public static void warn(String arg0) {
-        LOGGER.warn(BRAND + arg0);
+    fun warn(arg0: String) {
+        LOGGER.warn(BRAND + arg0)
     }
 
-    public static void warn(String arg0, Throwable arg1) {
-        LOGGER.warn(BRAND + arg0, arg1);
+    fun warn(arg0: String, arg1: Throwable?) {
+        LOGGER.warn(BRAND + arg0, arg1)
     }
 
-    public static void warn(String arg0, Object... arg1) {
-        LOGGER.warn(BRAND + arg0, arg1);
+    @JvmStatic
+    fun warn(arg0: String, vararg arg1: Any?) {
+        LOGGER.warn(BRAND + arg0, *arg1)
     }
 
-    public static void error(String arg0) {
-        LOGGER.error(BRAND + arg0);
+    @JvmStatic
+    fun error(arg0: String) {
+        LOGGER.error(BRAND + arg0)
     }
 
-    public static void error(String arg0, Throwable arg1) {
-        LOGGER.error(BRAND + arg0, arg1);
+    @JvmStatic
+    fun error(arg0: String, arg1: Throwable?) {
+        LOGGER.error(BRAND + arg0, arg1)
     }
 
-    public static void error(String arg0, Object... arg1) {
-        LOGGER.error(BRAND + arg0, arg1);
+    @JvmStatic
+    fun error(arg0: String, vararg arg1: Any?) {
+        LOGGER.error(BRAND + arg0, *arg1)
     }
 
-    public static void broadcastToPlayers(MinecraftServer server, String message) {
-        var makeCompilerHappy = BRAND_TEXT.copy().append(message);
-        server.getPlayerManager().getPlayerList().forEach(player -> {
-            player.sendMessage(makeCompilerHappy);
-        });
+    fun broadcastToPlayers(server: MinecraftServer, message: String?) {
+        val makeCompilerHappy = BRAND_TEXT.copy().append(message)
+        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
+            player.sendMessage(makeCompilerHappy)
+        })
     }
 
-    public static void broadcastToPlayers(MinecraftServer server, Text message) {
-        var makeCompilerHappy = BRAND_TEXT.copy().append(message);
-        server.getPlayerManager().getPlayerList().forEach(player -> {
-            player.sendMessage(makeCompilerHappy);
-        });
+    fun broadcastToPlayers(server: MinecraftServer, message: Text?) {
+        val makeCompilerHappy = BRAND_TEXT.copy().append(message)
+        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
+            player.sendMessage(makeCompilerHappy)
+        })
     }
 
-    public static void broadcastToOps(MinecraftServer server, String message) {
-        broadcastToOps(server, message, Options.requiredPermissionLevel());
-    }
-
-    public static void broadcastToOps(MinecraftServer server, Text message) {
-        broadcastToOps(server, message, Options.requiredPermissionLevel());
-    }
-
-    public static void broadcastToOps(MinecraftServer server, String message, int permissionLevel) {
-        var makeCompilerHappy = BRAND_TEXT.copy().append(message);
-        server.getPlayerManager().getPlayerList().forEach(player -> {
+    @JvmStatic
+    @JvmOverloads
+    fun broadcastToOps(server: MinecraftServer, message: String?, permissionLevel: Int = Options.requiredPermissionLevel()) {
+        val makeCompilerHappy = BRAND_TEXT.copy().append(message)
+        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
             if (player.hasPermissionLevel(permissionLevel)) {
-                player.sendMessage(makeCompilerHappy);
+                player.sendMessage(makeCompilerHappy)
             }
-        });
+        })
     }
 
-    public static void broadcastToOps(MinecraftServer server, Text message, int permissionLevel) {
-        var makeCompilerHappy = BRAND_TEXT.copy().append(message);
-        server.getPlayerManager().getPlayerList().forEach(player -> {
+    @JvmStatic
+    @JvmOverloads
+    fun broadcastToOps(server: MinecraftServer, message: Text?, permissionLevel: Int = Options.requiredPermissionLevel()) {
+        val makeCompilerHappy = BRAND_TEXT.copy().append(message)
+        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
             if (player.hasPermissionLevel(permissionLevel)) {
-                player.sendMessage(makeCompilerHappy);
+                player.sendMessage(makeCompilerHappy)
             }
-        });
+        })
     }
 
-    public static void send(ServerPlayerEntity player, Text message) {
-        player.sendMessage(message, false);
+    fun send(player: ServerPlayerEntity, message: Text?) {
+        player.sendMessage(message, false)
     }
 
-    public static void send(ServerPlayerEntity player, String message) {
-        send(player, TextHelper.literal(message));
+    fun send(player: ServerPlayerEntity, message: String?) {
+        send(player, literal(message))
     }
 }

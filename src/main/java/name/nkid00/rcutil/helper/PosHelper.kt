@@ -1,160 +1,168 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import org.joml.Vector3f;
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import name.nkid00.rcutil.util.Blocks
+import name.nkid00.rcutil.util.TargetBlockPos
+import name.nkid00.rcutil.util.Vec3f
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.Vec3i
+import org.joml.Vector3f
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-
-import name.nkid00.rcutil.util.Blocks;
-import name.nkid00.rcutil.util.TargetBlockPos;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
-
-import name.nkid00.rcutil.util.Vec3f;
-
-public class PosHelper {
-    public static Vec3i toVec3i(BlockPos v) {
+object PosHelper {
+    @JvmStatic
+    fun toVec3i(v: BlockPos?): Vec3i? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new Vec3i(v.getX(), v.getY(), v.getZ());
+        return Vec3i(v.x, v.y, v.z)
     }
 
-    public static BlockPos toBlockPos(Vec3i v) {
+    @JvmStatic
+    fun toBlockPos(v: Vec3i?): BlockPos? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new BlockPos(v);
+        return BlockPos(v)
     }
 
-    public static Vec3i toVec3i(Vec3f v) {
+    fun toVec3i(v: Vec3f?): Vec3i? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new Vec3i((int) v.getX(), (int) v.getY(), (int) v.getZ());
+        return Vec3i(v.getX().toInt(), v.getY().toInt(), v.getZ().toInt())
     }
 
-    public static Vec3f toVec3f(Vec3i v) {
+    fun toVec3f(v: Vec3i?): Vec3f? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new Vec3f(v.getX(), v.getY(), v.getZ());
+        return Vec3f(v.x.toFloat(), v.y.toFloat(), v.z.toFloat())
     }
 
-    public static Vec3f toVec3f(Vec3f v) {
-        return v;
+    fun toVec3f(v: Vec3f): Vec3f {
+        return v
     }
 
-    public static Vec3f toVec3f(Vector3f v) {
-        return new Vec3f(v);
+    fun toVec3f(v: Vector3f?): Vec3f {
+        return Vec3f(v)
     }
 
-    public static Vec3i fromJson(JsonElement v) {
-        return fromJson(v.getAsJsonArray());
+    fun fromJson(v: JsonElement): Vec3i {
+        return fromJson(v.asJsonArray)
     }
 
-    public static Vec3i fromJson(JsonArray v) {
-        return new Vec3i(v.get(0).getAsInt(), v.get(1).getAsInt(), v.get(2).getAsInt());
+    @JvmStatic
+    fun fromJson(v: JsonArray): Vec3i {
+        return Vec3i(v[0].asInt, v[1].asInt, v[2].asInt)
     }
 
-    public static Vec3f center(BlockPos v) {
-        return new Vec3f(v.getX() + 0.5f, v.getY() + 0.5f, v.getZ() + 0.5f);
+    fun center(v: BlockPos): Vec3f {
+        return Vec3f(v.x + 0.5f, v.y + 0.5f, v.z + 0.5f)
     }
 
-    public static BlockPos copy(BlockPos v) {
+    @JvmStatic
+    fun copy(v: BlockPos?): BlockPos? {
         if (v == null) {
-            return null;
+            return null
         }
-        return v.mutableCopy();
+        return v.mutableCopy()
     }
 
-    public static TargetBlockPos copy(TargetBlockPos v) {
+    fun copy(v: TargetBlockPos?): TargetBlockPos? {
         if (v == null) {
-            return null;
+            return null
         }
-        return v.copy();
+        return v.copy()
     }
 
-    public static Vec3i copy(Vec3i v) {
+    @JvmStatic
+    fun copy(v: Vec3i?): Vec3i? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new Vec3i(v.getX(), v.getY(), v.getZ());
+        return Vec3i(v.x, v.y, v.z)
     }
 
-    public static Vec3f copy(Vec3f v) {
+    fun copy(v: Vec3f?): Vec3f? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new Vec3f(v.getX(), v.getY(), v.getZ());
+        return Vec3f(v.getX(), v.getY(), v.getZ())
     }
 
-    public static Blocks copy(Blocks v) {
+    @JvmStatic
+    fun copy(v: Blocks?): Blocks? {
         if (v == null) {
-            return null;
+            return null
         }
-        return new Blocks(v.first(), v.increment(), v.size());
+        return Blocks(v.first(), v.increment(), v.size())
     }
 
-    public static Vec3i scale(Vec3i v, int factor) {
+    @JvmStatic
+    fun scale(v: Vec3i, factor: Int): Vec3i? {
         if (factor == 1) {
-            return copy(v);
+            return copy(v)
         }
-        return v.multiply(factor);
+        return v.multiply(factor)
     }
 
-    public static Vec3i divide(Vec3i v, int divisor) {
+    @JvmStatic
+    fun divide(v: Vec3i, divisor: Int): Vec3i? {
         if (divisor == 1) {
-            return copy(v);
+            return copy(v)
         }
-        return new Vec3i(v.getX() / divisor, v.getY() / divisor, v.getZ() / divisor);
+        return Vec3i(v.x / divisor, v.y / divisor, v.z / divisor)
     }
 
-    public static Vec3f scale(Vec3f v, float factor) {
+    fun scale(v: Vec3f?, factor: Float): Vec3f? {
         if (DataHelper.isFloatEqual(factor, 1.0f)) {
-            return copy(v);
+            return copy(v)
         }
-        return new Vec3f(v.getX() * factor, v.getY() * factor, v.getZ() * factor);
+        return Vec3f(v!!.getX() * factor, v.getY() * factor, v.getZ() * factor)
     }
 
-    public static Vec3f divide(Vec3f v, float divisor) {
+    fun divide(v: Vec3f, divisor: Float): Vec3f? {
         if (DataHelper.isFloatEqual(divisor, 1.0f)) {
-            return copy(v);
+            return copy(v)
         }
-        return new Vec3f(v.getX() / divisor, v.getY() / divisor, v.getZ() / divisor);
+        return Vec3f(v.getX() / divisor, v.getY() / divisor, v.getZ() / divisor)
     }
 
-    public static Vec3i getOffset(BlockPos begin, BlockPos end) {
-        return new Vec3i(end.getX() - begin.getX(), end.getY() - begin.getY(), end.getZ() - begin.getZ());
+    @JvmStatic
+    fun getOffset(begin: BlockPos, end: BlockPos): Vec3i {
+        return Vec3i(end.x - begin.x, end.y - begin.y, end.z - begin.z)
     }
 
-    public static BlockPos applyOffset(BlockPos v, Vec3i offset) {
-        return new BlockPos(v.getX() + offset.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ());
+    @JvmStatic
+    fun applyOffset(v: BlockPos, offset: Vec3i): BlockPos {
+        return BlockPos(v.x + offset.x, v.y + offset.y, v.z + offset.z)
     }
 
-    public static TargetBlockPos applyOffset(TargetBlockPos v, Vec3i offset) {
-        return new TargetBlockPos(v.world(), v.getX() + offset.getX(), v.getY() + offset.getY(),
-                v.getZ() + offset.getZ());
+    fun applyOffset(v: TargetBlockPos, offset: Vec3i): TargetBlockPos {
+        return TargetBlockPos(v.world(), v.x + offset.x, v.y + offset.y,
+                v.z + offset.z)
     }
 
-    public static Vec3f applyOffset(Vec3f v, Vec3i offset) {
-        return new Vec3f(v.getX() + offset.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ());
+    fun applyOffset(v: Vec3f, offset: Vec3i): Vec3f {
+        return Vec3f(v.getX() + offset.x, v.getY() + offset.y, v.getZ() + offset.z)
     }
 
-    public static Vec3f applyOffset(Vec3f v, Vec3f offset) {
-        return new Vec3f(v.getX() + offset.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ());
+    fun applyOffset(v: Vec3f?, offset: Vec3f?): Vec3f {
+        return Vec3f(v!!.getX() + offset!!.getX(), v.getY() + offset.getY(), v.getZ() + offset.getZ())
     }
 
-    public static Vec3f getPerpendicularVector(Direction v) {
-        return new Vec3f(1 - v.getOffsetX(), 1 - v.getOffsetY(), 1 - v.getOffsetZ());
+    fun getPerpendicularVector(v: Direction): Vec3f {
+        return Vec3f((1 - v.offsetX).toFloat(), (1 - v.offsetY).toFloat(), (1 - v.offsetZ).toFloat())
     }
 
-    public static String toString(BlockPos v) {
-        return "%s, %s, %s".formatted(v.getX(), v.getY(), v.getZ());
+    fun toString(v: BlockPos): String {
+        return "%s, %s, %s".formatted(v.x, v.y, v.z)
     }
 
-    public static String toString(TargetBlockPos v) {
-        return v.toString();
+    @JvmStatic
+    fun toString(v: TargetBlockPos): String {
+        return v.toString()
     }
 }

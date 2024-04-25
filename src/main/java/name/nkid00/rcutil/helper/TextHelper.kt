@@ -1,39 +1,44 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 
-public class TextHelper {
-    public static MutableText copy(Text text) {
-        return text.copy();
+object TextHelper {
+    fun copy(text: Text): MutableText {
+        return text.copy()
     }
 
-    public static MutableText empty() {
-        return Text.empty();
+    fun empty(): MutableText {
+        return Text.empty()
     }
 
-    public static MutableText literal(String string) {
-        return Text.literal(string);
+    @JvmStatic
+    fun literal(string: String?): MutableText {
+        return Text.literal(string)
     }
 
-    public static MutableText translatable(String key, Object... args) {
-        return Text.translatable(key, args);
+    @JvmStatic
+    fun translatable(key: String?, vararg args: Any?): MutableText {
+        return Text.translatable(key, *args)
     }
 
-    public static MutableText formatted(Text text, Formatting formatting) {
-        return empty().append(text).formatted(formatting);
+    @JvmStatic
+    fun formatted(text: Text?, formatting: Formatting?): MutableText {
+        return empty().append(text).formatted(formatting)
     }
 
-    public static MutableText info(Text text) {
-        return text.copy();
+    fun info(text: Text): MutableText {
+        return text.copy()
     }
 
-    public static MutableText warn(Text text) {
-        return formatted(text, Formatting.YELLOW);
+    @JvmStatic
+    fun warn(text: Text?): MutableText {
+        return formatted(text, Formatting.YELLOW)
     }
 
-    public static MutableText error(Text text) {
-        return formatted(text, Formatting.RED);
+    @JvmStatic
+    fun error(text: Text?): MutableText {
+        return formatted(text, Formatting.RED)
     }
 }

@@ -1,35 +1,35 @@
-package name.nkid00.rcutil.helper;
+package name.nkid00.rcutil.helper
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Consumer
 
-public class MapHelper {
-    private static final long PARALLELISM_THRESHOLD = 4;
+object MapHelper {
+    private const val PARALLELISM_THRESHOLD: Long = 4
 
-    public static <K, V> void forEachKeySynchronized(ConcurrentHashMap<K, V> map, Consumer<? super K> action) {
-        map.forEachKey(Long.MAX_VALUE, action);
+    @JvmStatic
+    fun <K, V> forEachKeySynchronized(map: ConcurrentHashMap<K, V>, action: Consumer<in K>?) {
+        map.forEachKey(Long.MAX_VALUE, action)
     }
 
-    public static <K, V> void forEachKeyParallelized(ConcurrentHashMap<K, V> map, Consumer<? super K> action) {
-        map.forEachKey(PARALLELISM_THRESHOLD, action);
+    fun <K, V> forEachKeyParallelized(map: ConcurrentHashMap<K, V>, action: Consumer<in K>?) {
+        map.forEachKey(PARALLELISM_THRESHOLD, action)
     }
 
-    public static <K, V> void forEachValueSynchronized(ConcurrentHashMap<K, V> map, Consumer<? super V> action) {
-        map.forEachValue(Long.MAX_VALUE, action);
+    fun <K, V> forEachValueSynchronized(map: ConcurrentHashMap<K, V>, action: Consumer<in V>?) {
+        map.forEachValue(Long.MAX_VALUE, action)
     }
 
-    public static <K, V> void forEachValueParallelized(ConcurrentHashMap<K, V> map, Consumer<? super K> action) {
-        map.forEachKey(PARALLELISM_THRESHOLD, action);
+    fun <K, V> forEachValueParallelized(map: ConcurrentHashMap<K, V>, action: Consumer<in K>?) {
+        map.forEachKey(PARALLELISM_THRESHOLD, action)
     }
 
-    public static <K, V> void forEachEntrySynchronized(ConcurrentHashMap<K, V> map,
-            Consumer<? super Map.Entry<K, V>> action) {
-        map.forEachEntry(Long.MAX_VALUE, action);
+    fun <K, V> forEachEntrySynchronized(map: ConcurrentHashMap<K, V>,
+                                        action: Consumer<in MutableMap.MutableEntry<K, V>?>?) {
+        map.forEachEntry(Long.MAX_VALUE, action)
     }
 
-    public static <K, V> void forEachEntryParallelized(ConcurrentHashMap<K, V> map,
-            Consumer<? super Map.Entry<K, V>> action) {
-        map.forEachEntry(PARALLELISM_THRESHOLD, action);
+    fun <K, V> forEachEntryParallelized(map: ConcurrentHashMap<K, V>,
+                                        action: Consumer<in MutableMap.MutableEntry<K, V>?>?) {
+        map.forEachEntry(PARALLELISM_THRESHOLD, action)
     }
 }
