@@ -1,32 +1,32 @@
 {
-    "schemaVersion": 1,
-    "id": "rcu",
-    "version": "${version}",
-    "name": "Redstone Computer Utilities",
-    "description": "Simple debug tools for redstone computers.",
-    "authors": [
-        "NKID00"
-    ],
-    "contact": {
-        "homepage": "https://github.com/NKID00/redstone-computer-utilities",
-        "sources": "https://github.com/NKID00/redstone-computer-utilities",
-        "issues": "https://github.com/NKID00/redstone-computer-utilities/issues"
-    },
-    "license": "MIT",
-    "icon": "assets/rcu/icon.png",
-    "environment": "*",
-    "entrypoints": {
-        "main": [
-          "me.nk0.rcu.Main"
-        ]
-    },
-    "mixins": [
-      "rcu.mixins.json"
-    ],
-    "accessWidener": "rcu.accesswidener",
-    "depends": {
-        "fabricloader": ">=0.12",
-        "fabric-api": "*",
-        "minecraft": "${detailed_mc_version}"
-    }
+  "schemaVersion": 1,
+  "id": "rcu",
+  "version": "${version}",
+  "name": "Redstone Computer Utilities",
+  "description": "Simple debug tools for redstone computers.",
+  "authors": [
+    "NKID00"
+  ],
+  "contact": {
+    "homepage": "https://github.com/NKID00/redstone-computer-utilities",
+    "sources": "https://github.com/NKID00/redstone-computer-utilities",
+    "issues": "https://github.com/NKID00/redstone-computer-utilities/issues"
+  },
+  "license": "MPL-2.0",
+  "icon": "assets/rcu/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.nk0.rcu.Main"
+    ]
+  },
+  "mixins": [
+    "rcu.mixins.json"
+  ],
+  "accessWidener": "rcu.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.12",
+    "fabric-api": "*",
+    "minecraft": "${detailed_mc_version}"
+  }
 }

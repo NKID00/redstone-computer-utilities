@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `java-library`
     id("fabric-loom") version "1.11-SNAPSHOT"
@@ -13,10 +16,10 @@ fun buildMetadata(): String {
 }
 
 version = "${project.property("mod_version")}-mc${project.property("compatible_mc_version")}+${buildMetadata()}"
-group = project.property("maven_group")!!
+group = "nk0.me"
 
 base {
-    archivesName = project.property("archives_name") as? String
+    archivesName = "redstone-comp-util"
 }
 
 loom {
@@ -35,10 +38,10 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("fabric_kotlin_version")}")
 
     val apiModules = setOf(
-            "fabric-command-api-v2",
-            "fabric-events-interaction-v0",
-            "fabric-lifecycle-events-v1",
-            "fabric-particles-v1"
+        "fabric-command-api-v2",
+        "fabric-events-interaction-v0",
+        "fabric-lifecycle-events-v1",
+        "fabric-particles-v1"
     )
     apiModules.forEach {
         modImplementation(fabricApi.module(it, project.property("fabric_version") as? String))
@@ -53,22 +56,25 @@ tasks.processResources {
     inputs.property("version", project.property("version"))
 
     filesMatching("fabric.mod.json") {
-        expand(mapOf(
+        expand(
+            mapOf(
                 "version" to project.property("version"),
                 "detailed_mc_version" to project.property("detailed_mc_version")
-        ))
+            )
+        )
     }
 
     exclude("**/*.po")
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 21
+    options.release = 17
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_17
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
 }
 
 tasks.jar {
@@ -77,7 +83,7 @@ tasks.jar {
 
 tasks.shadowJar {
     from("LICENSE") {
-        rename { "${it}-${base.archivesName}" }
+        rename { "${it}-rcu" }
     }
 
     dependencies {

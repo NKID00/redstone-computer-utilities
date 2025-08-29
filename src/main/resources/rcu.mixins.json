@@ -1,14 +1,14 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "me.nk0.rcu.mixin",
-    "compatibilityLevel": "JAVA_17",
-    "mixins": [
-      "me.nk0.rcu.mixin.MinecraftServerMixin",
-      "me.nk0.rcu.mixin.AbstractBlockMixin"
-    ],
-    "client": [],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.nk0.rcu.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AbstractBlockMixin",
+    "MinecraftServerMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
