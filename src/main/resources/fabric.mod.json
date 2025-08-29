@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "rcutil",
+    "id": "rcu",
     "version": "${version}",
     "name": "Redstone Computer Utilities",
     "description": "Simple debug tools for redstone computers.",
@@ -13,17 +13,17 @@
         "issues": "https://github.com/NKID00/redstone-computer-utilities/issues"
     },
     "license": "MIT",
-    "icon": "assets/rcutil/icon.png",
+    "icon": "assets/rcu/icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "name.nkid00.rcutil.RCUtil"
+          "me.nk0.rcu.Main"
         ]
     },
     "mixins": [
-        "rcutil.mixins.json"
+      "rcu.mixins.json"
     ],
-    "accessWidener": "rcutil.accesswidener",
+    "accessWidener": "rcu.accesswidener",
     "depends": {
         "fabricloader": ">=0.12",
         "fabric-api": "*",

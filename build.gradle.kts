@@ -1,9 +1,9 @@
 plugins {
     `java-library`
-    id("fabric-loom") version "1.6-SNAPSHOT"
+    id("fabric-loom") version "1.11-SNAPSHOT"
     id("maven-publish")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.jetbrains.kotlin.jvm") version "1.9.23"
+    id("com.gradleup.shadow") version "9.0.2"
+    kotlin("jvm") version "2.2.10"
 }
 
 fun buildMetadata(): String {
@@ -20,7 +20,7 @@ base {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/rcutil.accesswidener")
+    accessWidenerPath = file("src/main/resources/rcu.accesswidener")
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -63,11 +63,11 @@ tasks.processResources {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 17
+    options.release = 21
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_17
 }
 
@@ -94,16 +94,16 @@ tasks.remapJar {
 }
 
 // extract I18n keys
-task("extract") {
-    doLast {
-        exec {
-            workingDir(layout.buildDirectory)
-            executable("bash")
-            args(
-                    "-c",
-                    "find ${projectDir}/src/main/java/ -iname \"*.java\"" +
-                            " | xargs xgettext -kI18n.t:1 -kI18n.t:2 -kI18n.overlay:2" +
-                            " -kI18n.overlayError:2 -kI18n.send:2 -kI18n.sendError:2")
-        }
-    }
-}
+// task("extract") {
+//     doLast {
+//         exec {
+//             workingDir(layout.buildDirectory)
+//             executable("bash")
+//             args(
+//                     "-c",
+//                     "find ${projectDir}/src/main/java/ -iname \"*.java\"" +
+//                             " | xargs xgettext -kI18n.t:1 -kI18n.t:2 -kI18n.overlay:2" +
+//                             " -kI18n.overlayError:2 -kI18n.send:2 -kI18n.sendError:2")
+//         }
+//     }
+// }
