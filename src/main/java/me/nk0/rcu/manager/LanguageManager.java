@@ -1,12 +1,5 @@
 package me.nk0.rcu.manager;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
@@ -16,7 +9,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
 import me.nk0.rcu.exception.LanguageNotFoundException;
 import me.nk0.rcu.helper.Log;
 import net.minecraft.text.OrderedText;
@@ -25,11 +17,18 @@ import net.minecraft.util.Language;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class LanguageManager {
     private static Language DEFAULT_LANGUAGE = null;
     public static final List<String> LANGUAGES = Arrays.asList(Language.DEFAULT_LANGUAGE, "zh_cn");
 
-    private static ConcurrentHashMap<String, Language> languages = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Language> languages = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<UUID, String> playerLanguages = new ConcurrentHashMap<>();
 
     public static Language defaultLanguage() {
@@ -60,17 +59,17 @@ public class LanguageManager {
                 public String get(String key, String fallback) {
                     return map.getOrDefault(key, fallback);
                 }
-    
+
                 @Override
                 public boolean hasTranslation(String key) {
                     return map.containsKey(key);
                 }
-    
+
                 @Override
                 public boolean isRightToLeft() {
                     return false;
                 }
-    
+
                 @Override
                 public OrderedText reorder(StringVisitable text) {
                     return null;
@@ -86,17 +85,17 @@ public class LanguageManager {
                         return defaultLanguage().get(key, fallback);
                     }
                 }
-    
+
                 @Override
                 public boolean hasTranslation(String key) {
                     return map.containsKey(key) || defaultLanguage().hasTranslation(key);
                 }
-    
+
                 @Override
                 public boolean isRightToLeft() {
                     return false;
                 }
-    
+
                 @Override
                 public OrderedText reorder(StringVisitable text) {
                     return null;
@@ -136,7 +135,7 @@ public class LanguageManager {
     }
 
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
-            final SuggestionsBuilder builder) throws CommandSyntaxException {
+                                                                    final SuggestionsBuilder builder) throws CommandSyntaxException {
         for (String langCode : LANGUAGES) {
             builder.suggest(langCode);
         }

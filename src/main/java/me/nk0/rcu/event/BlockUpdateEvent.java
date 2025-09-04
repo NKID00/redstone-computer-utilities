@@ -1,10 +1,11 @@
 package me.nk0.rcu.event;
 
 import com.google.gson.JsonObject;
-
 import me.nk0.rcu.exception.ApiException;
 import me.nk0.rcu.helper.GsonHelper;
 import me.nk0.rcu.util.BlockPosWithWorld;
+
+import java.util.Objects;
 
 public class BlockUpdateEvent extends Event {
     private final BlockPosWithWorld pos;
@@ -51,15 +52,11 @@ public class BlockUpdateEvent extends Event {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof BlockUpdateEvent) {
-            var other = (BlockUpdateEvent) obj;
-            if (pos == null ? other.pos != null : !pos.equals(other.pos)) {
+        if (obj instanceof BlockUpdateEvent other) {
+            if (!Objects.equals(pos, other.pos)) {
                 return false;
             }
-            if (type == null ? other.type != null : !type.equals(other.type)) {
-                return false;
-            }
-            return true;
+            return Objects.equals(type, other.type);
         }
         return false;
     }

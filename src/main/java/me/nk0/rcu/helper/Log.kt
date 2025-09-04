@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory
 import java.util.function.Consumer
 
 object Log {
-    val LOGGER: Logger = LoggerFactory.getLogger("rcutil")
-    private const val BRAND = "[rcutil] "
+    val LOGGER: Logger = LoggerFactory.getLogger("rcu")
+    private const val BRAND = "[rcu] "
     private val BRAND_TEXT: Text = literal(BRAND)
 
     @JvmStatic
@@ -54,38 +54,54 @@ object Log {
 
     fun broadcastToPlayers(server: MinecraftServer, message: String?) {
         val makeCompilerHappy = BRAND_TEXT.copy().append(message)
-        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
-            player.sendMessage(makeCompilerHappy)
-        })
+        server.playerManager.playerList.forEach(
+            Consumer { player: ServerPlayerEntity ->
+                player.sendMessage(makeCompilerHappy)
+            },
+        )
     }
 
     fun broadcastToPlayers(server: MinecraftServer, message: Text?) {
         val makeCompilerHappy = BRAND_TEXT.copy().append(message)
-        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
-            player.sendMessage(makeCompilerHappy)
-        })
+        server.playerManager.playerList.forEach(
+            Consumer { player: ServerPlayerEntity ->
+                player.sendMessage(makeCompilerHappy)
+            },
+        )
     }
 
     @JvmStatic
     @JvmOverloads
-    fun broadcastToOps(server: MinecraftServer, message: String?, permissionLevel: Int = Options.requiredPermissionLevel()) {
+    fun broadcastToOps(
+        server: MinecraftServer,
+        message: String?,
+        permissionLevel: Int = Options.requiredPermissionLevel(),
+    ) {
         val makeCompilerHappy = BRAND_TEXT.copy().append(message)
-        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
-            if (player.hasPermissionLevel(permissionLevel)) {
-                player.sendMessage(makeCompilerHappy)
-            }
-        })
+        server.playerManager.playerList.forEach(
+            Consumer { player: ServerPlayerEntity ->
+                if (player.hasPermissionLevel(permissionLevel)) {
+                    player.sendMessage(makeCompilerHappy)
+                }
+            },
+        )
     }
 
     @JvmStatic
     @JvmOverloads
-    fun broadcastToOps(server: MinecraftServer, message: Text?, permissionLevel: Int = Options.requiredPermissionLevel()) {
+    fun broadcastToOps(
+        server: MinecraftServer,
+        message: Text?,
+        permissionLevel: Int = Options.requiredPermissionLevel(),
+    ) {
         val makeCompilerHappy = BRAND_TEXT.copy().append(message)
-        server.playerManager.playerList.forEach(Consumer { player: ServerPlayerEntity ->
-            if (player.hasPermissionLevel(permissionLevel)) {
-                player.sendMessage(makeCompilerHappy)
-            }
-        })
+        server.playerManager.playerList.forEach(
+            Consumer { player: ServerPlayerEntity ->
+                if (player.hasPermissionLevel(permissionLevel)) {
+                    player.sendMessage(makeCompilerHappy)
+                }
+            },
+        )
     }
 
     fun send(player: ServerPlayerEntity, message: Text?) {

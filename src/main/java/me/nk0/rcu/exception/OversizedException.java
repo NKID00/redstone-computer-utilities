@@ -2,7 +2,7 @@ package me.nk0.rcu.exception;
 
 import net.minecraft.text.Text;
 
-public class OversizedException extends RCUtilException {
+public class OversizedException extends RcuException {
     public OversizedException() {
     }
 

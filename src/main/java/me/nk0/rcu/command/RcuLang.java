@@ -3,7 +3,6 @@ package me.nk0.rcu.command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import me.nk0.rcu.exception.LanguageNotFoundException;
 import me.nk0.rcu.helper.CommandHelper;
 import me.nk0.rcu.helper.I18n;

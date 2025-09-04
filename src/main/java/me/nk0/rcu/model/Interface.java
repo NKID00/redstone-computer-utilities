@@ -1,19 +1,8 @@
 package me.nk0.rcu.model;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
 import me.nk0.rcu.event.InterfaceChangeEvent;
 import me.nk0.rcu.exception.BlockNotTargetException;
-import me.nk0.rcu.helper.PosHelper;
-import me.nk0.rcu.helper.DataHelper;
-import me.nk0.rcu.helper.I18n;
-import me.nk0.rcu.helper.ParticleHelper;
-import me.nk0.rcu.helper.TargetBlockHelper;
+import me.nk0.rcu.helper.*;
 import me.nk0.rcu.util.Blocks;
 import me.nk0.rcu.util.Enumerate;
 import me.nk0.rcu.util.TargetBlockPos;
@@ -23,6 +12,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
+import java.util.*;
+
 public class Interface implements Iterable<TargetBlockPos> {
     private final String name;
     private final ServerWorld world;
@@ -31,7 +22,7 @@ public class Interface implements Iterable<TargetBlockPos> {
     private BitSet lastValue;
 
     public Interface(String name, ServerWorld world, BlockPos lsb, Vec3i increment, int size,
-            Collection<String> option) {
+                     Collection<String> option) {
         this.name = name;
         this.world = world;
         blocks = new Blocks(lsb, increment, size);
@@ -48,7 +39,7 @@ public class Interface implements Iterable<TargetBlockPos> {
     }
 
     public static Interface singleBit(UUID uuid, String name, ServerWorld world, BlockPos pos,
-            Collection<String> option)
+                                      Collection<String> option)
             throws BlockNotTargetException {
         var result = new Interface(name, world, Blocks.singleBlock(pos), option);
         if (!result.valid()) {
@@ -58,7 +49,7 @@ public class Interface implements Iterable<TargetBlockPos> {
     }
 
     public static Interface resolve(UUID uuid, String name, ServerWorld world, BlockPos lsb, BlockPos msb,
-            Collection<String> option)
+                                    Collection<String> option)
             throws BlockNotTargetException {
         if (lsb.equals(msb)) {
             return Interface.singleBit(uuid, name, world, lsb, option);
@@ -205,12 +196,8 @@ public class Interface implements Iterable<TargetBlockPos> {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof Interface) {
-            var other = (Interface) obj;
-            if (name == null ? other.name != null : !name.equals(other.name)) {
-                return false;
-            }
-            return true;
+        if (obj instanceof Interface other) {
+            return Objects.equals(name, other.name);
         }
         return false;
     }

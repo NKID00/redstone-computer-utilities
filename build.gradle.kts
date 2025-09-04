@@ -12,18 +12,25 @@ plugins {
 fun buildMetadata(): String {
     System.getenv("BUILD_METADATA")?.let { return it }
     System.getenv("GITHUB_RUN_NUMBER")?.let { return "build.${it}" }
-    return "unknown"
+    return "dev"
 }
 
 version = "${project.property("mod_version")}-mc${project.property("compatible_mc_version")}+${buildMetadata()}"
 group = "nk0.me"
 
 base {
-    archivesName = "redstone-comp-util"
+    archivesName = "redstone-computer-utilities"
 }
 
 loom {
     accessWidenerPath = file("src/main/resources/rcu.accesswidener")
+    splitEnvironmentSourceSets()
+    mods {
+        create("rcu") {
+            sourceSet("main")
+            sourceSet("client")
+        }
+    }
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -41,7 +48,8 @@ dependencies {
         "fabric-command-api-v2",
         "fabric-events-interaction-v0",
         "fabric-lifecycle-events-v1",
-        "fabric-particles-v1"
+        "fabric-particles-v1",
+        "fabric-rendering-v1",
     )
     apiModules.forEach {
         modImplementation(fabricApi.module(it, project.property("fabric_version") as? String))
@@ -50,6 +58,7 @@ dependencies {
     implementation("com.google.code.gson:gson:${project.property("gson_version")}")
     implementation("com.google.guava:guava:${project.property("guava_version")}")
     implementation("io.netty:netty-all:${project.property("netty_version")}")
+    implementation("org.joml:joml:${project.property("joml_version")}")
 }
 
 tasks.processResources {
@@ -82,14 +91,13 @@ tasks.jar {
 }
 
 tasks.shadowJar {
+    from(sourceSets.get("client").output)
     from("LICENSE") {
         rename { "${it}-rcu" }
     }
-
     dependencies {
         include(dependency("io.netty:netty-codec-http:.*"))
     }
-
     exclude("mappings/**")
     minimize()
 }

@@ -1,13 +1,12 @@
 package me.nk0.rcu.adapter;
 
-import java.io.IOException;
-
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import net.minecraft.util.math.Vec3i;
+
+import java.io.IOException;
 
 public class Vec3iAdapter extends TypeAdapter<Vec3i> {
     @Override

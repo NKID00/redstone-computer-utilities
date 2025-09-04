@@ -1,11 +1,11 @@
 package me.nk0.rcu.event;
 
-import java.util.BitSet;
-
 import com.google.gson.JsonObject;
-
 import me.nk0.rcu.exception.ApiException;
 import me.nk0.rcu.helper.BitSetHelper;
+
+import java.util.BitSet;
+import java.util.Objects;
 
 public class InterfaceChangeEvent extends Event {
     private final String name;
@@ -51,12 +51,8 @@ public class InterfaceChangeEvent extends Event {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof InterfaceChangeEvent) {
-            var other = (InterfaceChangeEvent) obj;
-            if (name == null ? other.name != null : !name.equals(other.name)) {
-                return false;
-            }
-            return true;
+        if (obj instanceof InterfaceChangeEvent other) {
+            return Objects.equals(name, other.name);
         }
         return false;
     }

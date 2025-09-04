@@ -1,19 +1,18 @@
 package me.nk0.rcu.manager;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.stream.JsonToken;
+import me.nk0.rcu.helper.GsonHelper;
+import me.nk0.rcu.helper.Log;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
-import com.google.gson.stream.JsonToken;
-
-import me.nk0.rcu.helper.GsonHelper;
-import me.nk0.rcu.helper.Log;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
 
 public class StorageManager {
     private static Gson gson;
@@ -28,7 +27,8 @@ public class StorageManager {
     public static void load() {
         try (var reader = gson.newJsonReader(new FileReader(file, StandardCharsets.UTF_8))) {
             reader.beginObject();
-            outer: while (reader.hasNext()) {
+            outer:
+            while (reader.hasNext()) {
                 while (reader.peek() != JsonToken.NAME) {
                     reader.skipValue();
                     if (!reader.hasNext()) {
@@ -49,7 +49,7 @@ public class StorageManager {
             reader.endObject();
         } catch (IOException e) {
         } catch (JsonParseException | ClassCastException | IllegalStateException
-                | UnsupportedOperationException | NullPointerException e) {
+                 | UnsupportedOperationException | NullPointerException e) {
             Log.error("Error occurred while loading", e);
         }
         save();

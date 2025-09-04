@@ -1,15 +1,14 @@
 package me.nk0.rcu.adapter;
 
-import java.io.IOException;
-
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import me.nk0.rcu.helper.WorldHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+
+import java.io.IOException;
 
 public class ServerWorldAdapter extends TypeAdapter<ServerWorld> {
     private final MinecraftServer server;

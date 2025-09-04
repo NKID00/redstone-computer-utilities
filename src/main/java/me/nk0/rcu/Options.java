@@ -1,15 +1,8 @@
 package me.nk0.rcu;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
-
 import me.nk0.rcu.helper.GsonHelper;
 import me.nk0.rcu.helper.Log;
 import net.fabricmc.loader.api.FabricLoader;
@@ -18,6 +11,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class Options {
     private static Gson gson;

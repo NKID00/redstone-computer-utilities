@@ -1,5 +1,7 @@
 package me.nk0.rcu.util;
 
+import java.util.Objects;
+
 public record TypedArgument(TypedArgumentType type, String value) {
     @Override
     public int hashCode() {
@@ -17,15 +19,11 @@ public record TypedArgument(TypedArgumentType type, String value) {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof TypedArgument) {
-            var other = (TypedArgument) obj;
-            if (type == null ? other.type != null : !type.equals(other.type)) {
+        if (obj instanceof TypedArgument other) {
+            if (!Objects.equals(type, other.type)) {
                 return false;
             }
-            if (value == null ? other.value != null : !value.equals(other.value)) {
-                return false;
-            }
-            return true;
+            return Objects.equals(value, other.value);
         }
         return false;
     }

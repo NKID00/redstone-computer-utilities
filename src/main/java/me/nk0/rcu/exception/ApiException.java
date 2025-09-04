@@ -1,7 +1,7 @@
 package me.nk0.rcu.exception;
 
-public class ApiException extends RCUtilException {
-    private int code;
+public class ApiException extends RcuException {
+    private final int code;
 
     public static final ApiException GENERAL_ERROR = new ApiException(-1);
     public static final ApiException ARGUMENT_INVALID = new ApiException(-2);

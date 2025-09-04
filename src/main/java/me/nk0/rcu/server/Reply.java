@@ -21,6 +21,6 @@ public record Reply(Type type, JsonObject msg) {
     }
 
     public enum Type {
-        ApiCall, EventFinish;
+        ApiCall, EventFinish
     }
 }

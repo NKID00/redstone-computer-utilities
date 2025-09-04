@@ -2,7 +2,6 @@ package me.nk0.rcu.command;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import net.minecraft.server.command.ServerCommandSource;
 
 public class RcuInfo {

@@ -2,7 +2,7 @@ package me.nk0.rcu.exception;
 
 import net.minecraft.text.Text;
 
-public class LanguageNotFoundException extends RCUtilException {
+public class LanguageNotFoundException extends RcuException {
     public LanguageNotFoundException() {
     }
 

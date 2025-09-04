@@ -1,9 +1,10 @@
 package me.nk0.rcu.event;
 
 import com.google.gson.JsonObject;
-
 import me.nk0.rcu.exception.ApiException;
 import me.nk0.rcu.manager.ScriptManager;
+
+import java.util.Objects;
 
 public class AlarmEvent extends Event implements Comparable<AlarmEvent> {
     private final long gametime;
@@ -54,15 +55,11 @@ public class AlarmEvent extends Event implements Comparable<AlarmEvent> {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof AlarmEvent) {
-            var other = (AlarmEvent) obj;
+        if (obj instanceof AlarmEvent other) {
             if (gametime != other.gametime) {
                 return false;
             }
-            if (at == null ? other.at != null : !at.equals(other.at)) {
-                return false;
-            }
-            return true;
+            return Objects.equals(at, other.at);
         }
         return false;
     }
@@ -75,7 +72,7 @@ public class AlarmEvent extends Event implements Comparable<AlarmEvent> {
         if (gametime - event.gametime != 0) {
             return (int) (gametime - event.gametime);
         } else if (at.ordinal() - event.at.ordinal() != 0) {
-            return (int) (at.ordinal() - event.at.ordinal());
+            return at.ordinal() - event.at.ordinal();
         } else {
             return 0;
         }

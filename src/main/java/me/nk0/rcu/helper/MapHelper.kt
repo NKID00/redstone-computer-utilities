@@ -23,13 +23,17 @@ object MapHelper {
         map.forEachKey(PARALLELISM_THRESHOLD, action)
     }
 
-    fun <K, V> forEachEntrySynchronized(map: ConcurrentHashMap<K, V>,
-                                        action: Consumer<in MutableMap.MutableEntry<K, V>?>?) {
+    fun <K, V> forEachEntrySynchronized(
+        map: ConcurrentHashMap<K, V>,
+        action: Consumer<in MutableMap.MutableEntry<K, V>?>?,
+    ) {
         map.forEachEntry(Long.MAX_VALUE, action)
     }
 
-    fun <K, V> forEachEntryParallelized(map: ConcurrentHashMap<K, V>,
-                                        action: Consumer<in MutableMap.MutableEntry<K, V>?>?) {
+    fun <K, V> forEachEntryParallelized(
+        map: ConcurrentHashMap<K, V>,
+        action: Consumer<in MutableMap.MutableEntry<K, V>?>?,
+    ) {
         map.forEachEntry(PARALLELISM_THRESHOLD, action)
     }
 }

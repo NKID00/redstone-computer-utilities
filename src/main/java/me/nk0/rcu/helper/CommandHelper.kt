@@ -10,7 +10,8 @@ import java.util.*
 
 object CommandHelper {
     private val NOT_PLAYER_ENTITY_EXCEPTION = SimpleCommandExceptionType(
-            I18n.t("rcutil.command.fail.not_player_entity"))
+        I18n.t("rcutil.command.fail.not_player_entity"),
+    )
 
     fun isLetterDigitUnderline(c: Char): Boolean {
         return Character.isLetterOrDigit(c) || c == '_'

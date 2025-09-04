@@ -1,18 +1,17 @@
 package me.nk0.rcu.manager;
 
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
 import me.nk0.rcu.helper.Log;
 import me.nk0.rcu.model.Selection;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SelectionManager {
     private static ConcurrentHashMap<UUID, Selection> selections = new ConcurrentHashMap<>();

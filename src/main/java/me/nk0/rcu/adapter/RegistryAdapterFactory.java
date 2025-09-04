@@ -1,17 +1,16 @@
 package me.nk0.rcu.adapter;
 
-import java.lang.reflect.ParameterizedType;
-
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
-
 import net.minecraft.registry.Registry;
 
+import java.lang.reflect.ParameterizedType;
+
 public class RegistryAdapterFactory<T> implements TypeAdapterFactory {
-    private Class<T> clazz;
-    private RegistryAdapter<T> registryAdapter;
+    private final Class<T> clazz;
+    private final RegistryAdapter<T> registryAdapter;
 
     @SuppressWarnings("unchecked")
     protected RegistryAdapterFactory(Registry<T> registry) {

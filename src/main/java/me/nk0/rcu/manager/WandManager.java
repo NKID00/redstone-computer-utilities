@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 public class WandManager {
     // select msb
     public static ActionResult onAttack(PlayerEntity player, World world, Hand hand, BlockPos pos,
-            Direction direction) {
+                                        Direction direction) {
         if (world.isClient || player.isSpectator() || !player.getStackInHand(hand).isOf(Options.wandItem())) {
             return ActionResult.PASS;
         }

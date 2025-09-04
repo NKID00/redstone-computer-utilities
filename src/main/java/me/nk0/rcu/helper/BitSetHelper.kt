@@ -83,7 +83,9 @@ object BitSetHelper {
             stringBuilder.append(' ')
             i += 8
         }
-        return String.format("\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits shr 3)),
-                bits + (bits shr 3))
+        return String.format(
+            "\"%s\"(%d)", stringBuilder.toString().substring(0, bits + (bits shr 3)),
+            bits + (bits shr 3),
+        )
     }
 }

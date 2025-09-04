@@ -1,14 +1,13 @@
 package me.nk0.rcu.adapter;
 
-import java.io.IOException;
-
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import me.nk0.rcu.helper.PosHelper;
 import net.minecraft.util.math.BlockPos;
+
+import java.io.IOException;
 
 public class BlockPosAdapter extends TypeAdapter<BlockPos> {
     private static final Vec3iAdapter VEC3I_ADAPTER = new Vec3iAdapter();

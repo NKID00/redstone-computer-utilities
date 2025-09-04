@@ -8,6 +8,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
+import java.util.Objects;
+
 public class TargetBlockPos extends BlockPos {
     private final ServerWorld world;
 
@@ -110,12 +112,8 @@ public class TargetBlockPos extends BlockPos {
 
     @Override
     public boolean equals(Object obj) {
-        if (super.equals(obj) && obj instanceof TargetBlockPos) {
-            var other = (TargetBlockPos) obj;
-            if (world == null ? other.world != null : !world.equals(other.world)) {
-                return false;
-            }
-            return true;
+        if (super.equals(obj) && obj instanceof TargetBlockPos other) {
+            return Objects.equals(world, other.world);
         }
         return false;
     }

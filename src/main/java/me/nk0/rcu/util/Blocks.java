@@ -1,26 +1,17 @@
 package me.nk0.rcu.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.google.common.primitives.Ints;
-
-import me.nk0.rcu.helper.PosHelper;
 import me.nk0.rcu.helper.DataHelper;
+import me.nk0.rcu.helper.PosHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-public class Blocks implements Iterable<BlockPos> {
-    private final BlockPos first;
-    private final Vec3i increment;
-    private final int size;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
-    public Blocks(BlockPos first, Vec3i increment, int size) {
-        this.first = first;
-        this.increment = increment;
-        this.size = size;
-    }
+public record Blocks(BlockPos first, Vec3i increment, int size) implements Iterable<BlockPos> {
 
     public Blocks(BlockPos first, BlockPos last) {
         if (first.equals(last)) {
@@ -76,16 +67,14 @@ public class Blocks implements Iterable<BlockPos> {
         }
     }
 
+    @Override
     public BlockPos first() {
         return PosHelper.copy(first);
     }
 
+    @Override
     public Vec3i increment() {
         return PosHelper.copy(increment);
-    }
-
-    public int size() {
-        return size;
     }
 
     public List<BlockPos> toList() {
@@ -99,15 +88,6 @@ public class Blocks implements Iterable<BlockPos> {
     }
 
     @Override
-    public int hashCode() {
-        // some random prime number
-        int result = 31 + (first == null ? 0 : first.hashCode());
-        result = result * 31 + (increment == null ? 0 : increment.hashCode());
-        result = result * 31 + size;
-        return result;
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -115,18 +95,14 @@ public class Blocks implements Iterable<BlockPos> {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof Blocks) {
-            var other = (Blocks) obj;
-            if (first == null ? other.first != null : !first.equals(other.first)) {
+        if (obj instanceof Blocks other) {
+            if (!Objects.equals(first, other.first)) {
                 return false;
             }
-            if (increment == null ? other.increment != null : !increment.equals(other.increment)) {
+            if (!Objects.equals(increment, other.increment)) {
                 return false;
             }
-            if (size != other.size) {
-                return false;
-            }
-            return true;
+            return size == other.size;
         }
         return false;
     }

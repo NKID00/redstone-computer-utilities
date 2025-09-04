@@ -2,7 +2,7 @@ package me.nk0.rcu.exception;
 
 import net.minecraft.text.Text;
 
-public class BlockNotTargetException extends RCUtilException {
+public class BlockNotTargetException extends RcuException {
     public BlockNotTargetException() {
     }
 

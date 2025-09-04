@@ -1,16 +1,9 @@
 package me.nk0.rcu.manager;
 
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
 import io.netty.channel.ChannelHandlerContext;
 import me.nk0.rcu.event.ScriptInitializeEvent;
 import me.nk0.rcu.exception.ApiException;
@@ -19,6 +12,12 @@ import me.nk0.rcu.helper.Log;
 import me.nk0.rcu.helper.MapHelper;
 import me.nk0.rcu.model.Script;
 import net.minecraft.text.Text;
+
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ScriptManager {
     private final static ConcurrentLinkedQueue<Script> uninitialized = new ConcurrentLinkedQueue<>();
@@ -77,7 +76,7 @@ public class ScriptManager {
     }
 
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
-            final SuggestionsBuilder builder) throws CommandSyntaxException {
+                                                                    final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(nameScriptMap, builder::suggest);
         return builder.buildFuture();
     }

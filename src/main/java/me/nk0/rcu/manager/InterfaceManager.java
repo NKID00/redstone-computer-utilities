@@ -1,11 +1,5 @@
 package me.nk0.rcu.manager;
 
-import java.util.Collection;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -18,7 +12,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-
 import me.nk0.rcu.exception.BlockNotTargetException;
 import me.nk0.rcu.helper.I18n;
 import me.nk0.rcu.helper.Log;
@@ -32,9 +25,15 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class InterfaceManager {
     private static ConcurrentHashMap<String, Interface> interfaces = new ConcurrentHashMap<>();
-    private static SetMultimap<TargetBlockPos, IndexedObject<Interface>> blocks = Multimaps
+    private static final SetMultimap<TargetBlockPos, IndexedObject<Interface>> blocks = Multimaps
             .synchronizedSetMultimap(HashMultimap.create());
 
     public static Interface interfaceByName(String name) {
@@ -98,7 +97,7 @@ public class InterfaceManager {
     }
 
     public static <S> CompletableFuture<Suggestions> getSuggestions(final CommandContext<S> context,
-            final SuggestionsBuilder builder) throws CommandSyntaxException {
+                                                                    final SuggestionsBuilder builder) throws CommandSyntaxException {
         MapHelper.forEachKeySynchronized(interfaces, builder::suggest);
         return builder.buildFuture();
     }

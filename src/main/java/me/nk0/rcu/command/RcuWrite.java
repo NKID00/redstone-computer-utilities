@@ -2,7 +2,6 @@ package me.nk0.rcu.command;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import me.nk0.rcu.helper.ArgumentHelper;
 import me.nk0.rcu.helper.I18n;
 import me.nk0.rcu.manager.InterfaceManager;

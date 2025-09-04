@@ -1,14 +1,15 @@
 package me.nk0.rcu.model;
 
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import io.netty.channel.ChannelHandlerContext;
 import me.nk0.rcu.event.Event;
 import me.nk0.rcu.helper.I18n;
 import net.minecraft.text.Text;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Script {
     public final String name;
@@ -71,12 +72,8 @@ public class Script {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof Script) {
-            var other = (Script) obj;
-            if (name == null ? other.name != null : !name.equals(other.name)) {
-                return false;
-            }
-            return true;
+        if (obj instanceof Script other) {
+            return Objects.equals(name, other.name);
         }
         return false;
     }

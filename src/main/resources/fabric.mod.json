@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "rcu",
+  "id": "redstone-computer-utilities",
   "version": "${version}",
   "name": "Redstone Computer Utilities",
   "description": "Simple debug tools for redstone computers.",
@@ -18,15 +18,27 @@
   "entrypoints": {
     "main": [
       "me.nk0.rcu.Main"
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "me.nk0.rcu.client.MainKt::init"
+      }
     ]
   },
   "mixins": [
-    "rcu.mixins.json"
+    "rcu.mixins.json",
+    {
+      "config": "rcu.client.mixins.json",
+      "environment": "client"
+    }
   ],
   "accessWidener": "rcu.accesswidener",
   "depends": {
-    "fabricloader": ">=0.12",
+    "fabricloader": ">=0.14",
     "fabric-api": "*",
+    "fabric-language-kotlin": "*",
+    "java": ">=17",
     "minecraft": "${detailed_mc_version}"
   }
 }

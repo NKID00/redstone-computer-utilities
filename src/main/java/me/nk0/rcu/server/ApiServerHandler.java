@@ -1,15 +1,6 @@
 package me.nk0.rcu.server;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import com.google.gson.JsonElement;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.DecoderException;
@@ -18,6 +9,14 @@ import me.nk0.rcu.Options;
 import me.nk0.rcu.helper.CommandHelper;
 import me.nk0.rcu.helper.Log;
 import me.nk0.rcu.manager.ScriptManager;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ApiServerHandler extends SimpleChannelInboundHandler<JsonElement> {
     private String addr;

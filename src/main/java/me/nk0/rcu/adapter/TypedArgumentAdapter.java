@@ -1,14 +1,13 @@
 package me.nk0.rcu.adapter;
 
-import java.io.IOException;
-
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import me.nk0.rcu.manager.InterfaceManager;
 import me.nk0.rcu.util.TypedArgument;
+
+import java.io.IOException;
 
 public class TypedArgumentAdapter extends TypeAdapter<TypedArgument> {
     private static final InterfaceAdapter INTERFACE_ADAPTER = new InterfaceAdapter();

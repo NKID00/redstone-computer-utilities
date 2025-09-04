@@ -1,13 +1,12 @@
 package me.nk0.rcu.event;
 
-import java.util.Collection;
-
 import com.google.gson.JsonObject;
-
 import me.nk0.rcu.exception.ApiException;
 import me.nk0.rcu.helper.GsonHelper;
 import me.nk0.rcu.model.Script;
 import me.nk0.rcu.util.TypedArgument;
+
+import java.util.Collection;
 
 public class ScriptRunEvent extends Event {
     public ScriptRunEvent() {
@@ -50,9 +49,6 @@ public class ScriptRunEvent extends Event {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof ScriptRunEvent) {
-            return true;
-        }
-        return false;
+        return obj instanceof ScriptRunEvent;
     }
 }

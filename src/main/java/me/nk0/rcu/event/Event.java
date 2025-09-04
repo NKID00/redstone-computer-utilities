@@ -1,7 +1,6 @@
 package me.nk0.rcu.event;
 
 import com.google.gson.JsonObject;
-
 import me.nk0.rcu.exception.ApiException;
 import me.nk0.rcu.helper.Log;
 import me.nk0.rcu.manager.ScriptManager;

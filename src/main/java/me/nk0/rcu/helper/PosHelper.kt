@@ -141,8 +141,10 @@ object PosHelper {
     }
 
     fun applyOffset(v: TargetBlockPos, offset: Vec3i): TargetBlockPos {
-        return TargetBlockPos(v.world(), v.x + offset.x, v.y + offset.y,
-                v.z + offset.z)
+        return TargetBlockPos(
+            v.world(), v.x + offset.x, v.y + offset.y,
+            v.z + offset.z,
+        )
     }
 
     fun applyOffset(v: Vec3f, offset: Vec3i): Vec3f {

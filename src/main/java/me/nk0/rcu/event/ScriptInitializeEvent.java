@@ -1,7 +1,6 @@
 package me.nk0.rcu.event;
 
 import com.google.gson.JsonObject;
-
 import me.nk0.rcu.exception.ApiException;
 import me.nk0.rcu.model.Script;
 
@@ -40,9 +39,6 @@ public class ScriptInitializeEvent extends Event {
         if (obj == null) {
             return false;
         }
-        if (obj instanceof ScriptInitializeEvent) {
-            return true;
-        }
-        return false;
+        return obj instanceof ScriptInitializeEvent;
     }
 }

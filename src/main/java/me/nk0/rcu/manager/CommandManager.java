@@ -1,29 +1,21 @@
 package me.nk0.rcu.manager;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-
 import me.nk0.rcu.Options;
-import me.nk0.rcu.command.Rcu;
-import me.nk0.rcu.command.RcuInfo;
-import me.nk0.rcu.command.RcuInfoInterface;
-import me.nk0.rcu.command.RcuLang;
-import me.nk0.rcu.command.RcuNew;
-import me.nk0.rcu.command.RcuRemove;
-import me.nk0.rcu.command.RcuRun;
-import me.nk0.rcu.command.RcuInfoScript;
+import me.nk0.rcu.command.*;
 import me.nk0.rcu.helper.ArgumentHelper;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
 
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
+
 public class CommandManager {
     public static void init(CommandDispatcher<ServerCommandSource> dispatcher,
-            CommandRegistryAccess registryAccess,
-            RegistrationEnvironment environment) {
+                            CommandRegistryAccess registryAccess,
+                            RegistrationEnvironment environment) {
         // /rcu
         dispatcher.register(literal("rcu")
                 .requires((s) -> s.hasPermissionLevel(Options.requiredPermissionLevel()))

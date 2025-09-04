@@ -19,6 +19,8 @@ def main():
                 print(f'    guava_version={version}')
             case [_, 'netty-codec', version]:
                 print(f'    netty_version={version}')
+            case [_, 'joml', version]:
+                print(f'    joml_version={version}')
             case [_, _, _]:
                 pass
             case _:

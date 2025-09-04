@@ -41,7 +41,7 @@ object ArgumentHelper {
                         return result
                     } else {
                         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
-                                .dispatcherExpectedArgumentSeparator().createWithContext(this)
+                            .dispatcherExpectedArgumentSeparator().createWithContext(this)
                     }
                 }
                 return ""
@@ -103,7 +103,7 @@ object ArgumentHelper {
                         return result
                     } else {
                         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS
-                                .dispatcherExpectedArgumentSeparator().createWithContext(this)
+                            .dispatcherExpectedArgumentSeparator().createWithContext(this)
                     }
                 }
                 return ""
@@ -241,8 +241,10 @@ object ArgumentHelper {
     }
 
     @Throws(CommandSyntaxException::class)
-    fun <S> fetch(context: CommandContext<S>?, builder: SuggestionsBuilder,
-                  provider: SuggestionProvider<S>): List<Suggestion> {
+    fun <S> fetch(
+        context: CommandContext<S>?, builder: SuggestionsBuilder,
+        provider: SuggestionProvider<S>,
+    ): List<Suggestion> {
         val emptyBuilder = SuggestionsBuilder(builder.input, builder.start)
         return try {
             provider.getSuggestions(context, emptyBuilder).get().list
@@ -261,25 +263,27 @@ object ArgumentHelper {
         }
         if (arguments.size == 0) {
             return suggestions.stream()
-                    .map { s: Suggestion -> s.text }
-                    .toList()
+                .map { s: Suggestion -> s.text }
+                .toList()
         }
         arguments.removeLast()
         val makeCompilerHappy = arguments
         val previousArguments = greedyString.substring(0, splitLast(greedyString))
         return suggestions.stream()
-                .map { s: Suggestion -> s.text }
-                .filter { s: String -> !makeCompilerHappy.contains(s) }
-                .map { s: String -> previousArguments + s }
-                .toList()
+            .map { s: Suggestion -> s.text }
+            .filter { s: String -> !makeCompilerHappy.contains(s) }
+            .map { s: String -> previousArguments + s }
+            .toList()
     }
 
     @JvmStatic
     fun <S> uniqueMulti(provider: SuggestionProvider<S>): SuggestionProvider<S> {
         return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
-            uniqueMulti(builder.remaining, fetch(context, builder, provider)).forEach(Consumer { s: String? ->
-                builder.suggest(s)
-            })
+            uniqueMulti(builder.remaining, fetch(context, builder, provider)).forEach(
+                Consumer { s: String? ->
+                    builder.suggest(s)
+                },
+            )
             builder.buildFuture()
         }
     }
@@ -289,9 +293,11 @@ object ArgumentHelper {
         return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
             val remaining = builder.remaining
             val previousArguments = remaining.substring(0, splitLast(remaining))
-            fetch(context, builder, provider).forEach(Consumer { s: Suggestion ->
-                builder.suggest(previousArguments + s.text)
-            })
+            fetch(context, builder, provider).forEach(
+                Consumer { s: Suggestion ->
+                    builder.suggest(previousArguments + s.text)
+                },
+            )
             builder.buildFuture()
         }
     }
@@ -300,13 +306,17 @@ object ArgumentHelper {
     @SafeVarargs
     fun <S> merge(provider: SuggestionProvider<S>, vararg providers: SuggestionProvider<S>): SuggestionProvider<S> {
         return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
-            fetch(context, builder, provider).forEach(Consumer { s: Suggestion ->
-                builder.suggest(s.text)
-            })
-            for (p in providers) {
-                fetch(context, builder, p).forEach(Consumer { s: Suggestion ->
+            fetch(context, builder, provider).forEach(
+                Consumer { s: Suggestion ->
                     builder.suggest(s.text)
-                })
+                },
+            )
+            for (p in providers) {
+                fetch(context, builder, p).forEach(
+                    Consumer { s: Suggestion ->
+                        builder.suggest(s.text)
+                    },
+                )
             }
             builder.buildFuture()
         }
@@ -315,9 +325,11 @@ object ArgumentHelper {
     @JvmStatic
     fun <S> map(provider: SuggestionProvider<S>, callable: Function<String?, String?>): SuggestionProvider<S> {
         return SuggestionProvider { context: CommandContext<S>?, builder: SuggestionsBuilder ->
-            fetch(context, builder, provider).forEach(Consumer { s: Suggestion ->
-                builder.suggest(callable.apply(s.text))
-            })
+            fetch(context, builder, provider).forEach(
+                Consumer { s: Suggestion ->
+                    builder.suggest(callable.apply(s.text))
+                },
+            )
             builder.buildFuture()
         }
     }

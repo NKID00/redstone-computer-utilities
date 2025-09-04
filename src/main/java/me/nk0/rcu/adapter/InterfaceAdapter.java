@@ -1,16 +1,15 @@
 package me.nk0.rcu.adapter;
 
-import java.io.IOException;
-import java.util.LinkedList;
-
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import me.nk0.rcu.model.Interface;
 import me.nk0.rcu.util.BlockPosWithWorld;
 import net.minecraft.util.math.Vec3i;
+
+import java.io.IOException;
+import java.util.LinkedList;
 
 public class InterfaceAdapter extends TypeAdapter<Interface> {
     private static final BlockPosWithWorldAdapter BLOCK_POS_WITH_WORLD_ADAPTER = new BlockPosWithWorldAdapter();

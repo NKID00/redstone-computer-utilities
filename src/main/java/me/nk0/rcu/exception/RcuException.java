@@ -2,30 +2,30 @@ package me.nk0.rcu.exception;
 
 import net.minecraft.text.Text;
 
-public class RCUtilException extends Exception {
+public class RcuException extends Exception {
     private Text text = null;
 
-    public RCUtilException() {
+    public RcuException() {
     }
 
-    public RCUtilException(String message) {
+    public RcuException(String message) {
         super(message);
     }
 
-    public RCUtilException(Text message) {
+    public RcuException(Text message) {
         super(message.toString());
         text = message;
     }
 
-    public RCUtilException(Throwable cause) {
+    public RcuException(Throwable cause) {
         super(cause);
     }
 
-    public RCUtilException(String message, Throwable cause) {
+    public RcuException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public RCUtilException(Text message, Throwable cause) {
+    public RcuException(Text message, Throwable cause) {
         super(message.toString(), cause);
         text = message;
     }
